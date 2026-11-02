@@ -2,14 +2,14 @@
   Component: AdminHallsView.vue
   Description: Halls Management strictly managing lecture halls (قاعات فقط).
   All lab (معامل) references, types, and tabs have been removed.
-  Uses AppKpiCard, status capsules, search input, PrimeVue Select for filtering, AppTable, and AppPagination.
+  Uses AppKpiCard, status capsules, search input, PrimeVue Select for filtering, AppTable, AppPagination, and ViewModeToggle.
 -->
 <template>
   <div class="space-y-4 select-none pb-8" dir="rtl">
     <!-- 1. رأس الصفحة (Header) -->
-    <div class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
       <div class="flex items-center gap-3.5">
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#3B5431] dark:text-emerald-400 flex items-center justify-center border border-emerald-200/60 dark:border-emerald-800/60 shrink-0">
+        <div class="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center border border-primary-200/60 dark:border-primary-800/60 shrink-0">
           <Building2 class="w-6 h-6" />
         </div>
         <div>
@@ -17,7 +17,7 @@
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 font-heading">
               إدارة القاعات الدراسية
             </h1>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#DCE4D3] text-[#3B5431] border border-[#CBD8C0]">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary-50 dark:bg-primary-950/70 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800">
               قاعات المحاضرات
             </span>
           </div>
@@ -39,7 +39,7 @@
 
         <button
           type="button"
-          class="h-9 px-3.5 rounded-xl bg-[#3B5431] hover:brightness-110 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+          class="h-9 px-3.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
           @click="openModal()"
         >
           <Plus class="w-3.5 h-3.5" />
@@ -99,16 +99,16 @@
       </AppKpiCard>
     </div>
 
-    <!-- 3. شريط تبويبات الحالة السريعة -->
-    <div class="p-1.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-2xs flex flex-wrap items-center justify-between gap-2 transition-colors">
-      <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900/60 rounded-xl w-full sm:w-auto">
+    <!-- 3. شريط تبويبات الحالة السريعة ومحول العرض المشترك -->
+    <div class="p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-wrap items-center justify-between gap-2 transition-colors">
+      <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-full sm:w-auto">
         <!-- كافة القاعات -->
         <button
           type="button"
           class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
           :class="
             statusTab === 'all'
-              ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-2xs font-black'
+              ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-2xs font-black'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
           "
           @click="statusTab = 'all'"
@@ -116,7 +116,7 @@
           <span>كافة القاعات</span>
           <span
             class="px-2 py-0.5 rounded-full text-[10px] font-bold"
-            :class="statusTab === 'all' ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
+            :class="statusTab === 'all' ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
           >
             {{ halls.length }}
           </span>
@@ -128,8 +128,8 @@
           class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
           :class="
             statusTab === 'active'
-              ? 'bg-white dark:bg-slate-800 text-[#3B5431] dark:text-emerald-400 shadow-2xs font-black'
-              : 'text-slate-500 dark:text-slate-400 hover:text-[#3B5431] dark:hover:text-emerald-300'
+              ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-2xs font-black'
+              : 'text-slate-500 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-300'
           "
           @click="statusTab = 'active'"
         >
@@ -137,7 +137,7 @@
           <span>القاعات الجاهزة والمفعلة</span>
           <span
             class="px-2 py-0.5 rounded-full text-[10px] font-bold"
-            :class="statusTab === 'active' ? 'bg-[#DCE4D3] text-[#3B5431] border border-[#CBD8C0]' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
+            :class="statusTab === 'active' ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
           >
             {{ activeCount }}
           </span>
@@ -149,7 +149,7 @@
           class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
           :class="
             statusTab === 'inactive'
-              ? 'bg-white dark:bg-slate-800 text-rose-700 dark:text-rose-300 shadow-2xs font-black'
+              ? 'bg-white dark:bg-slate-900 text-rose-700 dark:text-rose-300 shadow-2xs font-black'
               : 'text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400'
           "
           @click="statusTab = 'inactive'"
@@ -165,37 +165,20 @@
         </button>
       </div>
 
+      <!-- محول طريقة العرض المشترك وعداد النتائج -->
       <div class="flex items-center gap-3">
+        <ViewModeToggle
+          :model-value="viewMode"
+          @update:model-value="viewMode = $event"
+        />
         <div class="text-xs text-slate-500 dark:text-slate-400 px-2 font-medium hidden md:block">
           القاعات المعروضة: <strong class="text-slate-800 dark:text-slate-200">{{ filteredHalls.length }}</strong>
-        </div>
-
-        <!-- مبدل العرض: كروت أو جدول -->
-        <div class="flex items-center bg-slate-100 dark:bg-slate-900/60 p-1 rounded-xl">
-          <button
-            type="button"
-            class="px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-            :class="viewMode === 'table' ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-2xs font-black' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
-            @click="viewMode = 'table'"
-          >
-            <List class="w-3.5 h-3.5" />
-            <span>جدول</span>
-          </button>
-          <button
-            type="button"
-            class="px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-            :class="viewMode === 'cards' ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-2xs font-black' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
-            @click="viewMode = 'cards'"
-          >
-            <LayoutGrid class="w-3.5 h-3.5" />
-            <span>كروت</span>
-          </button>
         </div>
       </div>
     </div>
 
     <!-- 4. شريط البحث والفلترة الفوري مع PrimeVue Select -->
-    <div class="p-3 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-2xs flex flex-col sm:flex-row gap-3 transition-colors">
+    <div class="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row gap-3 transition-colors">
       <!-- حقل البحث النصي -->
       <div class="relative flex-1">
         <Search class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -203,7 +186,7 @@
           v-model="searchQuery"
           type="text"
           placeholder="ابحث باسم القاعة، أو الموقع الجغرافي داخل المعهد..."
-          class="w-full h-10 pr-10 pl-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3B5431]/20 focus:border-[#3B5431] transition-all font-medium"
+          class="w-full h-10 pr-10 pl-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium"
         />
         <button
           v-if="searchQuery"
@@ -242,7 +225,7 @@
     </div>
 
     <!-- 5. عرض الجدول الرئيسي (Table View) متوافق تماماً مع AppTable و AppPagination -->
-    <div v-if="viewMode === 'table'" class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-2xs overflow-hidden transition-colors">
+    <div v-if="viewMode === 'table'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm dark:shadow-xl overflow-hidden transition-colors">
       <AppTable
         :columns="columns"
         :data="paginatedHalls"
@@ -254,7 +237,7 @@
         <!-- اسم القاعة والرمز -->
         <template #name="{ row }">
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 border bg-emerald-50 dark:bg-emerald-950/60 text-[#3B5431] dark:text-emerald-400 border-emerald-200 dark:border-emerald-800">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 border bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 border-primary-200 dark:border-primary-800">
               <Building2 class="w-4 h-4" />
             </div>
             <div class="min-w-0">
@@ -270,7 +253,7 @@
 
         <!-- تصنيف القاعة -->
         <template #type>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border bg-[#DCE4D3] text-[#3B5431] border-[#CBD8C0] dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border bg-primary-50 text-primary-700 border-primary-200 dark:bg-primary-950/60 dark:text-primary-300 dark:border-primary-800">
             قاعة دراسية
           </span>
         </template>
@@ -334,7 +317,7 @@
                   ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/80'
                   : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/80'
               "
-              @click="toggleStatus(row)"
+              @click="toggleStatus(hall)"
             >
               <span>{{ row.isActive ? 'تعطيل' : 'تفعيل' }}</span>
             </button>
@@ -353,9 +336,9 @@
       />
     </div>
 
-    <!-- 6. عرض الكروت البديل (Cards View) -->
+    <!-- 6. عرض الكروت البديل (Cards Grid View) -->
     <div v-else class="space-y-4">
-      <div v-if="filteredHalls.length === 0" class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-12 text-center">
+      <div v-if="filteredHalls.length === 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center">
         <Building2 class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
         <p class="font-bold text-slate-700 dark:text-slate-300">لا توجد قاعات مطابقة لخيارات البحث</p>
         <p class="text-xs text-slate-400 mt-1">جرب تعديل كلمات البحث لعرض القاعات</p>
@@ -365,8 +348,14 @@
         <article
           v-for="hall in paginatedHalls"
           :key="hall.id"
-          class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 shadow-2xs flex flex-col justify-between gap-3.5 hover:shadow-md transition-all"
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm dark:shadow-xl flex flex-col justify-between gap-3.5 hover:shadow-md transition-all relative overflow-hidden"
         >
+          <!-- خط الحالة العلوي -->
+          <div
+            class="absolute top-0 right-0 left-0 h-1"
+            :class="hall.isActive ? 'bg-emerald-500' : 'bg-slate-400'"
+          ></div>
+
           <div>
             <!-- رأس الكارت: اسم القاعة + شارة التصنيف -->
             <div class="flex items-start justify-between gap-3">
@@ -379,13 +368,13 @@
                 </span>
               </div>
 
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold shrink-0 border bg-[#DCE4D3] text-[#3B5431] border-[#CBD8C0] dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold shrink-0 border bg-primary-50 text-primary-700 border-primary-200 dark:bg-primary-950/60 dark:text-primary-300 dark:border-primary-800">
                 قاعة محاضرات
               </span>
             </div>
 
             <!-- قائمة الخصائص -->
-            <dl class="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-700/60 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-xs">
+            <dl class="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-xs">
               <dt class="text-slate-400">التصنيف:</dt>
               <dd class="font-semibold text-slate-700 dark:text-slate-200">
                 قاعة محاضرات وتدريب نظري
@@ -418,14 +407,14 @@
             </dl>
 
             <!-- شريط مقاعد الاستيعاب -->
-            <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/60">
+            <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800">
               <div class="flex items-center justify-between text-[11px] mb-1.5">
                 <span class="text-slate-400">مؤشر الاستيعاب التقديري</span>
                 <span class="font-mono font-bold text-slate-700 dark:text-slate-300">
                   {{ hall.currentOccupancy || Math.round(hall.maxCapacity * 0.75) }} من {{ hall.maxCapacity }} مقعد
                 </span>
               </div>
-              <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div class="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                 <div
                   class="h-full rounded-full transition-all duration-300"
                   :class="getOccupancyBarStyle(hall)"
@@ -436,7 +425,7 @@
           </div>
 
           <!-- شريط الإجراءات السفلي للكارت -->
-          <div class="pt-3 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between gap-1.5">
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1.5">
             <span
               class="text-[11px] font-semibold px-2 py-0.5 rounded-md"
               :class="
@@ -476,7 +465,7 @@
       </div>
 
       <!-- باجينيشن الكروت -->
-      <div class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-2xs overflow-hidden">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm dark:shadow-xl overflow-hidden">
         <AppPagination
           v-if="filteredHalls.length > 0"
           v-model:current-page="currentPage"
@@ -522,7 +511,7 @@
             id="hallIsActiveCheckbox"
             v-model="formData.isActive"
             type="checkbox"
-            class="w-4 h-4 text-[#3B5431] rounded border-slate-300 focus:ring-[#3B5431] cursor-pointer"
+            class="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500 cursor-pointer"
           />
           <label for="hallIsActiveCheckbox" class="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
             القاعة مفعلة وجاهزة لاستضافة دورات الانعقاد والمحاضرات
@@ -537,7 +526,7 @@
         <BaseButton
           variant="primary"
           size="sm"
-          class="!bg-[#3B5431] text-white"
+          class="!bg-primary-600 hover:!bg-primary-700 text-white"
           type="submit"
           form="hallForm"
         >
@@ -557,8 +546,6 @@ import {
   Sliders,
   Plus,
   Search,
-  LayoutGrid,
-  List,
   Edit,
   RotateCcw,
   X,
@@ -571,6 +558,7 @@ import AppPagination from '@/shared/ui/Table/AppPagination.vue';
 import BaseButton from '@/shared/ui/Buttons/BaseButton.vue';
 import BaseInput from '@/shared/ui/Inputs/BaseInput.vue';
 import BaseModal from '@/shared/ui/Modals/BaseModal.vue';
+import ViewModeToggle from '@/shared/ui/Buttons/ViewModeToggle.vue';
 import Select from 'primevue/select';
 
 // بيانات القاعات الدراسية فقط (تم استبعاد المعامل وحصرها بالقاعات)
@@ -719,7 +707,7 @@ function getOccupancyBarStyle(hall) {
   const pct = getOccupancyPercentage(hall);
   if (pct > 90) return 'bg-rose-500';
   if (pct > 75) return 'bg-amber-500';
-  return 'bg-[#3B5431]';
+  return 'bg-primary-600 dark:bg-primary-500';
 }
 
 function refreshData() {

@@ -1,14 +1,14 @@
 <!--
   Component: AdminAuditLogsView.vue
   Description: Audit & Gate Logs Management using standard theme classes identical to AllCoursesFilters & Affairs pages.
-  100% Dark & Light mode compatible, with an official printable / PDF report template for military/institute audit logs.
+  100% Dark & Light mode compatible, with ViewModeToggle (Table & Cards view) and an official printable / PDF report template for military/institute audit logs.
 -->
 <template>
   <div class="space-y-4 select-none pb-8" dir="rtl">
     <!-- 1. رأس الصفحة (Header) - مخفي عند الطباعة -->
-    <div class="print:hidden bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
+    <div class="print:hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
       <div class="flex items-center gap-3.5">
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#3B5431] dark:text-emerald-400 flex items-center justify-center border border-emerald-200/60 dark:border-emerald-800/60 shrink-0">
+        <div class="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center border border-primary-200/60 dark:border-primary-800/60 shrink-0">
           <Shield class="w-6 h-6" />
         </div>
         <div>
@@ -16,7 +16,7 @@
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 font-heading">
               سجل التدقيق وحركات البوابة
             </h1>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary-50 dark:bg-primary-950/70 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800">
               سجلات غير قابلة للتعديل
             </span>
           </div>
@@ -38,7 +38,7 @@
 
         <button
           type="button"
-          class="h-9 px-3.5 rounded-xl bg-[#3B5431] hover:brightness-110 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+          class="h-9 px-3.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
           @click="printOfficialReport"
         >
           <Printer class="w-3.5 h-3.5" />
@@ -98,16 +98,16 @@
       </AppKpiCard>
     </div>
 
-    <!-- 3. شريط تبويبات الحالة متطابق تماماً مع AllCoursesFilters - مخفي عند الطباعة -->
-    <div class="print:hidden p-1.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-2xs flex flex-wrap items-center justify-between gap-2 transition-colors">
-      <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900/60 rounded-xl w-full sm:w-auto">
+    <!-- 3. شريط تبويبات الحالة متطابق مع شاشات الشؤون ومحول طريقة العرض المشترك - مخفي عند الطباعة -->
+    <div class="print:hidden p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-wrap items-center justify-between gap-2 transition-colors">
+      <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-full sm:w-auto">
         <!-- تبويب سجل التدقيق الإداري -->
         <button
           type="button"
           class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
           :class="
             activeTab === 'audit'
-              ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-2xs font-black'
+              ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-2xs font-black'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
           "
           @click="activeTab = 'audit'"
@@ -116,7 +116,7 @@
           <span>سجل التدقيق الإداري (AuditLogs)</span>
           <span
             class="px-2 py-0.5 rounded-full text-[10px] font-bold"
-            :class="activeTab === 'audit' ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
+            :class="activeTab === 'audit' ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
           >
             {{ auditLogs.length }}
           </span>
@@ -128,7 +128,7 @@
           class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
           :class="
             activeTab === 'gate'
-              ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-2xs font-black'
+              ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-2xs font-black'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
           "
           @click="activeTab = 'gate'"
@@ -137,23 +137,30 @@
           <span>سجل حركات البوابة والأمن (GateLogs)</span>
           <span
             class="px-2 py-0.5 rounded-full text-[10px] font-bold"
-            :class="activeTab === 'gate' ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
+            :class="activeTab === 'gate' ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
           >
             {{ gateLogs.length }}
           </span>
         </button>
       </div>
 
-      <div class="text-xs text-slate-500 dark:text-slate-400 px-2 font-medium hidden md:block">
-        السجلات المعروضة:
-        <strong class="text-slate-800 dark:text-slate-200">
-          {{ activeTab === 'audit' ? filteredAuditLogs.length : filteredGateLogs.length }}
-        </strong>
+      <!-- محول طريقة العرض المشترك وعداد النتائج -->
+      <div class="flex items-center gap-3">
+        <ViewModeToggle
+          :model-value="viewMode"
+          @update:model-value="viewMode = $event"
+        />
+        <div class="text-xs text-slate-500 dark:text-slate-400 px-2 font-medium hidden md:block">
+          السجلات المعروضة:
+          <strong class="text-slate-800 dark:text-slate-200">
+            {{ activeTab === 'audit' ? filteredAuditLogs.length : filteredGateLogs.length }}
+          </strong>
+        </div>
       </div>
     </div>
 
     <!-- 4. شريط البحث والفلترة الفوري - مخفي عند الطباعة -->
-    <div class="print:hidden p-3 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-2xs flex flex-col sm:flex-row gap-3 transition-colors">
+    <div class="print:hidden p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row gap-3 transition-colors">
       <!-- حقل البحث النصي -->
       <div class="relative flex-1">
         <Search class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -162,14 +169,14 @@
           v-model="auditSearchQuery"
           type="text"
           placeholder="ابحث برقم الطلب، اسم المتدرب، أو المسؤول عن التغيير..."
-          class="w-full h-10 pr-10 pl-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3B5431]/20 focus:border-[#3B5431] transition-all font-medium"
+          class="w-full h-10 pr-10 pl-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium"
         />
         <input
           v-else
           v-model="gateSearchQuery"
           type="text"
           placeholder="ابحث برمز العبور QR، المتدرب، أو حارس الأمن، أو السبب..."
-          class="w-full h-10 pr-10 pl-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3B5431]/20 focus:border-[#3B5431] transition-all font-medium"
+          class="w-full h-10 pr-10 pl-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium"
         />
         <button
           v-if="(activeTab === 'audit' && auditSearchQuery) || (activeTab === 'gate' && gateSearchQuery)"
@@ -228,173 +235,344 @@
       </button>
     </div>
 
-    <!-- ==================== TAB 1: SYSTEM AUDIT LOGS (Interactive View) ==================== -->
-    <div v-if="activeTab === 'audit'" class="print:hidden bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-2xs overflow-hidden transition-colors">
-      <AppTable
-        :columns="auditColumns"
-        :data="paginatedAuditLogs"
-        :is-filtered="hasActiveFilters"
-        empty-title="لا توجد حركات تدقيق مطابقة لمعايير البحث"
-        empty-text="جرّب تعديل نص البحث أو تفريغ خيارات الفلترة لعرض كافة الحركات"
-        @clear-filters="clearFilters"
-      >
-        <template #id="{ value }">
-          <span class="font-mono text-slate-400 dark:text-slate-500">{{ value }}</span>
-        </template>
+    <!-- ==================== TAB 1: SYSTEM AUDIT LOGS ==================== -->
+    <div v-if="activeTab === 'audit'" class="print:hidden">
+      <!-- عرض الجدول -->
+      <div v-if="viewMode === 'table'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm dark:shadow-xl overflow-hidden transition-colors">
+        <AppTable
+          :columns="auditColumns"
+          :data="paginatedAuditLogs"
+          :is-filtered="hasActiveFilters"
+          empty-title="لا توجد حركات تدقيق مطابقة لمعايير البحث"
+          empty-text="جرّب تعديل نص البحث أو تفريغ خيارات الفلترة لعرض كافة الحركات"
+          @clear-filters="clearFilters"
+        >
+          <template #id="{ value }">
+            <span class="font-mono text-slate-400 dark:text-slate-500">{{ value }}</span>
+          </template>
 
-        <template #applicationId="{ row }">
-          <div class="font-mono font-bold text-[#3B5431] dark:text-emerald-400">
-            {{ row.applicationId }}
-          </div>
-          <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-            {{ row.traineeName }}
-          </div>
-        </template>
+          <template #applicationId="{ row }">
+            <div class="font-mono font-bold text-primary-700 dark:text-primary-400">
+              {{ row.applicationId }}
+            </div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              {{ row.traineeName }}
+            </div>
+          </template>
 
-        <template #fromStatus="{ row }">
-          <span
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border"
-            :class="getStatusBadgeClass(row.fromStatus)"
-          >
-            {{ getStatusLabel(row.fromStatus) }}
-          </span>
-        </template>
-
-        <template #toStatus="{ row }">
-          <div class="flex items-center gap-1.5">
-            <ArrowLeft class="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <template #fromStatus="{ row }">
             <span
               class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border"
-              :class="getStatusBadgeClass(row.toStatus)"
+              :class="getStatusBadgeClass(row.fromStatus)"
             >
-              {{ getStatusLabel(row.toStatus) }}
+              {{ getStatusLabel(row.fromStatus) }}
             </span>
-          </div>
-        </template>
+          </template>
 
-        <template #changedByUserName="{ row }">
-          <div class="font-semibold text-slate-800 dark:text-slate-100">
-            {{ row.changedByUserName }}
-          </div>
-          <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
-            {{ row.userRole }}
-          </div>
-        </template>
+          <template #toStatus="{ row }">
+            <div class="flex items-center gap-1.5">
+              <ArrowLeft class="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border"
+                :class="getStatusBadgeClass(row.toStatus)"
+              >
+                {{ getStatusLabel(row.toStatus) }}
+              </span>
+            </div>
+          </template>
 
-        <template #changedAt="{ row }">
-          <div class="font-mono text-xs text-slate-700 dark:text-slate-300">
-            {{ formatDateTime(row.changedAt) }}
-          </div>
-        </template>
+          <template #changedByUserName="{ row }">
+            <div class="font-semibold text-slate-800 dark:text-slate-100">
+              {{ row.changedByUserName }}
+            </div>
+            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+              {{ row.userRole }}
+            </div>
+          </template>
 
-        <template #notes="{ row }">
-          <span class="text-slate-600 dark:text-slate-300 text-xs">
-            {{ row.notes || '—' }}
-          </span>
-        </template>
-      </AppTable>
+          <template #changedAt="{ row }">
+            <div class="font-mono text-xs text-slate-700 dark:text-slate-300">
+              {{ formatDateTime(row.changedAt) }}
+            </div>
+          </template>
 
-      <!-- شريط الباجينيشن المشترك -->
-      <AppPagination
-        v-if="filteredAuditLogs.length > 0"
-        v-model:current-page="auditCurrentPage"
-        v-model:items-per-page="itemsPerPage"
-        :total-items="filteredAuditLogs.length"
-        :per-page-options="perPageOptions"
-        item-label="حركة"
-      />
+          <template #notes="{ row }">
+            <span class="text-slate-600 dark:text-slate-300 text-xs">
+              {{ row.notes || '—' }}
+            </span>
+          </template>
+        </AppTable>
+
+        <!-- شريط الباجينيشن المشترك -->
+        <AppPagination
+          v-if="filteredAuditLogs.length > 0"
+          v-model:current-page="auditCurrentPage"
+          v-model:items-per-page="itemsPerPage"
+          :total-items="filteredAuditLogs.length"
+          :per-page-options="perPageOptions"
+          item-label="حركة"
+        />
+      </div>
+
+      <!-- عرض الكروت -->
+      <div v-else class="space-y-4">
+        <div v-if="filteredAuditLogs.length === 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center">
+          <History class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+          <p class="font-bold text-slate-700 dark:text-slate-300">لا توجد حركات تدقيق مطابقة للبحث</p>
+          <p class="text-xs text-slate-400 mt-1">جرّب تفريغ خيارات الفلترة لعرض السجلات</p>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <article
+            v-for="log in paginatedAuditLogs"
+            :key="log.id"
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm dark:shadow-xl flex flex-col justify-between gap-3 hover:shadow-md transition-all relative overflow-hidden"
+          >
+            <!-- شريط علوي -->
+            <div class="absolute top-0 right-0 left-0 h-1 bg-primary-600"></div>
+
+            <div>
+              <div class="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                  <div class="font-mono font-bold text-xs text-primary-700 dark:text-primary-400">
+                    {{ log.applicationId }}
+                  </div>
+                  <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100 mt-0.5">
+                    {{ log.traineeName }}
+                  </h4>
+                </div>
+                <span class="font-mono text-[10px] text-slate-400">#{{ log.id }}</span>
+              </div>
+
+              <!-- مسار تغيير الحالة -->
+              <div class="my-3 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-xs">
+                <span class="text-[11px] px-2 py-0.5 rounded-full border" :class="getStatusBadgeClass(log.fromStatus)">
+                  {{ getStatusLabel(log.fromStatus) }}
+                </span>
+                <ArrowLeft class="w-4 h-4 text-slate-400 shrink-0" />
+                <span class="text-[11px] px-2 py-0.5 rounded-full border" :class="getStatusBadgeClass(log.toStatus)">
+                  {{ getStatusLabel(log.toStatus) }}
+                </span>
+              </div>
+
+              <!-- المسؤول والتاريخ -->
+              <div class="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <div class="flex items-center justify-between">
+                  <span>المسؤول:</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ log.changedByUserName }} ({{ log.userRole }})</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span>التوقيت:</span>
+                  <span class="font-mono text-[11px] text-slate-700 dark:text-slate-300">{{ formatDateTime(log.changedAt) }}</span>
+                </div>
+              </div>
+
+              <!-- الملاحظات -->
+              <div v-if="log.notes" class="mt-3 p-2 rounded-lg bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                {{ log.notes }}
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- باجينيشن الكروت -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm dark:shadow-xl overflow-hidden">
+          <AppPagination
+            v-if="filteredAuditLogs.length > 0"
+            v-model:current-page="auditCurrentPage"
+            v-model:items-per-page="itemsPerPage"
+            :total-items="filteredAuditLogs.length"
+            :per-page-options="perPageOptions"
+            item-label="حركة"
+          />
+        </div>
+      </div>
     </div>
 
-    <!-- ==================== TAB 2: GATE LOGS & SECURITY SCANS (Interactive View) ==================== -->
-    <div v-if="activeTab === 'gate'" class="print:hidden bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-2xs overflow-hidden transition-colors">
-      <AppTable
-        :columns="gateColumns"
-        :data="paginatedGateLogs"
-        :is-filtered="hasActiveFilters"
-        empty-title="لا توجد حركات مسح بوابة مطابقة للبحث"
-        empty-text="جرّب تعديل كلمات البحث أو تصفية القرارات لعرض السجلات"
-        @clear-filters="clearFilters"
-      >
-        <template #id="{ value }">
-          <span class="font-mono text-slate-400 dark:text-slate-500">{{ value }}</span>
-        </template>
+    <!-- ==================== TAB 2: GATE LOGS & SECURITY SCANS ==================== -->
+    <div v-if="activeTab === 'gate'" class="print:hidden">
+      <!-- عرض الجدول -->
+      <div v-if="viewMode === 'table'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm dark:shadow-xl overflow-hidden transition-colors">
+        <AppTable
+          :columns="gateColumns"
+          :data="paginatedGateLogs"
+          :is-filtered="hasActiveFilters"
+          empty-title="لا توجد حركات مسح بوابة مطابقة للبحث"
+          empty-text="جرّب تعديل كلمات البحث أو تصفية القرارات لعرض السجلات"
+          @clear-filters="clearFilters"
+        >
+          <template #id="{ value }">
+            <span class="font-mono text-slate-400 dark:text-slate-500">{{ value }}</span>
+          </template>
 
-        <template #qrToken="{ row }">
-          <div class="font-mono font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
-            <QrCode class="w-3.5 h-3.5 text-[#3B5431] dark:text-emerald-400 shrink-0" />
-            <span>{{ row.qrToken }}</span>
-          </div>
-          <div class="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
-            {{ row.applicationId }}
-          </div>
-        </template>
+          <template #qrToken="{ row }">
+            <div class="font-mono font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+              <QrCode class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400 shrink-0" />
+              <span>{{ row.qrToken }}</span>
+            </div>
+            <div class="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+              {{ row.applicationId }}
+            </div>
+          </template>
 
-        <template #traineeName="{ row }">
-          <div class="font-bold text-slate-800 dark:text-slate-100">
-            {{ row.traineeName }}
-          </div>
-          <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[200px]" :title="row.courseTitle">
-            {{ row.courseTitle }}
-          </div>
-        </template>
+          <template #traineeName="{ row }">
+            <div class="font-bold text-slate-800 dark:text-slate-100">
+              {{ row.traineeName }}
+            </div>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[200px]" :title="row.courseTitle">
+              {{ row.courseTitle }}
+            </div>
+          </template>
 
-        <template #gateLocation="{ row }">
-          <span class="inline-flex items-center gap-1 text-slate-700 dark:text-slate-300 font-medium text-xs">
-            <MapPin class="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            {{ row.gateLocation }}
-          </span>
-        </template>
+          <template #gateLocation="{ row }">
+            <span class="inline-flex items-center gap-1 text-slate-700 dark:text-slate-300 font-medium text-xs">
+              <MapPin class="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              {{ row.gateLocation }}
+            </span>
+          </template>
 
-        <template #decision="{ row }">
-          <span
-            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border"
-            :class="
-              row.decision === 'Allowed'
-                ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
-                : 'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800'
-            "
+          <template #decision="{ row }">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border"
+              :class="
+                row.decision === 'Allowed'
+                  ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                  : 'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+              "
+            >
+              {{ row.decision === 'Allowed' ? 'مسموح بالدخول' : 'مرفوض العبور' }}
+            </span>
+          </template>
+
+          <template #reason="{ row }">
+            <div
+              class="font-medium text-xs"
+              :class="row.decision === 'Allowed' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'"
+            >
+              {{ row.reason }}
+            </div>
+          </template>
+
+          <template #scannedByUserName="{ row }">
+            <div class="font-semibold text-slate-800 dark:text-slate-100">
+              {{ row.scannedByUserName }}
+            </div>
+            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
+              أمن البوابة
+            </div>
+          </template>
+
+          <template #scannedAt="{ row }">
+            <div class="font-mono text-xs text-slate-700 dark:text-slate-300">
+              {{ formatTimeOnly(row.scannedAt) }}
+            </div>
+            <div class="text-[10px] text-slate-400 dark:text-slate-500">
+              {{ formatDateOnly(row.scannedAt) }}
+            </div>
+          </template>
+        </AppTable>
+
+        <!-- شريط الباجينيشن المشترك -->
+        <AppPagination
+          v-if="filteredGateLogs.length > 0"
+          v-model:current-page="gateCurrentPage"
+          v-model:items-per-page="itemsPerPage"
+          :total-items="filteredGateLogs.length"
+          :per-page-options="perPageOptions"
+          item-label="سجل مسح"
+        />
+      </div>
+
+      <!-- عرض الكروت -->
+      <div v-else class="space-y-4">
+        <div v-if="filteredGateLogs.length === 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center">
+          <QrCode class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+          <p class="font-bold text-slate-700 dark:text-slate-300">لا توجد حركات مسح بوابة مطابقة للبحث</p>
+          <p class="text-xs text-slate-400 mt-1">جرّب تفريغ خيارات الفلترة لعرض السجلات</p>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <article
+            v-for="log in paginatedGateLogs"
+            :key="log.id"
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm dark:shadow-xl flex flex-col justify-between gap-3 hover:shadow-md transition-all relative overflow-hidden"
           >
-            {{ row.decision === 'Allowed' ? 'مسموح بالدخول' : 'مرفوض العبور' }}
-          </span>
-        </template>
+            <!-- شريط علوي بلون القرار -->
+            <div
+              class="absolute top-0 right-0 left-0 h-1"
+              :class="log.decision === 'Allowed' ? 'bg-emerald-500' : 'bg-rose-500'"
+            ></div>
 
-        <template #reason="{ row }">
-          <div
-            class="font-medium text-xs"
-            :class="row.decision === 'Allowed' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'"
-          >
-            {{ row.reason }}
-          </div>
-        </template>
+            <div>
+              <div class="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                  <div class="font-mono font-bold text-xs text-primary-700 dark:text-primary-400 flex items-center gap-1">
+                    <QrCode class="w-3.5 h-3.5" />
+                    <span>{{ log.qrToken }}</span>
+                  </div>
+                  <h4 class="font-bold text-sm text-slate-800 dark:text-slate-100 mt-0.5">
+                    {{ log.traineeName }}
+                  </h4>
+                  <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[200px]" :title="log.courseTitle">
+                    {{ log.courseTitle }}
+                  </div>
+                </div>
 
-        <template #scannedByUserName="{ row }">
-          <div class="font-semibold text-slate-800 dark:text-slate-100">
-            {{ row.scannedByUserName }}
-          </div>
-          <div class="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
-            أمن البوابة
-          </div>
-        </template>
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0"
+                  :class="
+                    log.decision === 'Allowed'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-800'
+                      : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/70 dark:text-rose-300 dark:border-rose-800'
+                  "
+                >
+                  {{ log.decision === 'Allowed' ? 'مسموح' : 'مرفوض' }}
+                </span>
+              </div>
 
-        <template #scannedAt="{ row }">
-          <div class="font-mono text-xs text-slate-700 dark:text-slate-300">
-            {{ formatTimeOnly(row.scannedAt) }}
-          </div>
-          <div class="text-[10px] text-slate-400 dark:text-slate-500">
-            {{ formatDateOnly(row.scannedAt) }}
-          </div>
-        </template>
-      </AppTable>
+              <!-- سبب ومبرر القرار -->
+              <div
+                class="my-3 p-2 rounded-lg text-xs leading-relaxed"
+                :class="
+                  log.decision === 'Allowed'
+                    ? 'bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300'
+                    : 'bg-rose-50/60 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300'
+                "
+              >
+                {{ log.reason }}
+              </div>
 
-      <!-- شريط الباجينيشن المشترك -->
-      <AppPagination
-        v-if="filteredGateLogs.length > 0"
-        v-model:current-page="gateCurrentPage"
-        v-model:items-per-page="itemsPerPage"
-        :total-items="filteredGateLogs.length"
-        :per-page-options="perPageOptions"
-        item-label="سجل مسح"
-      />
+              <!-- البوابة وتوقيت المسح وحارس الأمن -->
+              <div class="space-y-1.5 text-xs text-slate-500 dark:text-slate-400">
+                <div class="flex items-center justify-between">
+                  <span>البوابة:</span>
+                  <span class="font-medium text-slate-700 dark:text-slate-300">{{ log.gateLocation }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span>فرد الأمن:</span>
+                  <span class="font-medium text-slate-700 dark:text-slate-300">{{ log.scannedByUserName }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span>التوقيت:</span>
+                  <span class="font-mono text-[11px] text-slate-700 dark:text-slate-300">{{ formatTimeOnly(log.scannedAt) }} ({{ formatDateOnly(log.scannedAt) }})</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- باجينيشن الكروت -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm dark:shadow-xl overflow-hidden">
+          <AppPagination
+            v-if="filteredGateLogs.length > 0"
+            v-model:current-page="gateCurrentPage"
+            v-model:items-per-page="itemsPerPage"
+            :total-items="filteredGateLogs.length"
+            :per-page-options="perPageOptions"
+            item-label="سجل مسح"
+          />
+        </div>
+      </div>
     </div>
 
     <!-- ========================================================================= -->
@@ -559,10 +737,12 @@ import {
 import AppKpiCard from '@/shared/ui/Cards/AppKpiCard.vue';
 import AppTable from '@/shared/ui/Table/AppTable.vue';
 import AppPagination from '@/shared/ui/Table/AppPagination.vue';
+import ViewModeToggle from '@/shared/ui/Buttons/ViewModeToggle.vue';
 import Select from 'primevue/select';
 
-// حالة التبويب النشط
+// حالة التبويب النشط وطريقة العرض
 const activeTab = ref('audit');
+const viewMode = ref('table');
 const isRefreshing = ref(false);
 
 // ─── Seed Data: AuditLogs ───────────────────────────────────────────────────

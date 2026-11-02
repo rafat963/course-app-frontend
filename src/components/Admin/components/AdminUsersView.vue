@@ -1,16 +1,16 @@
 <!--
   Component: AdminUsersView.vue
   Description: User & Staff Management with Full Admin Control:
-  - Full management of ALL user accounts in the table (Staff, Admins, and Trainees).
+  - Full management of ALL user accounts in table & cards view (Staff, Admins, and Trainees).
   - Admin can: Edit details, Change/Reset Password, Deactivate/Activate account, and Delete account permanently (with modal confirmation).
-  - Prominent KPI card for "Total Registered Trainees" (إجمالي المتدربين) alongside System Users and Active Staff.
+  - Uses AppKpiCard, ViewModeToggle, AppTable, AppPagination, and BaseModal.
 -->
 <template>
   <div class="space-y-4 select-none pb-8" dir="rtl">
     <!-- 1. رأس الصفحة (Header) -->
-    <div class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 sm:p-6 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-sm dark:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
       <div class="flex items-center gap-3.5">
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-[#3B5431] dark:text-emerald-400 flex items-center justify-center border border-emerald-200/60 dark:border-emerald-800/60 shrink-0">
+        <div class="w-12 h-12 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 flex items-center justify-center border border-primary-200/60 dark:border-primary-800/60 shrink-0">
           <Users class="w-6 h-6" />
         </div>
         <div>
@@ -18,7 +18,7 @@
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 font-heading">
               إدارة المستخدمين والحسابات
             </h1>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#DCE4D3] text-[#3B5431] border border-[#CBD8C0]">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary-50 dark:bg-primary-950/70 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800">
               مسؤول النظام
             </span>
           </div>
@@ -40,7 +40,7 @@
 
         <button
           type="button"
-          class="h-9 px-3.5 rounded-xl bg-[#3B5431] hover:brightness-110 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+          class="h-9 px-3.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
           @click="openUserModal()"
         >
           <Plus class="w-3.5 h-3.5" />
@@ -49,7 +49,7 @@
       </div>
     </div>
 
-    <!-- 2. كروت المؤشرات السريعة (AppKpiCard) - مع إبراز كارت المتدربين ككارت رئيسي -->
+    <!-- 2. كروت المؤشرات السريعة (AppKpiCard) -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <!-- 1. إجمالي حسابات المنظومة -->
       <AppKpiCard
@@ -64,7 +64,7 @@
         </template>
       </AppKpiCard>
 
-      <!-- 2. كارت رئيسي بارز: إجمالي المتدربين المسجلين -->
+      <!-- 2. إجمالي المتدربين المسجلين -->
       <AppKpiCard
         title="إجمالي المتدربين المسجلين"
         :value="traineesCount"
@@ -91,16 +91,16 @@
       </AppKpiCard>
     </div>
 
-    <!-- 3. شريط تبويبات الحالة السريعة -->
-    <div class="p-1.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-2xs flex flex-wrap items-center justify-between gap-2 transition-colors">
-      <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900/60 rounded-xl w-full sm:w-auto">
+    <!-- 3. شريط تبويبات الحالة السريعة ومحول طريقة العرض -->
+    <div class="p-1.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-wrap items-center justify-between gap-2 transition-colors">
+      <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl w-full sm:w-auto">
         <!-- كافة الحسابات -->
         <button
           type="button"
           class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
           :class="
             statusTab === 'all'
-              ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-2xs font-black'
+              ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-2xs font-black'
               : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
           "
           @click="statusTab = 'all'"
@@ -108,7 +108,7 @@
           <span>كافة الحسابات</span>
           <span
             class="px-2 py-0.5 rounded-full text-[10px] font-bold"
-            :class="statusTab === 'all' ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
+            :class="statusTab === 'all' ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
           >
             {{ users.length }}
           </span>
@@ -120,7 +120,7 @@
           class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
           :class="
             statusTab === 'trainees'
-              ? 'bg-white dark:bg-slate-800 text-blue-700 dark:text-blue-300 shadow-2xs font-black'
+              ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-300 shadow-2xs font-black'
               : 'text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400'
           "
           @click="statusTab = 'trainees'"
@@ -141,16 +141,16 @@
           class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
           :class="
             statusTab === 'staff'
-              ? 'bg-white dark:bg-slate-800 text-[#3B5431] dark:text-emerald-400 shadow-2xs font-black'
-              : 'text-slate-500 dark:text-slate-400 hover:text-[#3B5431] dark:hover:text-emerald-300'
+              ? 'bg-white dark:bg-slate-900 text-primary-700 dark:text-primary-300 shadow-2xs font-black'
+              : 'text-slate-500 dark:text-slate-400 hover:text-primary-700 dark:hover:text-primary-300'
           "
           @click="statusTab = 'staff'"
         >
-          <span class="w-2 h-2 rounded-full bg-[#3B5431] shrink-0"></span>
+          <span class="w-2 h-2 rounded-full bg-primary-600 shrink-0"></span>
           <span>طاقم العمل والمسؤولين</span>
           <span
             class="px-2 py-0.5 rounded-full text-[10px] font-bold"
-            :class="statusTab === 'staff' ? 'bg-[#DCE4D3] text-[#3B5431] border border-[#CBD8C0]' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
+            :class="statusTab === 'staff' ? 'bg-primary-50 dark:bg-primary-950/70 text-primary-700 dark:text-primary-300 border border-primary-200/60 dark:border-primary-800/60' : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'"
           >
             {{ staffOnlyCount }}
           </span>
@@ -162,7 +162,7 @@
           class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
           :class="
             statusTab === 'inactive'
-              ? 'bg-white dark:bg-slate-800 text-rose-700 dark:text-rose-300 shadow-2xs font-black'
+              ? 'bg-white dark:bg-slate-900 text-rose-700 dark:text-rose-300 shadow-2xs font-black'
               : 'text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400'
           "
           @click="statusTab = 'inactive'"
@@ -178,20 +178,27 @@
         </button>
       </div>
 
-      <div class="text-xs text-slate-500 dark:text-slate-400 px-2 font-medium hidden md:block">
-        الحسابات المعروضة: <strong class="text-slate-800 dark:text-slate-200">{{ filteredUsers.length }}</strong>
+      <!-- محول طريقة العرض المشترك وعداد النتائج -->
+      <div class="flex items-center gap-3">
+        <ViewModeToggle
+          :model-value="viewMode"
+          @update:model-value="viewMode = $event"
+        />
+        <div class="text-xs text-slate-500 dark:text-slate-400 px-2 font-medium hidden md:block">
+          الحسابات المعروضة: <strong class="text-slate-800 dark:text-slate-200">{{ filteredUsers.length }}</strong>
+        </div>
       </div>
     </div>
 
     <!-- 4. شريط البحث والفلترة الفوري مع PrimeVue Select -->
-    <div class="p-3 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-2xs flex flex-col sm:flex-row gap-3 transition-colors">
+    <div class="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row gap-3 transition-colors">
       <div class="relative flex-1">
         <Search class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input
           v-model="searchQuery"
           type="text"
           placeholder="بحث بالاسم، البريد الإلكتروني، أو رقم الهاتف..."
-          class="w-full h-10 pr-10 pl-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#3B5431]/20 focus:border-[#3B5431] transition-all font-medium"
+          class="w-full h-10 pr-10 pl-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium"
         />
         <button
           v-if="searchQuery"
@@ -203,7 +210,7 @@
         </button>
       </div>
 
-      <!-- فلتر الصلاحيات والأدوار (الجميع متاح للفلترة) -->
+      <!-- فلتر الصلاحيات والأدوار -->
       <div class="w-full sm:w-64">
         <Select
           v-model="selectedRole"
@@ -229,8 +236,8 @@
       </button>
     </div>
 
-    <!-- 5. جدول الحسابات الرئيسي باستخدام AppTable و AppPagination مع إتاحة التحكم الكامل للأدمن -->
-    <div class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-2xs overflow-hidden transition-colors">
+    <!-- 5. عرض الجدول الرئيسي (Table View) -->
+    <div v-if="viewMode === 'table'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm dark:shadow-xl overflow-hidden transition-colors">
       <AppTable
         :columns="columns"
         :data="paginatedUsers"
@@ -291,7 +298,7 @@
           </span>
         </template>
 
-        <!-- الإجراءات والتحكم الكامل لجميع الحسابات (طاقم العمل والمتدربين) -->
+        <!-- الإجراءات -->
         <template #actions="{ row }">
           <div class="flex items-center justify-center gap-1.5">
             <!-- 1. تعديل بيانات الحساب -->
@@ -331,7 +338,7 @@
               <span>{{ row.isActive ? 'تعطيل' : 'تفعيل' }}</span>
             </button>
 
-            <!-- 4. حذف الحساب نهائياً مع تأكيد بمودال -->
+            <!-- 4. حذف الحساب نهائياً -->
             <button
               type="button"
               class="h-8 px-2 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-950/50 dark:hover:bg-red-900/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/80 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
@@ -356,7 +363,147 @@
       />
     </div>
 
-    <!-- 6. نافذة إضافة وتعديل الحساب (تشمل كافة الأدوار للمسؤول) -->
+    <!-- 6. عرض الكروت البديل (Cards Grid View) -->
+    <div v-else class="space-y-4">
+      <div v-if="filteredUsers.length === 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center">
+        <Users class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+        <p class="font-bold text-slate-700 dark:text-slate-300">لا توجد حسابات مطابقة لخيارات البحث</p>
+        <p class="text-xs text-slate-400 mt-1">جرب تعديل كلمات البحث لعرض الحسابات</p>
+      </div>
+
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <article
+          v-for="user in paginatedUsers"
+          :key="user.id"
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm dark:shadow-xl flex flex-col justify-between gap-3.5 hover:shadow-md transition-all relative overflow-hidden group"
+        >
+          <!-- خط الحالة العلوي -->
+          <div
+            class="absolute top-0 right-0 left-0 h-1"
+            :class="user.isActive ? 'bg-emerald-500' : 'bg-slate-400'"
+          ></div>
+
+          <div>
+            <!-- رأس الكارت: الأفاتار والاسم والدور -->
+            <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-3 min-w-0">
+                <div
+                  class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-xs shrink-0 border"
+                  :class="getRoleAvatarStyle(user.role)"
+                >
+                  {{ getUserInitials(user.fullName) }}
+                </div>
+                <div class="min-w-0">
+                  <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 truncate" :title="user.fullName">
+                    {{ user.fullName }}
+                  </h3>
+                  <div class="text-[11px] text-slate-400 font-mono truncate" dir="ltr" :title="user.email">
+                    {{ user.email }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- شارة الدور -->
+              <span
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0"
+                :class="getRoleBadgeStyle(user.role)"
+              >
+                {{ getRoleArabicLabel(user.role) }}
+              </span>
+            </div>
+
+            <!-- تفاصيل الاتصال والحالة -->
+            <div class="p-2.5 my-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-2 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <Phone class="w-3.5 h-3.5 text-slate-400" />
+                  <span>رقم الهاتف:</span>
+                </span>
+                <span class="font-mono font-bold text-slate-800 dark:text-slate-200" dir="ltr">
+                  {{ user.phone }}
+                </span>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 dark:text-slate-400">حالة الحساب:</span>
+                <span
+                  class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold border"
+                  :class="
+                    user.isActive
+                      ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                      : 'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+                  "
+                >
+                  <span class="w-1.5 h-1.5 rounded-full" :class="user.isActive ? 'bg-emerald-500' : 'bg-rose-500'"></span>
+                  {{ user.isActive ? 'مفعل ونشط' : 'معطل وموقوف' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- شريط الإجراءات والتحكم للكارت -->
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800 grid grid-cols-4 gap-1.5">
+            <button
+              type="button"
+              class="h-8 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+              title="تعديل البيانات"
+              @click="openUserModal(user)"
+            >
+              <Edit class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />
+              <span class="text-[11px]">تعديل</span>
+            </button>
+
+            <button
+              type="button"
+              class="h-8 rounded-lg bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/50 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/80 text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+              title="تغيير كلمة المرور"
+              @click="openChangePasswordModal(user)"
+            >
+              <KeyRound class="w-3.5 h-3.5" />
+              <span class="text-[11px]">المرور</span>
+            </button>
+
+            <button
+              type="button"
+              class="h-8 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+              :class="
+                user.isActive
+                  ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/80'
+                  : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/80'
+              "
+              :title="user.isActive ? 'تعطيل الحساب' : 'تفعيل الحساب'"
+              @click="toggleUserStatus(user)"
+            >
+              <span class="text-[11px]">{{ user.isActive ? 'تعطيل' : 'تفعيل' }}</span>
+            </button>
+
+            <button
+              type="button"
+              class="h-8 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-950/50 dark:hover:bg-red-900/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800/80 text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+              title="حذف الحساب"
+              @click="openDeleteConfirmation(user)"
+            >
+              <Trash2 class="w-3.5 h-3.5" />
+              <span class="text-[11px]">حذف</span>
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <!-- باجينيشن شبكة الكروت -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm dark:shadow-xl overflow-hidden">
+        <AppPagination
+          v-if="filteredUsers.length > 0"
+          v-model:current-page="currentPage"
+          v-model:items-per-page="itemsPerPage"
+          :total-items="filteredUsers.length"
+          :per-page-options="perPageOptions"
+          item-label="حساب مسجل"
+        />
+      </div>
+    </div>
+
+    <!-- 7. نافذة إضافة وتعديل الحساب -->
     <BaseModal
       v-model="isUserModalOpen"
       :title="isEditing ? 'تعديل بيانات الحساب والصلاحية' : 'إضافة حساب جديد بالمنظومة'"
@@ -407,7 +554,7 @@
             id="isActiveCheckbox"
             v-model="formData.isActive"
             type="checkbox"
-            class="w-4 h-4 text-[#3B5431] rounded border-slate-300 focus:ring-[#3B5431] cursor-pointer"
+            class="w-4 h-4 text-primary-600 rounded border-slate-300 focus:ring-primary-500 cursor-pointer"
           />
           <label for="isActiveCheckbox" class="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
             الحساب مفعل ومصرح له بالدخول للمنظومة
@@ -422,7 +569,7 @@
         <BaseButton
           variant="primary"
           size="sm"
-          class="!bg-[#3B5431] text-white"
+          class="!bg-primary-600 hover:!bg-primary-700 text-white"
           type="submit"
           form="userForm"
         >
@@ -431,7 +578,7 @@
       </template>
     </BaseModal>
 
-    <!-- 7. نافذة تغيير كلمة المرور الآمنة مع التحقق والتأكيد (متاحة لجميع الحسابات) -->
+    <!-- 8. نافذة تغيير كلمة المرور الآمنة -->
     <BaseModal
       v-model="isChangePasswordModalOpen"
       title="تعديل وتعيين كلمة المرور للحساب"
@@ -468,7 +615,7 @@
               v-model="newPassword"
               :type="showNewPassword ? 'text' : 'password'"
               placeholder="أدخل كلمة مرور قوية (8 أحرف على الأقل)"
-              class="w-full h-10 pr-3.5 pl-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#3B5431]/20 focus:border-[#3B5431] transition-all font-mono"
+              class="w-full h-10 pr-3.5 pl-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-mono"
               required
             />
             <button
@@ -505,7 +652,7 @@
               v-model="confirmPassword"
               :type="showConfirmPassword ? 'text' : 'password'"
               placeholder="أعد إدخال كلمة المرور للتأكيد"
-              class="w-full h-10 pr-3.5 pl-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-[#3B5431]/20 focus:border-[#3B5431] transition-all font-mono"
+              class="w-full h-10 pr-3.5 pl-10 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900/60 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-mono"
               required
             />
             <button
@@ -538,7 +685,7 @@
         <BaseButton
           variant="primary"
           size="sm"
-          class="!bg-[#3B5431] text-white"
+          class="!bg-primary-600 hover:!bg-primary-700 text-white"
           type="submit"
           form="changePasswordForm"
           :disabled="!isPasswordValid"
@@ -548,7 +695,7 @@
       </template>
     </BaseModal>
 
-    <!-- 8. نافذة تأكيد حذف الحساب نهائياً (متاحة لكافة الحسابات) -->
+    <!-- 9. نافذة تأكيد حذف الحساب نهائياً -->
     <BaseModal
       v-model="isDeleteModalOpen"
       title="تأكيد حذف الحساب نهائياً"
@@ -602,6 +749,7 @@ import {
   EyeOff,
   Trash2,
   AlertTriangle,
+  Phone,
 } from 'lucide-vue-next';
 
 import AppKpiCard from '@/shared/ui/Cards/AppKpiCard.vue';
@@ -610,9 +758,13 @@ import AppPagination from '@/shared/ui/Table/AppPagination.vue';
 import BaseButton from '@/shared/ui/Buttons/BaseButton.vue';
 import BaseInput from '@/shared/ui/Inputs/BaseInput.vue';
 import BaseModal from '@/shared/ui/Modals/BaseModal.vue';
+import ViewModeToggle from '@/shared/ui/Buttons/ViewModeToggle.vue';
 import Select from 'primevue/select';
 
 import { ROLES, ROLE_LABELS } from '@/shared/constants/roles';
+
+// نمط العرض: جدول أو شبكة كروت
+const viewMode = ref('table');
 
 // حسابات المنظومة (طاقم العمل والمسؤولين والمتدربين)
 const users = ref([
@@ -746,7 +898,7 @@ const passwordSuccessMessage = ref('');
 const isDeleteModalOpen = ref(false);
 const userToDelete = ref(null);
 
-// خيارات الأدوار الكاملة (تشمل المتدربين وطاقم العمل)
+// خيارات الأدوار الكاملة
 const allRolesSelectOptions = [
   { value: ROLES.ADMIN, label: 'مسؤول النظام (Admin)' },
   { value: ROLES.AFFAIRS, label: 'شؤون الدارسين (Affairs)' },
@@ -828,7 +980,7 @@ const passwordStrengthColor = computed(() => {
   const pct = passwordStrengthPercent.value;
   if (pct < 40) return 'bg-rose-500';
   if (pct < 80) return 'bg-amber-500';
-  return 'bg-[#3B5431]';
+  return 'bg-emerald-600';
 });
 
 const passwordStrengthLabel = computed(() => {
@@ -872,7 +1024,7 @@ function getRoleBadgeStyle(role) {
     case ROLES.COMMANDER:
       return 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/60 dark:text-amber-300';
     case ROLES.AFFAIRS:
-      return 'bg-[#DCE4D3] text-[#3B5431] border-[#CBD8C0]';
+      return 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300';
     case ROLES.SECURITY:
       return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/60 dark:text-blue-300';
     case ROLES.TRAINEE:
@@ -889,7 +1041,7 @@ function getRoleAvatarStyle(role) {
     case ROLES.COMMANDER:
       return 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/60 dark:text-amber-200';
     case ROLES.AFFAIRS:
-      return 'bg-[#DCE4D3] text-[#3B5431] border-[#CBD8C0] dark:bg-emerald-950/60 dark:text-emerald-300';
+      return 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/60 dark:text-emerald-200';
     case ROLES.SECURITY:
       return 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/60 dark:text-blue-200';
     case ROLES.TRAINEE:

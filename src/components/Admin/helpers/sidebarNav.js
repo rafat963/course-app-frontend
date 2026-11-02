@@ -15,7 +15,7 @@ export const adminNav = [
         icon: Building2,
       },
       // {
-      //   label: 'سجل تدقيق العمليات',
+      //   label: 'سجل تدقيق وحركات البوابة',
       //   path: '/admin/audit-logs',
       //   icon: ShieldCheck,
       // },
