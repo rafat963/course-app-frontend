@@ -38,10 +38,10 @@
         </div>
 
         <div class="min-w-0">
-          <div class="font-bold text-slate-800 dark:text-slate-100 truncate max-w-[190px]" :title="row.trainee?.fullName">
+          <div class="font-bold text-slate-800 dark:text-slate-100 truncate max-w-[170px] sm:max-w-[190px]" :title="row.trainee?.fullName">
             {{ row.trainee?.fullName }}
           </div>
-          <div class="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+          <div class="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 truncate max-w-[170px] sm:max-w-[190px]">
             {{ row.trainee?.nationalId }} • {{ row.trainee?.phone }}
           </div>
         </div>

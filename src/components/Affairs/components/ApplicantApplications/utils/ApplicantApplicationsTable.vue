@@ -34,10 +34,10 @@
         </div>
 
         <div class="min-w-0">
-          <div class="font-bold text-slate-800 dark:text-slate-100 truncate max-w-[200px]" :title="row.trainee?.fullName">
+          <div class="font-bold text-slate-800 dark:text-slate-100 truncate max-w-[170px] sm:max-w-[200px]" :title="row.trainee?.fullName">
             {{ row.trainee?.fullName }}
           </div>
-          <div class="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5">
+          <div class="text-[11px] text-slate-400 dark:text-slate-500 font-mono mt-0.5 truncate max-w-[170px] sm:max-w-[200px]">
             {{ row.trainee?.nationalId }} • {{ row.trainee?.phone }}
           </div>
         </div>
@@ -122,7 +122,7 @@
         <Building2 class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400 shrink-0" />
         <span>{{ row.courseRound?.hallName }}</span>
       </div>
-      <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5 font-medium">
+      <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5 font-medium whitespace-nowrap">
         <Calendar class="w-3 h-3 text-slate-400 shrink-0" />
         <span>{{ row.courseRound?.lectureDays?.slice(0, 2).join('، ') }}</span>
         <span class="text-slate-300 dark:text-slate-600">•</span>

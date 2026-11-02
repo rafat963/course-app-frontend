@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-3.5 sm:p-4 shadow-2xs flex items-center justify-between select-none">
-    <div>
-      <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 block">
+  <div class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-3 sm:p-4 shadow-2xs flex items-center justify-between select-none gap-2">
+    <div class="min-w-0">
+      <span class="text-[11px] font-bold text-slate-400 dark:text-slate-500 block truncate">
         {{ title }}
       </span>
       <div class="mt-1 flex items-baseline gap-1.5">
@@ -10,7 +10,7 @@
         </span>
         <span
           v-if="badge"
-          class="text-[10px] font-bold"
+          class="text-[10px] font-bold truncate"
           :class="badgeClass || 'text-slate-400'"
         >
           {{ badge }}

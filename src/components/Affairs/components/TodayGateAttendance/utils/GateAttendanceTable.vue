@@ -90,8 +90,9 @@
     <!-- 6. سبب القرار الأمني -->
     <template #reason="{ row }">
       <div
-        class="text-xs font-medium max-w-[220px] leading-relaxed"
+        class="text-xs font-medium max-w-[200px] truncate"
         :class="row.decision === 'Allowed' ? 'text-slate-600 dark:text-slate-300' : 'text-rose-600 dark:text-rose-400 font-bold'"
+        :title="row.reason"
       >
         {{ row.reason }}
       </div>

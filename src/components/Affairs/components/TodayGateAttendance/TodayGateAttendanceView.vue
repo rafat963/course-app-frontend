@@ -101,7 +101,7 @@ import { MOCK_TRAINEES } from '@/shared/components/TraineeProfile/helpers/traine
 import { INITIAL_GATE_LOGS } from './helpers/gateAttendanceMockData';
 
 // --- نمط العرض (جدول أو كروت) ---
-const viewMode = ref('table');
+const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
 
 // --- الحالة الأساسية للبيانات ---
 const logs = ref([...INITIAL_GATE_LOGS]);

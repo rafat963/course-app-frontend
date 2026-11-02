@@ -1,18 +1,30 @@
 <template>
   <div class="w-full overflow-hidden">
-    <div class="overflow-x-auto custom-scrollbar">
-      <table class="w-full text-right text-xs">
+    <!-- إشعار التمرير الأفقي الذكي للموبايل والتابلت -->
+    <div class="lg:hidden flex items-center justify-between px-3 py-1.5 bg-slate-50/90 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/60 text-[11px] text-slate-500 dark:text-slate-400 select-none">
+      <div class="flex items-center gap-1.5 font-medium">
+        <ArrowLeftRight class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400 shrink-0 animate-pulse" />
+        <span>اسحب أفقياً لتصفح بقية أعمدة الجدول</span>
+      </div>
+      <span class="text-[10px] text-primary-700 dark:text-primary-300 font-bold bg-primary-50 dark:bg-primary-950/60 px-2 py-0.5 rounded-full border border-primary-200 dark:border-primary-800/60">
+        يمكنك التبديل لعرض الكروت ⊞
+      </span>
+    </div>
+
+    <div class="overflow-x-auto custom-scrollbar w-full">
+      <table class="w-full text-right text-xs border-collapse" :style="minWidth ? { minWidth } : {}">
         <!-- ترويسة الجدول: تباين واضح ولون خلفية ونص مميز بالرمادي الفاتح في الدارك موود -->
         <thead>
-          <tr class="bg-slate-100 dark:bg-slate-900/90 border-b-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold select-none tracking-wide">
+          <tr class="bg-slate-100/90 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 font-bold select-none tracking-wide">
             <th
               v-for="col in columns"
               :key="col.key"
-              class="py-3.5 px-4 font-black text-xs uppercase"
+              class="py-2.5 sm:py-3 px-3 sm:px-3.5 font-black text-xs uppercase whitespace-nowrap"
               :class="[
                 col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right',
                 col.headerClass || ''
               ]"
+              :style="col.width ? { width: col.width, minWidth: col.minWidth || col.width } : (col.minWidth ? { minWidth: col.minWidth } : {})"
             >
               <slot :name="`header-${col.key}`" :col="col">
                 {{ col.label }}
@@ -21,14 +33,14 @@
           </tr>
         </thead>
 
-        <!-- جسم الجدول: نصوص بألوان نظام التصميم الافتراضية عالية التباين (رمادي فاتح/أبيض قياسي بدون أي لون أخضر) -->
+        <!-- جسم الجدول: نصوص بألوان نظام التصميم الافتراضية عالية التباين -->
         <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-800 dark:text-slate-200 font-medium">
           <!-- حالة التحميل -->
           <tr v-if="loading">
-            <td :colspan="columns.length" class="py-12 text-center text-slate-400">
+            <td :colspan="columns.length" class="py-10 text-center text-slate-400">
               <slot name="loading">
                 <div class="flex flex-col items-center justify-center gap-2">
-                  <div class="w-7 h-7 border-2 border-slate-200 dark:border-slate-700 border-t-primary-600 rounded-full animate-spin"></div>
+                  <div class="w-6 h-6 border-2 border-slate-200 dark:border-slate-700 border-t-primary-600 rounded-full animate-spin"></div>
                   <span class="text-xs font-bold text-slate-500 dark:text-slate-400">جاري تحميل البيانات...</span>
                 </div>
               </slot>
@@ -37,22 +49,22 @@
 
           <!-- حالة عدم وجود بيانات -->
           <tr v-else-if="!data || data.length === 0">
-            <td :colspan="columns.length" class="py-12 text-center">
+            <td :colspan="columns.length" class="py-10 text-center">
               <slot name="empty">
                 <div class="flex flex-col items-center justify-center">
-                  <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-2">
-                    <Inbox class="w-6 h-6" />
+                  <div class="w-11 h-11 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-2">
+                    <Inbox class="w-5 h-5" />
                   </div>
-                  <h4 class="text-sm font-bold text-slate-700 dark:text-slate-200">
+                  <h4 class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200">
                     {{ emptyTitle }}
                   </h4>
-                  <p class="text-xs text-slate-400 mt-1 max-w-sm">
+                  <p class="text-[11px] sm:text-xs text-slate-400 mt-1 max-w-sm">
                     {{ emptyText }}
                   </p>
                   <button
                     v-if="isFiltered"
                     type="button"
-                    class="mt-3 px-3 py-1.5 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 text-xs font-bold hover:bg-primary-100 dark:hover:bg-primary-900/60 transition-colors cursor-pointer"
+                    class="mt-2.5 px-3 py-1 rounded-xl bg-primary-50 dark:bg-primary-950/60 text-primary-700 dark:text-primary-300 text-xs font-bold hover:bg-primary-100 dark:hover:bg-primary-900/60 transition-colors cursor-pointer"
                     @click="$emit('clear-filters')"
                   >
                     إلغاء الفلاتر
@@ -71,11 +83,12 @@
             <td
               v-for="col in columns"
               :key="col.key"
-              class="py-3.5 px-4"
+              class="py-2.5 sm:py-3 px-3 sm:px-3.5 align-middle"
               :class="[
                 col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right',
                 col.cellClass || ''
               ]"
+              :style="col.width ? { width: col.width, minWidth: col.minWidth || col.width } : (col.minWidth ? { minWidth: col.minWidth } : {})"
             >
               <slot :name="col.key" :row="row" :value="row[col.key]" :index="idx">
                 {{ row[col.key] ?? '—' }}
@@ -89,7 +102,7 @@
 </template>
 
 <script setup>
-import { Inbox } from 'lucide-vue-next';
+import { Inbox, ArrowLeftRight } from 'lucide-vue-next';
 
 defineProps({
   columns: {
@@ -115,6 +128,10 @@ defineProps({
   isFiltered: {
     type: Boolean,
     default: false,
+  },
+  minWidth: {
+    type: String,
+    default: '',
   },
 });
 

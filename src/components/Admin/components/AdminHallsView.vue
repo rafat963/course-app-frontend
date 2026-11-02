@@ -260,7 +260,7 @@
 
         <!-- الموقع الجغرافي -->
         <template #location="{ row }">
-          <span class="text-slate-600 dark:text-slate-300 text-xs font-medium">
+          <span class="text-slate-600 dark:text-slate-300 text-xs font-medium truncate max-w-[170px] block" :title="row.location">
             {{ row.location || '—' }}
           </span>
         </template>
@@ -615,7 +615,7 @@ const isRefreshing = ref(false);
 const searchQuery = ref('');
 const statusTab = ref('all'); // 'all' | 'active' | 'inactive'
 const selectedStatus = ref(null);
-const viewMode = ref('table');
+const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
 
 // باجينيشن
 const currentPage = ref(1);

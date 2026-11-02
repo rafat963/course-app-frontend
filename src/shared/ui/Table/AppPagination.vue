@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="totalItems > 0"
-    class="px-4 py-3.5 border-t border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs select-none"
+    class="px-3 sm:px-4 py-2.5 sm:py-3 border-t border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 flex flex-col sm:flex-row items-center justify-between gap-2.5 sm:gap-3 text-xs select-none"
   >
     <!-- اليمين: عناصر وأزرار الباجينيشن (السابق / أرقام الصفحات / التالي / عدد العناصر) -->
     <div class="flex flex-wrap items-center gap-3">

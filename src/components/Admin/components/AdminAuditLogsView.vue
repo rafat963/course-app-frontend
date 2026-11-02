@@ -297,9 +297,9 @@
           </template>
 
           <template #notes="{ row }">
-            <span class="text-slate-600 dark:text-slate-300 text-xs">
+            <div class="max-w-[220px] sm:max-w-[300px] truncate text-slate-600 dark:text-slate-300 text-xs" :title="row.notes">
               {{ row.notes || '—' }}
-            </span>
+            </div>
           </template>
         </AppTable>
 
@@ -446,8 +446,9 @@
 
           <template #reason="{ row }">
             <div
-              class="font-medium text-xs"
-              :class="row.decision === 'Allowed' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'"
+              class="font-medium text-xs max-w-[200px] sm:max-w-[250px] truncate"
+              :class="row.decision === 'Allowed' ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400 font-bold'"
+              :title="row.reason"
             >
               {{ row.reason }}
             </div>
@@ -742,7 +743,7 @@ import Select from 'primevue/select';
 
 // حالة التبويب النشط وطريقة العرض
 const activeTab = ref('audit');
-const viewMode = ref('table');
+const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
 const isRefreshing = ref(false);
 
 // ─── Seed Data: AuditLogs ───────────────────────────────────────────────────

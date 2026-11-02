@@ -157,7 +157,7 @@ import { INITIAL_COURSES } from '@/components/Affairs/components/AllCourses/help
 import { INITIAL_ARCHIVED_ROUNDS } from '@/components/Affairs/components/ArchivedCourses/helpers/archivedCoursesMockData';
 
 // --- نمط العرض (جدول أو كروت) ---
-const viewMode = ref('table');
+const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
 
 // --- الحالة الأساسية للبيانات ---
 const rounds = ref([...INITIAL_ACTIVE_ROUNDS]);

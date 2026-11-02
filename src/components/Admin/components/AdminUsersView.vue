@@ -259,7 +259,7 @@
               <div class="font-bold text-slate-800 dark:text-white truncate max-w-[200px]" :title="row.fullName">
                 {{ row.fullName }}
               </div>
-              <div class="text-[11px] text-slate-400 dark:text-slate-400 font-mono mt-0.5" dir="ltr">
+              <div class="text-[11px] text-slate-400 dark:text-slate-400 font-mono mt-0.5 truncate max-w-[190px]" dir="ltr" :title="row.email">
                 {{ row.email }}
               </div>
             </div>
@@ -270,6 +270,13 @@
         <template #phone="{ row }">
           <span class="font-mono text-slate-700 dark:text-slate-200 font-bold" dir="ltr">
             {{ row.phone }}
+          </span>
+        </template>
+
+        <!-- الإدارة / القسم -->
+        <template #department="{ row }">
+          <span class="text-slate-700 dark:text-slate-300 text-xs font-medium truncate max-w-[170px] block" :title="row.department">
+            {{ row.department || '—' }}
           </span>
         </template>
 
@@ -764,7 +771,7 @@ import Select from 'primevue/select';
 import { ROLES, ROLE_LABELS } from '@/shared/constants/roles';
 
 // نمط العرض: جدول أو شبكة كروت
-const viewMode = ref('table');
+const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
 
 // حسابات المنظومة (طاقم العمل والمسؤولين والمتدربين)
 const users = ref([

@@ -113,7 +113,7 @@ import CompletedApplicationModal from './utils/CompletedApplicationModal.vue';
 import { INITIAL_COMPLETED_APPLICATIONS } from './helpers/completedMockData';
 
 // نمط العرض: جدول أو شبكة كروت
-const viewMode = ref('table');
+const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
 
 // حالة البيانات الرئيسية
 const applications = ref([...INITIAL_COMPLETED_APPLICATIONS]);

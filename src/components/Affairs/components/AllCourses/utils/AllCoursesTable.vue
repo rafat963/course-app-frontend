@@ -12,17 +12,17 @@
       <div class="space-y-1">
         <button
           type="button"
-          class="text-right font-black text-slate-800 dark:text-slate-100 text-xs sm:text-sm block hover:text-primary-600 transition-colors cursor-pointer"
-          title="انقر لعرض تفاصيل الدورة والدورات السابقة المنعقدة بها"
+          class="text-right font-black text-slate-800 dark:text-slate-100 text-xs sm:text-sm block hover:text-primary-600 transition-colors cursor-pointer truncate max-w-[220px] sm:max-w-[280px]"
+          :title="`انقر لعرض تفاصيل الدورة: ${row.name}`"
           @click="$emit('view-details', row)"
         >
           {{ row.name }}
         </button>
-        <div v-if="row.instructorName" class="flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-bold">
+        <div v-if="row.instructorName" class="flex items-center gap-1.5 text-[11px] text-emerald-700 dark:text-emerald-400 font-bold truncate max-w-[220px]">
           <UserCheck class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-          <span>المحاضر المعتمد: {{ row.instructorName }}</span>
+          <span class="truncate">المحاضر: {{ row.instructorName }}</span>
         </div>
-        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 max-w-md leading-relaxed font-normal" :title="row.description">
+        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 max-w-xs sm:max-w-sm leading-relaxed font-normal" :title="row.description">
           {{ row.description }}
         </p>
       </div>
@@ -48,26 +48,26 @@
 
     <!-- 3. أسعار الفئات الأربعة المعتمدة (CoursePricings) -->
     <template #pricing="{ row }">
-      <div class="grid grid-cols-2 gap-1.5 text-[11px] min-w-[210px]">
-        <div class="p-1 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between px-2">
+      <div class="grid grid-cols-2 gap-1 text-[11px] min-w-[170px]">
+        <div class="p-1 rounded-md bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between px-1.5">
           <span class="text-slate-500 text-[10px]">مدني:</span>
           <strong class="font-mono text-slate-800 dark:text-slate-200 font-bold">
             {{ formatEgyptianCurrency(row.pricings?.Civilian) }}
           </strong>
         </div>
-        <div class="p-1 rounded-lg bg-primary-50/50 dark:bg-primary-950/40 border border-primary-200/70 dark:border-primary-800/60 flex items-center justify-between px-2">
-          <span class="text-primary-800 dark:text-primary-300 text-[10px]">ضابط ق.م:</span>
+        <div class="p-1 rounded-md bg-primary-50/50 dark:bg-primary-950/40 border border-primary-200/70 dark:border-primary-800/60 flex items-center justify-between px-1.5">
+          <span class="text-primary-800 dark:text-primary-300 text-[10px]">ضابط:</span>
           <strong class="font-mono text-primary-900 dark:text-primary-200 font-bold">
             {{ formatEgyptianCurrency(row.pricings?.MilitaryOfficer) }}
           </strong>
         </div>
-        <div class="p-1 rounded-lg bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 flex items-center justify-between px-2">
-          <span class="text-emerald-800 dark:text-emerald-300 text-[10px]">عائلات ق.م:</span>
+        <div class="p-1 rounded-md bg-emerald-50/50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 flex items-center justify-between px-1.5">
+          <span class="text-emerald-800 dark:text-emerald-300 text-[10px]">عائلات:</span>
           <strong class="font-mono text-emerald-900 dark:text-emerald-200 font-bold">
             {{ formatEgyptianCurrency(row.pricings?.MilitaryFamily) }}
           </strong>
         </div>
-        <div class="p-1 rounded-lg bg-blue-50/50 dark:bg-blue-950/40 border border-blue-200/70 dark:border-blue-800/60 flex items-center justify-between px-2">
+        <div class="p-1 rounded-md bg-blue-50/50 dark:bg-blue-950/40 border border-blue-200/70 dark:border-blue-800/60 flex items-center justify-between px-1.5">
           <span class="text-blue-800 dark:text-blue-300 text-[10px]">شرطة:</span>
           <strong class="font-mono text-blue-900 dark:text-blue-200 font-bold">
             {{ formatEgyptianCurrency(row.pricings?.PoliceOfficerOrFamily) }}
@@ -185,9 +185,9 @@ defineProps({
 defineEmits(['edit-course', 'delete-course', 'create-round', 'view-rounds', 'view-details', 'clear-filters']);
 
 const columns = [
-  { key: 'name', label: 'اسم الدورة والتوصيف بالكتالوج' },
-  { key: 'status', label: 'حالة الدورة (IsActive)', cellClass: 'whitespace-nowrap' },
-  { key: 'pricing', label: 'تسعير الفئات المعتمد (CoursePricings)' },
+  { key: 'name', label: 'الدورة التدريبية' },
+  { key: 'status', label: 'حالة الاعتماد', cellClass: 'whitespace-nowrap' },
+  { key: 'pricing', label: 'تسعير الفئات (ج.م)' },
   { key: 'rounds', label: 'دفعات الانعقاد', cellClass: 'whitespace-nowrap' },
   { key: 'createdAt', label: 'تاريخ الإضافة', cellClass: 'whitespace-nowrap' },
   { key: 'actions', label: 'الإجراءات', align: 'center', cellClass: 'whitespace-nowrap' },

@@ -184,7 +184,7 @@ function saveInstructors() {
 
 // --- حالة الواجهة والتحميل ---
 const isRefreshing = ref(false);
-const viewMode = ref('table'); // 'table' | 'grid'
+const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table'); // 'table' | 'grid'
 
 // --- الفلاتر والبحث ---
 const searchQuery = ref('');

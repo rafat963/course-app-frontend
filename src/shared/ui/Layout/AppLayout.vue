@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col p-2.5 sm:p-3 lg:p-3 gap-2.5 sm:gap-3 lg:gap-3 font-sans select-none transition-colors duration-200 overflow-hidden" dir="rtl">
+  <div class="h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col p-1.5 sm:p-2 lg:p-2 gap-1.5 sm:gap-2 font-sans select-none transition-colors duration-200 overflow-hidden" dir="rtl">
     <!-- 1. الهيدر العلوي كبسولة عائمة بنفس تصميم السايدبار -->
     <Header
       :is-collapsed="isCollapsed"
@@ -7,7 +7,7 @@
     />
 
     <!-- 2. الجزء السفلي: القائمة الجانبية (يمين) + منطقة المحتوى الرئيسية (يسار) بتصميم كبسولات عائمة متطابقة -->
-    <div class="flex-1 flex relative gap-2.5 sm:gap-3 lg:gap-3 min-h-0 overflow-hidden">
+    <div class="flex-1 flex relative gap-1.5 sm:gap-2 min-h-0 overflow-hidden">
       <!-- القائمة الجانبية كبسولة عائمة (Sidebar Floating Capsule) -->
       <Sidebar
         :is-open="isMobileOpen"
@@ -17,14 +17,14 @@
       />
 
       <!-- المنطقة الرئيسية كبسولة محتوى متطابقة الحواف (Main Content Area) -->
-      <div class="flex-1 flex flex-col min-w-0 bg-[#f1f5f9] dark:bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors duration-200 h-full">
+      <div class="flex-1 flex flex-col min-w-0 bg-[#f1f5f9] dark:bg-slate-900 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xs overflow-hidden transition-colors duration-200 h-full">
         <!-- شريط المسار (Breadcrumbs) -->
-        <div class="px-5 sm:px-7 pt-4 pb-1 shrink-0">
+        <div class="px-3 sm:px-4.5 lg:px-5 pt-2 pb-0.5 shrink-0">
           <Breadcrumbs />
         </div>
 
         <!-- منطقة عرض محتوى الصفحات (Router View) -->
-        <main class="flex-1 px-5 sm:px-7 pb-6 pt-2 overflow-y-auto">
+        <main class="flex-1 px-3 sm:px-4.5 lg:px-5 pb-3.5 sm:pb-4 pt-1 overflow-y-auto custom-scrollbar">
           <RouterView />
         </main>
       </div>

@@ -153,7 +153,7 @@ const approvedCount = ref(0);
 const searchQuery = ref('');
 const selectedCategory = ref(null);
 const selectedCourse = ref(null);
-const viewMode = ref('table');
+const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
 
 // خيارات القوائم المنسدلة لـ PrimeVue Select
 const categoryOptions = [

@@ -64,8 +64,9 @@
         <!-- 5. سبب القرار -->
         <template #reason="{ row }">
           <div
-            class="text-xs font-medium max-w-[260px]"
+            class="text-xs font-medium max-w-[240px] truncate"
             :class="row.decision === 'Allowed' ? 'text-slate-600 dark:text-slate-300' : 'text-rose-600 dark:text-rose-400 font-bold'"
+            :title="row.reason"
           >
             {{ row.reason }}
           </div>

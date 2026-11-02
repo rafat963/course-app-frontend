@@ -1,13 +1,13 @@
 <template>
   <header
-    class="h-16 w-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl px-3.5 sm:px-6 flex items-center justify-between shadow-sm dark:shadow-2xl select-none transition-all duration-300 shrink-0 relative z-30"
+    class="h-16 w-full bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl sm:rounded-3xl px-3 sm:px-6 flex items-center justify-between shadow-sm dark:shadow-2xl select-none transition-all duration-300 shrink-0 relative z-30"
   >
     <!-- الجزء الأيمن: زر الموبايل + اللوجو + اسم المعهد + رول/شعار القوات المسلحة -->
-    <div class="flex items-center gap-2.5 sm:gap-3.5">
-      <!-- زر تبديل القائمة للموبايل (رقاقة دائرية متناسقة مع السايدبار) -->
+    <div class="flex items-center gap-2 sm:gap-3.5 min-w-0">
+      <!-- زر تبديل القائمة للموبايل -->
       <button
         type="button"
-        class="lg:hidden w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 transition-all cursor-pointer shadow-xs"
+        class="lg:hidden w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 transition-all cursor-pointer shadow-xs shrink-0"
         aria-label="تبديل القائمة"
         @click="$emit('toggle-sidebar')"
       >
@@ -15,23 +15,23 @@
       </button>
 
       <!-- اللوجو والعناوين -->
-      <div class="flex items-center gap-3">
-        <!-- إطار دائري للوجو متناسق مع صورة البروفايل بالسايدبار -->
-        <div class="w-11 h-11 rounded-full p-1 bg-gradient-to-tr from-primary-600/15 to-primary-600/5 dark:from-primary-500/20 dark:to-primary-500/5 border border-primary-200/60 dark:border-primary-800/60 flex items-center justify-center shadow-xs shrink-0">
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+        <!-- إطار دائري للوجو -->
+        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full p-1 bg-gradient-to-tr from-primary-600/15 to-primary-600/5 dark:from-primary-500/20 dark:to-primary-500/5 border border-primary-200/60 dark:border-primary-800/60 flex items-center justify-center shadow-xs shrink-0">
           <img
             src="@/assets/logo.png"
             alt="شعار معهد نظم المعلومات - القوات المسلحة"
-            class="w-8 h-8 object-contain drop-shadow-xs"
+            class="w-7 h-7 sm:w-8 sm:h-8 object-contain drop-shadow-xs"
           />
         </div>
 
-        <div class="flex flex-col text-right leading-tight">
+        <div class="flex flex-col text-right leading-tight min-w-0">
           <div class="flex items-center gap-2">
-            <span class="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100 font-heading">
+            <span class="text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100 font-heading truncate">
               معهد نظم المعلومات
             </span>
-            <!-- شارة كبسولية للقوات المسلحة متطابقة مع شارات السايدبار -->
-            <span class="px-2.5 py-0.5 rounded-full bg-primary-50 dark:bg-primary-950/60 border border-primary-100 dark:border-primary-900/80 text-[10px] sm:text-[11px] font-bold text-primary-800 dark:text-primary-300 shadow-2xs">
+            <!-- شارة كبسولية للقوات المسلحة تظهر للشاشات الأكبر -->
+            <span class="px-2.5 py-0.5 rounded-full bg-primary-50 dark:bg-primary-950/60 border border-primary-100 dark:border-primary-900/80 text-[10px] sm:text-[11px] font-bold text-primary-800 dark:text-primary-300 shadow-2xs hidden sm:inline-block shrink-0">
               القوات المسلحة
             </span>
           </div>
@@ -42,46 +42,46 @@
       </div>
     </div>
 
-    <!-- الجزء الأيسر: ملء الشاشة، الدارك مود، الإشعارات، وتسجيل الخروج (رقاقات دائرية وكبسولية) -->
-    <div class="flex items-center gap-2">
+    <!-- الجزء الأيسر: ملء الشاشة، الدارك مود، الإشعارات، الإعدادات، وتسجيل الخروج -->
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
       <!-- 1. زر ملء الشاشة (Fullscreen) -->
       <button
         type="button"
-        class="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all cursor-pointer shadow-xs border border-transparent dark:border-slate-800"
+        class="hidden sm:flex w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/60 items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all cursor-pointer shadow-xs border border-transparent dark:border-slate-800"
         :title="isFullscreen ? 'إنهاء ملء الشاشة' : 'ملء الشاشة'"
         @click="toggleFullscreen"
       >
-        <Minimize v-if="isFullscreen" class="w-4 h-4 text-primary-600 dark:text-primary-400" />
-        <Maximize v-else class="w-4 h-4" />
+        <Minimize v-if="isFullscreen" class="w-4.5 h-4.5 text-primary-600 dark:text-primary-400" />
+        <Maximize v-else class="w-4.5 h-4.5" />
       </button>
 
-      <!-- 2. أيقونة الدارك مود (رقاقة دائرية) -->
+      <!-- 2. أيقونة الدارك مود -->
       <button
         type="button"
-        class="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-amber-500 dark:hover:text-amber-400 transition-all cursor-pointer shadow-xs border border-transparent dark:border-slate-800"
+        class="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-amber-500 dark:hover:text-amber-400 transition-all cursor-pointer shadow-xs border border-transparent dark:border-slate-800 shrink-0"
         :title="theme === 'dark' ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الليلي'"
         @click="toggleTheme"
       >
-        <Sun v-if="theme === 'dark'" class="w-4 h-4 text-amber-400" />
-        <Moon v-else class="w-4 h-4 text-slate-600" />
+        <Sun v-if="theme === 'dark'" class="w-4.5 h-4.5 text-amber-400" />
+        <Moon v-else class="w-4.5 h-4.5 text-slate-600" />
       </button>
 
-      <!-- 3. أيقونة الإشعارات (رقاقة دائرية مع شارة تنبيه تفاعلية) -->
-      <div class="relative">
+      <!-- 3. أيقونة الإشعارات -->
+      <div class="relative shrink-0">
         <button
           type="button"
           class="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all cursor-pointer shadow-xs border border-transparent dark:border-slate-800 relative"
           title="الإشعارات"
           @click="showNotifications = !showNotifications"
         >
-          <Bell class="w-4 h-4" />
+          <Bell class="w-4.5 h-4.5" />
           <span
             v-if="notificationsStore.unreadCount > 0"
             class="absolute top-2 right-2 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-900 animate-pulse"
           ></span>
         </button>
 
-        <!-- قائمة الإشعارات المنسدلة (كبسولة منحنية الحواف) -->
+        <!-- قائمة الإشعارات المنسدلة -->
         <div
           v-if="showNotifications"
           class="absolute left-0 mt-3 w-80 sm:w-88 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200/90 dark:border-slate-800 p-3.5 z-50 animate-fade-in text-right"
@@ -153,16 +153,16 @@
         class="w-10 h-10 rounded-full bg-slate-100/80 dark:bg-slate-800/60 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-primary-600 dark:hover:text-primary-400 transition-all cursor-pointer shadow-xs border border-transparent dark:border-slate-800"
         title="إعدادات الحساب والملف الشخصي"
       >
-        <Settings class="w-4 h-4" />
+        <Settings class="w-4.5 h-4.5" />
       </RouterLink>
 
       <!-- فاصل عمودي خفيف -->
-      <span class="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1"></span>
+      <span class="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-0.5 sm:mx-1 hidden xs:block"></span>
 
-      <!-- 5. زر تسجيل الخروج (كبسولة دائرية بأناقة بالغة في أقصى اليسار) -->
+      <!-- 5. زر تسجيل الخروج -->
       <button
         type="button"
-        class="h-10 px-3.5 rounded-full bg-rose-50/70 hover:bg-rose-100/90 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 border border-rose-200/80 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 flex items-center gap-2 cursor-pointer transition-all shadow-xs"
+        class="h-10 w-10 sm:w-auto px-0 sm:px-3.5 rounded-full bg-rose-50/70 hover:bg-rose-100/90 dark:bg-rose-950/30 dark:hover:bg-rose-950/60 border border-rose-200/80 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 flex items-center justify-center gap-2 cursor-pointer transition-all shadow-xs shrink-0"
         title="تسجيل الخروج"
         @click="handleLogout"
       >

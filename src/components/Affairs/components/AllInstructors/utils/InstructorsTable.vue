@@ -15,7 +15,7 @@
         </div>
         <div class="space-y-1">
           <div class="flex flex-wrap items-center gap-1.5">
-            <strong class="font-black text-slate-800 dark:text-slate-100 text-xs sm:text-sm block">
+            <strong class="font-black text-slate-800 dark:text-slate-100 text-xs sm:text-sm block truncate max-w-[170px]" :title="row.name">
               {{ row.name }}
             </strong>
             <!-- شارة التدريس حالياً إذا كان لديه دفعة جارية -->

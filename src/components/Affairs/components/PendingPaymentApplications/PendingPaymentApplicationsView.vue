@@ -166,7 +166,7 @@ const statusFilter = ref('all'); // 'all' | 'active' | 'overdue'
 const searchQuery = ref('');
 const selectedCourse = ref(null);
 const selectedCategory = ref(null);
-const viewMode = ref('table');
+const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
 
 // خيارات القوائم المنسدلة
 const categoryOptions = [
