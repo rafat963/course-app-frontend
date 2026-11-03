@@ -28,7 +28,7 @@
           ref="mainContentRef"
           class="flex-1 px-3 sm:px-4.5 lg:px-5 pb-3.5 sm:pb-4 pt-1 overflow-y-auto custom-scrollbar"
         >
-          <RouterView v-slot="{ Component, route }">
+          <RouterView v-slot="{ Component }">
             <Transition
               name="page-fade"
               mode="out-in"
@@ -46,11 +46,12 @@
 
 <script setup>
 import { ref } from 'vue';
-import { RouterView } from 'vue-router';
+import { RouterView, useRoute } from 'vue-router';
 import Header from './Header.vue';
 import Sidebar from './Sidebar.vue';
 import Breadcrumbs from './Breadcrumbs.vue';
 
+const route = useRoute();
 const isCollapsed = ref(false);
 const isMobileOpen = ref(false);
 const mainContentRef = ref(null);
@@ -76,3 +77,38 @@ function handleAfterEnter() {
   }
 }
 </script>
+
+<style>
+/* تأثير الانتقال السلس بين الصفحات (Page Fade & Elevation Transition) */
+.page-fade-enter-active {
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  will-change: opacity, transform;
+}
+
+.page-fade-leave-active {
+  transition: opacity 0.18s cubic-bezier(0.4, 0, 1, 1),
+              transform 0.18s cubic-bezier(0.4, 0, 1, 1) !important;
+  will-change: opacity, transform;
+}
+
+.page-fade-enter-from {
+  opacity: 0 !important;
+  transform: translateY(12px) !important;
+}
+
+.page-fade-enter-to {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.page-fade-leave-from {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.page-fade-leave-to {
+  opacity: 0 !important;
+  transform: translateY(-8px) !important;
+}
+</style>
