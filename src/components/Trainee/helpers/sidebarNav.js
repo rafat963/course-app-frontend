@@ -10,7 +10,7 @@ export const traineeNav = [
         icon: QrCode,
       },
       {
-        label: 'كتالوج الدورات المتاحة',
+        label: 'الدورات المتاحة',
         path: '/trainee/courses',
         icon: BookOpen,
       },
