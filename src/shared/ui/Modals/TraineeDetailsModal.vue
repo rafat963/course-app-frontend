@@ -23,18 +23,18 @@
 
           <div>
             <div class="flex flex-wrap items-center gap-2">
-              <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-slate-100 font-heading">
+              <h3 class="text-lg sm:text-xl font-black text-slate-800 dark:text-slate-100 font-heading">
                 {{ trainee.fullName }}
               </h3>
               <!-- شارة الفئة المعتمدة -->
               <span
-                class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border shadow-2xs"
+                class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold border shadow-2xs"
                 :class="categoryBadge.class"
               >
                 {{ categoryBadge.label }}
               </span>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex flex-wrap items-center gap-2">
+            <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-0.5 flex flex-wrap items-center gap-2 font-bold">
               <span class="font-mono">الرقم القومي: {{ trainee.nationalId }}</span>
               <span>•</span>
               <span class="font-mono">{{ trainee.phone }}</span>
@@ -46,40 +46,40 @@
 
         <button
           type="button"
-          class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+          class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
           title="إغلاق النافذة"
           @click="$emit('close')"
         >
-          <X class="w-4 h-4" />
+          <X class="w-5 h-5" />
         </button>
       </div>
 
       <!-- 2. محتوى التمرير للمودال -->
-      <div class="p-4 sm:p-5 space-y-4 overflow-y-auto custom-scrollbar text-xs">
+      <div class="p-4 sm:p-5 space-y-4 overflow-y-auto custom-scrollbar text-sm">
         <!-- أ. بطاقة الدورة والطلب الحالي (Context) -->
         <div
           v-if="courseRound || application || log"
-          class="p-4 rounded-2xl bg-primary-50/40 dark:bg-primary-950/20 border border-primary-200/70 dark:border-primary-800/50 space-y-2.5"
+          class="p-4 rounded-2xl bg-primary-50/40 dark:bg-primary-950/20 border border-primary-200/70 dark:border-primary-800/50 space-y-3"
         >
-          <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-primary-200/50 dark:border-primary-800/40">
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-primary-200/50 dark:border-primary-800/40">
             <div class="flex items-center gap-2">
-              <BookOpen class="w-4 h-4 text-primary-600 dark:text-primary-400" />
-              <strong class="font-black text-slate-800 dark:text-slate-100 text-xs sm:text-sm">
+              <BookOpen class="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              <strong class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg">
                 {{ courseRound?.courseName || 'الدورة التدريبية' }}
               </strong>
-              <span v-if="courseRound?.roundNumber" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white dark:bg-slate-800 border border-primary-200 dark:border-primary-700 text-primary-800 dark:text-primary-300">
+              <span v-if="courseRound?.roundNumber" class="px-3 py-0.5 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-slate-800 border border-primary-200 dark:border-primary-700 text-primary-800 dark:text-primary-300 font-mono">
                 الدفعة {{ courseRound.roundNumber }}
               </span>
             </div>
 
             <!-- كود الطلب / الحركة وشارة الحالة -->
             <div class="flex items-center gap-2">
-              <span v-if="application?.code" class="font-mono font-bold text-slate-500 dark:text-slate-400 text-[11px]">
+              <span v-if="application?.code" class="font-mono font-bold text-slate-600 dark:text-slate-300 text-xs sm:text-sm">
                 {{ application.code }}
               </span>
               <span
                 v-if="statusBadge"
-                class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border"
+                class="px-3 py-1 rounded-full text-xs font-bold border"
                 :class="statusBadge.class"
               >
                 {{ statusBadge.label }}
@@ -87,36 +87,36 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-700 dark:text-slate-300">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-slate-700 dark:text-slate-300 text-xs sm:text-sm">
             <div v-if="courseRound?.hallName">
-              <span class="text-slate-400 block text-[11px]">مقر الانعقاد:</span>
-              <span class="font-bold flex items-center gap-1 mt-0.5">
-                <Building2 class="w-3.5 h-3.5 text-primary-600 shrink-0" />
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">مقر الانعقاد:</span>
+              <span class="font-bold flex items-center gap-1.5 mt-0.5 text-slate-800 dark:text-slate-200">
+                <Building2 class="w-4 h-4 text-primary-600 shrink-0" />
                 <span>{{ courseRound.hallName }}</span>
               </span>
             </div>
 
             <div v-if="courseRound?.instructorName">
-              <span class="text-slate-400 block text-[11px]">المحاضر المسؤول:</span>
-              <span class="font-bold flex items-center gap-1 mt-0.5">
-                <UserCheck class="w-3.5 h-3.5 text-primary-600 shrink-0" />
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">المحاضر المسؤول:</span>
+              <span class="font-bold flex items-center gap-1.5 mt-0.5 text-slate-800 dark:text-slate-200">
+                <UserCheck class="w-4 h-4 text-primary-600 shrink-0" />
                 <span>{{ courseRound.instructorName }}</span>
               </span>
             </div>
 
             <div v-if="courseRound?.timeRange">
-              <span class="text-slate-400 block text-[11px]">توقيت المحاضرات:</span>
-              <span class="font-mono font-bold flex items-center gap-1 mt-0.5">
-                <Clock class="w-3.5 h-3.5 text-primary-600 shrink-0" />
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">توقيت المحاضرات:</span>
+              <span class="font-mono font-bold flex items-center gap-1.5 mt-0.5 text-slate-800 dark:text-slate-200">
+                <Clock class="w-4 h-4 text-primary-600 shrink-0" />
                 <span>{{ courseRound.timeRange }}</span>
               </span>
             </div>
 
             <!-- موقف المقاعد والسعة الاستيعابية المعتمدة -->
             <div v-if="courseRound?.capacity">
-              <span class="text-slate-400 block text-[11px]">موقف المقاعد بالدفعة:</span>
-              <span class="font-bold flex items-center gap-1.5 mt-0.5 text-xs">
-                <Armchair class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400 shrink-0" />
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">موقف المقاعد بالدفعة:</span>
+              <span class="font-bold flex items-center gap-1.5 mt-0.5 text-xs sm:text-sm">
+                <Armchair class="w-4 h-4 text-primary-600 dark:text-primary-400 shrink-0" />
                 <span
                   :class="
                     (courseRound.capacity - (courseRound.enrolledCount || 0)) <= 0
@@ -132,7 +132,7 @@
                       : `متبقي ${courseRound.capacity - (courseRound.enrolledCount || 0)} مقعد شاغر`
                   }}
                 </span>
-                <span class="text-slate-400 dark:text-slate-500 font-mono text-[10px]">
+                <span class="text-slate-400 dark:text-slate-500 font-mono text-xs font-bold">
                   ({{ courseRound.enrolledCount || 0 }}/{{ courseRound.capacity }})
                 </span>
               </span>
@@ -140,21 +140,21 @@
 
             <!-- الموقف المالي أو مهلة السداد -->
             <div v-if="application?.appliedPrice">
-              <span class="text-slate-400 block text-[11px]">الرسوم المقررة للفئة:</span>
-              <span class="font-black text-emerald-700 dark:text-emerald-400 font-mono">
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">الرسوم المقررة للفئة:</span>
+              <span class="font-black text-emerald-700 dark:text-emerald-400 font-mono text-sm sm:text-base">
                 {{ formatCurrency(application.appliedPrice) }}
               </span>
             </div>
 
             <div v-if="application?.paymentDueDate">
-              <span class="text-slate-400 block text-[11px]">مهلة السداد بالخزينة:</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">مهلة السداد بالخزينة:</span>
               <span class="font-mono font-bold text-slate-800 dark:text-slate-200">
                 {{ formatDate(application.paymentDueDate) }}
               </span>
             </div>
 
             <div v-if="application?.receiptNumber">
-              <span class="text-slate-400 block text-[11px]">رقم إيصال السداد:</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">رقم إيصال السداد:</span>
               <span class="font-mono font-bold text-slate-800 dark:text-slate-200">
                 {{ application.receiptNumber }}
               </span>
@@ -162,14 +162,14 @@
 
             <!-- في حالة البوابة: فرد الأمن والبوابة -->
             <div v-if="log?.officer">
-              <span class="text-slate-400 block text-[11px]">فرد الأمن والبوابة:</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">فرد الأمن والبوابة:</span>
               <span class="font-bold text-slate-800 dark:text-slate-200">
                 {{ log.officer.name }} ({{ log.officer.gateName }})
               </span>
             </div>
 
             <div v-if="log?.reason">
-              <span class="text-slate-400 block text-[11px]">القرار الأمني المسجل:</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">القرار الأمني المسجل:</span>
               <span class="font-bold" :class="log.decision === 'Allowed' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-400'">
                 {{ log.reason }}
               </span>
@@ -178,64 +178,64 @@
         </div>
 
         <!-- ب. شبكة بيانات البطاقة المدنية والتواصل -->
-        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-3">
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-3">
           <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
-            <h4 class="font-black text-slate-800 dark:text-slate-100 text-xs flex items-center gap-1.5">
-              <IdCard class="w-4 h-4 text-primary-600 dark:text-primary-400" />
+            <h4 class="font-black text-slate-800 dark:text-slate-100 text-sm sm:text-base flex items-center gap-1.5">
+              <IdCard class="w-4.5 h-4.5 text-primary-600 dark:text-primary-400" />
               <span>بيانات بطاقة الرقم القومي والحالة المدنية</span>
             </h4>
             <span
-              class="px-2 py-0.5 rounded-full text-[10px] font-bold border"
+              class="px-3 py-1 rounded-full text-xs font-bold border"
               :class="isIdExpired ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'"
             >
               {{ isIdExpired ? 'البطاقة منتهية' : 'البطاقة سارية' }}
             </span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-700 dark:text-slate-200">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-slate-700 dark:text-slate-200 text-xs sm:text-sm">
             <div>
-              <span class="text-slate-400 block text-[11px]">الرقم القومي (14 رقماً):</span>
-              <strong class="font-mono font-black text-slate-800 dark:text-slate-100">{{ trainee.nationalId }}</strong>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">الرقم القومي (14 رقماً):</span>
+              <strong class="font-mono font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg">{{ trainee.nationalId }}</strong>
             </div>
 
             <div>
-              <span class="text-slate-400 block text-[11px]">تاريخ الميلاد والسن:</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">تاريخ الميلاد والسن:</span>
               <span class="font-mono font-bold">{{ formatDate(trainee.dateOfBirth) }}</span>
               <span v-if="trainee.dateOfBirth" class="text-primary-600 dark:text-primary-400 mr-1 font-bold">({{ age }})</span>
             </div>
 
             <div>
-              <span class="text-slate-400 block text-[11px]">سريان البطاقة حتى:</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">سريان البطاقة حتى:</span>
               <span class="font-mono font-bold" :class="{ 'text-rose-600': isIdExpired }">
                 {{ formatDate(trainee.nationalIdExpiryDate) }}
               </span>
             </div>
 
             <div>
-              <span class="text-slate-400 block text-[11px]">النوع والديانة:</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">النوع والديانة:</span>
               <span class="font-bold">
                 {{ trainee.gender === 'Male' ? 'ذكر' : 'أنثى' }} • {{ trainee.religion === 'Muslim' ? 'مسلم' : 'مسيحي' }}
               </span>
             </div>
 
             <div>
-              <span class="text-slate-400 block text-[11px]">الحالة الاجتماعية:</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">الحالة الاجتماعية:</span>
               <span class="font-bold">{{ getMaritalStatusLabel(trainee.maritalStatus) }}</span>
             </div>
 
             <div>
-              <span class="text-slate-400 block text-[11px]">المهنة المدونة بالبطاقة:</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">المهنة المدونة بالبطاقة:</span>
               <span class="font-bold truncate block" :title="trainee.occupation">{{ trainee.occupation || '—' }}</span>
             </div>
 
             <div class="sm:col-span-2">
-              <span class="text-slate-400 block text-[11px]">العنوان المدون بالبطاقة:</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">العنوان المدون بالبطاقة:</span>
               <span class="font-bold">{{ trainee.address }} (محافظة {{ trainee.governorate }})</span>
             </div>
 
             <div>
-              <span class="text-slate-400 block text-[11px]">رقم الهاتف للتواصل:</span>
-              <span class="font-mono font-bold text-primary-700 dark:text-primary-300">{{ trainee.phone }}</span>
+              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">رقم الهاتف للتواصل:</span>
+              <span class="font-mono font-bold text-primary-700 dark:text-primary-300 text-sm sm:text-base">{{ trainee.phone }}</span>
             </div>
           </div>
         </div>
@@ -287,7 +287,7 @@
                   <Eye class="w-4 h-4" />
                 </div>
               </div>
-              <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 block text-center truncate">
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200 block text-center truncate">
                 ظهر البطاقة
               </span>
             </div>
@@ -309,7 +309,7 @@
                   <Eye class="w-4 h-4" />
                 </div>
               </div>
-              <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 block text-center truncate">
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200 block text-center truncate">
                 شهادة المؤهل
               </span>
             </div>
@@ -330,7 +330,7 @@
                   <Eye class="w-4 h-4" />
                 </div>
               </div>
-              <span class="text-[11px] font-bold text-slate-700 dark:text-slate-200 block text-center truncate">
+              <span class="text-xs font-bold text-slate-700 dark:text-slate-200 block text-center truncate">
                 كارنيه إثبات الفئة
               </span>
             </div>
@@ -338,83 +338,27 @@
         </div>
       </div>
 
-      <!-- 3. أسفل المودال: أزرار الإجراءات والزر المطلوب لفتح صفحة سجل الدارس المشترك -->
-      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+      <!-- 3. أسفل المودال: زر الإغلاق وزر السجل الكامل فقط (عرض تفاصيل بدون أي أكشنز تشغيلية) -->
+      <div class="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 flex flex-wrap items-center justify-between gap-3 shrink-0">
         <!-- زر الإغلاق -->
         <button
           type="button"
-          class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+          class="h-11 px-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold transition-colors cursor-pointer shadow-2xs"
           @click="$emit('close')"
         >
           إغلاق النافذة
         </button>
 
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- أ. الزر الأساسي: فتح السجل التدريبي الكامل للدارس في صفحة TraineeProfileView -->
-          <RouterLink
-            :to="profileUrl"
-            class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-xs hover:shadow-sm"
-            title="فتح السجل التدريبي الشامل للدارس بكافة دوراته الحالية والسابقة وشهاداته"
-            @click="$emit('close')"
-          >
-            <ExternalLink class="w-3.5 h-3.5 text-primary-400" />
-            <span>السجل التدريبي الكامل</span>
-          </RouterLink>
-
-          <!-- ب. أزرار سياقية اختيارية حسب حالة الطلب -->
-          <!-- للمتقدمين تحت المراجعة: موافقة ورفض -->
-          <button
-            v-if="canApprove"
-            type="button"
-            class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            @click="$emit('approve', application)"
-          >
-            <CheckCircle2 class="w-3.5 h-3.5" />
-            <span>الموافقة وتحديد المهلة</span>
-          </button>
-
-          <button
-            v-if="canReject"
-            type="button"
-            class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            @click="$emit('reject', application)"
-          >
-            <XCircle class="w-3.5 h-3.5" />
-            <span>رفض الطلب</span>
-          </button>
-
-          <!-- لطلبات في انتظار الدفع: تمديد مهلة وإلغاء -->
-          <button
-            v-if="canReschedule"
-            type="button"
-            class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            @click="$emit('reschedule', application)"
-          >
-            <CalendarClock class="w-3.5 h-3.5" />
-            <span>تحديد موعد جديد</span>
-          </button>
-
-          <button
-            v-if="canCancel"
-            type="button"
-            class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            @click="$emit('cancel', application)"
-          >
-            <XCircle class="w-3.5 h-3.5" />
-            <span>إلغاء الطلب</span>
-          </button>
-
-          <!-- للطلبات المكتملة: عرض تفاصيل الطلب والسداد -->
-          <button
-            v-if="canSwitchToApplication"
-            type="button"
-            class="px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-            @click="$emit('switch-to-application', application)"
-          >
-            <FileText class="w-3.5 h-3.5" />
-            <span>تفاصيل القيد والسداد</span>
-          </button>
-        </div>
+        <!-- الزر المرجعي: فتح السجل التدريبي الكامل للدارس في صفحة TraineeProfileView -->
+        <RouterLink
+          :to="profileUrl"
+          class="h-11 px-6 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs hover:shadow-sm"
+          title="فتح السجل التدريبي الشامل للدارس بكافة دوراته الحالية والسابقة وشهاداته"
+          @click="$emit('close')"
+        >
+          <ExternalLink class="w-4.5 h-4.5 text-primary-400" />
+          <span>السجل التدريبي الكامل</span>
+        </RouterLink>
       </div>
 
       <!-- 4. نافذة تكبير المستندات المصورة المنبثقة فوق المودال (Lightbox) -->

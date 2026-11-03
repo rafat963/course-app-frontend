@@ -2,18 +2,19 @@
   <div class="space-y-4">
     <div
       v-if="applications.length > 0"
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+      class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-4.5"
     >
       <div
         v-for="app in applications"
         :key="app.id"
-        class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-5 shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col justify-between group space-y-4"
+        class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4.5 sm:p-5 shadow-2xs hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-900/60 transition-all flex flex-col justify-between group"
       >
-        <!-- Top Info -->
-        <div class="space-y-3">
-          <div class="flex items-start justify-between gap-2.5">
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-black text-sm shrink-0 shadow-2xs group-hover:scale-105 transition-transform overflow-hidden">
+        <!-- 1. ترويسة الكارت: الصورة والاسم ورقم الطلب وحالة التسجيل -->
+        <div>
+          <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-center gap-3 min-w-0">
+              <!-- الصورة الشخصية -->
+              <div class="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200/80 dark:border-emerald-800/80 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-black text-sm sm:text-base shrink-0 overflow-hidden shadow-2xs">
                 <img
                   v-if="app.trainee?.profilePhotoPath"
                   :src="app.trainee.profilePhotoPath"
@@ -22,19 +23,25 @@
                 />
                 <span v-else>{{ getInitials(app.trainee?.fullName) }}</span>
               </div>
-              <div class="space-y-0.5">
-                <h3 class="text-sm font-black text-slate-800 dark:text-slate-100 font-heading leading-tight line-clamp-1" :title="app.trainee?.fullName">
+
+              <!-- الاسم والكود -->
+              <div class="min-w-0">
+                <h3
+                  class="text-base sm:text-lg font-black text-slate-800 dark:text-slate-100 font-heading truncate leading-tight hover:text-primary-600 dark:hover:text-primary-400 transition-colors cursor-pointer"
+                  :title="app.trainee?.fullName"
+                  @click="$emit('open-trainee-details', app)"
+                >
                   {{ app.trainee?.fullName }}
                 </h3>
-                <span class="text-[11px] text-slate-400 font-mono block">
+                <span class="text-xs sm:text-sm text-slate-400 dark:text-slate-500 font-mono block mt-0.5">
                   {{ app.code }}
                 </span>
               </div>
             </div>
 
-            <!-- Status Badge -->
+            <!-- شارة الحالة -->
             <span
-              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border shrink-0"
+              class="px-3 py-1 rounded-full text-xs sm:text-sm font-bold border shrink-0 shadow-2xs"
               :class="
                 app.status === 'Enrolled'
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800'
@@ -45,108 +52,77 @@
             </span>
           </div>
 
-          <!-- Course & Hall -->
-          <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-800 space-y-1">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-400 font-medium">الدورة:</span>
-              <strong class="text-slate-800 dark:text-slate-100 font-bold truncate max-w-[180px]">
+          <!-- 2. بيانات الدورة ورقم الإيصال ونسبة الحضور -->
+          <div class="my-4 space-y-3">
+            <!-- اسم الدورة والدفعة -->
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-100 truncate" :title="app.courseRound?.courseName">
                 {{ app.courseRound?.courseName }}
-              </strong>
-            </div>
-            <div class="flex items-center justify-between text-[11px]">
-              <span class="text-slate-400">الدفعة والقاعة:</span>
-              <span class="font-bold text-primary-700 dark:text-primary-300">
-                دفعة {{ app.courseRound?.roundNumber || 1 }} • {{ app.courseRound?.hallName || 'معمل رئيسي' }}
+              </span>
+              <span class="text-xs sm:text-sm font-bold px-2.5 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/60 shrink-0">
+                دفعة {{ app.courseRound?.roundNumber || 1 }}
               </span>
             </div>
-          </div>
 
-          <!-- Receipt & QR Pass Box -->
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800">
-              <span class="text-[10px] text-slate-400 block">رقم الإيصال:</span>
-              <strong class="font-mono text-emerald-700 dark:text-emerald-300 text-xs">
-                {{ app.receiptNumber || 'REC-88421' }}
-              </strong>
-            </div>
-
-            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800">
-              <span class="text-[10px] text-slate-400 block">المبلغ المسدد:</span>
-              <strong class="font-mono text-slate-800 dark:text-slate-100 text-xs">
-                {{ formatCurrency(app.paidAmount || app.courseRound?.price) }}
-              </strong>
-            </div>
-          </div>
-
-          <!-- Attendance Rate Bar -->
-          <div class="space-y-1 pt-1 border-t border-slate-100 dark:border-slate-800">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-400 text-[11px] flex items-center gap-1">
-                <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600" />
-                <span>نسبة الحضور:</span>
-              </span>
-              <span class="font-bold font-mono text-xs" :class="getAttendanceColor(app.attendanceRate)">
-                {{ app.attendanceRate || 90 }}% ({{ app.attendedLecturesCount || 10 }}/{{ app.totalScheduledLectures || 12 }})
-              </span>
-            </div>
-            <div class="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-              <div
-                class="h-full rounded-full transition-all duration-300"
-                :class="getAttendanceBarColor(app.attendanceRate)"
-                :style="{ width: `${app.attendanceRate || 90}%` }"
-              ></div>
+            <!-- صف المعلومات: الإيصال والمبلغ ونسبة الحضور -->
+            <div class="flex items-center justify-between pt-2.5 border-t border-dashed border-slate-100 dark:border-slate-800/80">
+              <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 text-xs sm:text-sm">
+                <span class="font-mono text-slate-500 dark:text-slate-400 text-xs sm:text-sm">{{ app.receiptNumber || 'REC-88421' }}</span>
+                <span>•</span>
+                <strong class="font-black text-emerald-600 dark:text-emerald-400 text-base sm:text-lg font-mono">
+                  {{ formatCurrency(app.paidAmount || app.courseRound?.price) }}
+                </strong>
+              </div>
+              <div class="flex items-center gap-1.5 text-xs sm:text-sm">
+                <span class="text-slate-400 font-medium">حضور:</span>
+                <span class="font-black font-mono text-sm sm:text-base" :class="getAttendanceColor(app.attendanceRate)">
+                  {{ app.attendanceRate || 90 }}%
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Action Buttons Footer -->
-        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-1.5">
+        <!-- 3. أزرار الإجراءات: ملف الدارس + تفاصيل الطلب والإيصال -->
+        <div class="pt-3.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center gap-2">
+          <!-- زر ملف الدارس الأساسي -->
           <button
             type="button"
-            class="flex-1 py-2 px-2.5 rounded-xl bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/60 dark:hover:bg-primary-900/60 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1"
-            title="عرض ملف وسجل المتدرب الكامل"
-            @click="$emit('openTrainee', app)"
+            class="flex-1 h-10 px-3.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+            title="عرض ملف وسجل المتدرب الكامل والمستندات"
+            @click="$emit('open-trainee-details', app)"
           >
-            <UserCheck class="w-3.5 h-3.5" />
+            <UserCheck class="w-4.5 h-4.5" />
             <span>ملف الدارس</span>
           </button>
 
+          <!-- زر تفاصيل الطلب والإيصال والتصريح -->
           <button
             type="button"
-            class="py-2 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
-            title="طباعة إيصال السداد المعتمد"
-            @click="$emit('printReceipt', app)"
+            class="flex-1 h-10 px-3.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/80 text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
+            title="عرض تفاصيل القيد، إيصال الخزينة، وتصريح بوابة المعهد"
+            @click="$emit('open-application-details', app)"
           >
-            <Printer class="w-3.5 h-3.5" />
-            <span class="hidden sm:inline">إيصال</span>
-          </button>
-
-          <button
-            type="button"
-            class="py-2 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
-            title="عرض تصريح البوابة الإلكتروني"
-            @click="$emit('viewPass', app)"
-          >
-            <QrCode class="w-3.5 h-3.5 text-primary-600" />
-            <span class="hidden sm:inline">تصريح</span>
+            <FileText class="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400" />
+            <span>الإيصال والتصريح</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Empty State -->
+    <!-- الحالة الفارغة -->
     <div
       v-else
-      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-10 text-center space-y-2 text-slate-400"
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-10 text-center space-y-2 text-slate-400"
     >
       <Inbox class="w-10 h-10 mx-auto text-slate-300 dark:text-slate-600" />
-      <p class="text-xs font-bold">لا توجد طلبات مكتملة تطابق الفلترة الحالية</p>
+      <p class="text-sm font-bold">لا توجد طلبات مكتملة تطابق الفلترة الحالية</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { UserCheck, Printer, QrCode, CheckCircle2, Inbox } from 'lucide-vue-next';
+import { UserCheck, FileText, Inbox } from 'lucide-vue-next';
 import { formatEgyptianCurrency } from '../helpers/completedConstants';
 
 defineProps({
@@ -156,7 +132,7 @@ defineProps({
   },
 });
 
-defineEmits(['openTrainee', 'printReceipt', 'viewPass']);
+defineEmits(['open-trainee-details', 'open-application-details', 'openTrainee', 'printReceipt', 'viewPass']);
 
 function getInitials(name) {
   if (!name) return 'م';
@@ -174,12 +150,5 @@ function getAttendanceColor(rate) {
   if (r >= 85) return 'text-emerald-600 dark:text-emerald-400';
   if (r >= 75) return 'text-amber-600 dark:text-amber-400';
   return 'text-rose-600 dark:text-rose-400';
-}
-
-function getAttendanceBarColor(rate) {
-  const r = rate || 90;
-  if (r >= 85) return 'bg-emerald-500';
-  if (r >= 75) return 'bg-amber-500';
-  return 'bg-rose-500';
 }
 </script>

@@ -62,14 +62,7 @@
       </div>
     </template>
 
-    <!-- 4. رمز الـ QR Token -->
-    <template #token="{ row }">
-      <div class="font-mono text-xs font-bold text-primary-700 dark:text-primary-400 bg-slate-100/70 dark:bg-slate-800/80 px-2.5 py-1 rounded-lg border border-slate-200/80 dark:border-slate-700 inline-block">
-        {{ row.qrToken }}
-      </div>
-    </template>
-
-    <!-- 5. قرار الدخول (Allowed / Denied) -->
+    <!-- 4. قرار الدخول (Allowed / Denied) -->
     <template #decision="{ row }">
       <span
         class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border shadow-2xs"
@@ -161,7 +154,6 @@ const columns = [
   { key: 'time', label: 'توقيت المسح', cellClass: 'whitespace-nowrap' },
   { key: 'trainee', label: 'الدارس / المتقدم' },
   { key: 'course', label: 'الدورة التدريبية والقاعة' },
-  { key: 'token', label: 'رمز تصريح الـ QR', cellClass: 'whitespace-nowrap' },
   { key: 'decision', label: 'القرار الأمني', cellClass: 'whitespace-nowrap' },
   { key: 'reason', label: 'سبب القرار المسجل' },
   { key: 'officer', label: 'فرد الأمن والبوابة', cellClass: 'whitespace-nowrap' },

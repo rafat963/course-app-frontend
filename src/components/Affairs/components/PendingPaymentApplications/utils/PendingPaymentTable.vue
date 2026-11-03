@@ -103,9 +103,20 @@
       </div>
     </template>
 
-    <!-- 7. أزرار الإجراءات (تحديد موعد جديد / إلغاء / بيانات المتقدم) -->
+    <!-- 7. أزرار الإجراءات (تسجيل سداد / تمديد / إلغاء / تفاصيل) -->
     <template #actions="{ row }">
       <div class="flex items-center justify-center gap-1.5">
+        <!-- زر تسجيل السداد الأساسي -->
+        <button
+          type="button"
+          class="h-8 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+          title="تسجيل إيصال السداد وتحويل الدارس لمقيد"
+          @click="$emit('record-payment', row)"
+        >
+          <Receipt class="w-3.5 h-3.5" />
+          <span>سداد</span>
+        </button>
+
         <!-- زر فتح بيانات المتقدم الكاملة -->
         <button
           type="button"
@@ -114,7 +125,7 @@
           @click="$emit('open-details', row)"
         >
           <Eye class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />
-          <span>البيانات</span>
+          <span>تفاصيل</span>
         </button>
 
         <!-- زر تحديد موعد جديد / تمديد المهلة (يظهر بارزاً خصوصاً للمتأخرين) -->
@@ -158,6 +169,7 @@ import {
   Calendar,
   Check,
   AlertCircle,
+  Receipt,
 } from 'lucide-vue-next';
 import AppTable from '@/shared/ui/Table/AppTable.vue';
 import {
@@ -179,7 +191,7 @@ defineProps({
   },
 });
 
-defineEmits(['open-details', 'open-reschedule', 'open-cancel', 'clear-filters']);
+defineEmits(['open-details', 'open-reschedule', 'open-cancel', 'record-payment', 'clear-filters']);
 
 const columns = [
   { key: 'code', label: 'رقم وتاريخ الطلب', cellClass: 'whitespace-nowrap' },

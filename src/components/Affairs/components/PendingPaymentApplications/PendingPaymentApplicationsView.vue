@@ -43,6 +43,7 @@
         @open-details="openDetails"
         @open-reschedule="openReschedule"
         @open-cancel="openCancel"
+        @record-payment="openRecordPayment"
         @clear-filters="clearFilters"
       />
 
@@ -61,9 +62,13 @@
       <PendingPaymentCardsGrid
         :applications="paginatedApplications"
         @open-details="openDetails"
-        @record-payment="openDetails"
+        @record-payment="openRecordPayment"
         @extend-deadline="openReschedule"
         @cancel-application="openCancel"
+        @openDetails="openDetails"
+        @recordPayment="openRecordPayment"
+        @extendDeadline="openReschedule"
+        @cancelApplication="openCancel"
       />
 
       <div
@@ -106,6 +111,14 @@
     </div>
 
     <!-- 6. النوافذ المنبثقة التفاعلية المساعدة -->
+    <!-- مودال تسجيل سداد الرسوم وإصدار الإيصال المالي -->
+    <RecordPaymentModal
+      :is-open="isRecordPaymentOpen"
+      :application="selectedApplication"
+      @close="isRecordPaymentOpen = false"
+      @confirm="onConfirmRecordPayment"
+    />
+
     <!-- مودال تحديد موعد جديد / تمديد مهلة السداد -->
     <ExtendDeadlineModal
       :is-open="isRescheduleOpen"
@@ -122,13 +135,11 @@
       @confirm="onConfirmCancel"
     />
 
-    <!-- مودال عرض بيانات المتقدم الموحد من shared -->
+    <!-- مودال عرض بيانات المتقدم الموحد من shared (عرض تفاصيل المتدرب فقط بدون أي إجراءات) -->
     <TraineeDetailsModal
       :is-open="isDetailsOpen"
       :application="selectedApplication"
       @close="isDetailsOpen = false"
-      @reschedule="onModalReschedule"
-      @cancel="onModalCancel"
     />
   </div>
 </template>
@@ -146,6 +157,7 @@ import PendingPaymentStats from './utils/PendingPaymentStats.vue';
 import PendingPaymentFilters from './utils/PendingPaymentFilters.vue';
 import PendingPaymentTable from './utils/PendingPaymentTable.vue';
 import PendingPaymentCardsGrid from './utils/PendingPaymentCardsGrid.vue';
+import RecordPaymentModal from './utils/RecordPaymentModal.vue';
 import ExtendDeadlineModal from './utils/ExtendDeadlineModal.vue';
 import CancelPaymentApplicationModal from './utils/CancelPaymentApplicationModal.vue';
 import TraineeDetailsModal from '@/shared/ui/Modals/TraineeDetailsModal.vue';
@@ -166,7 +178,7 @@ const statusFilter = ref('all'); // 'all' | 'active' | 'overdue'
 const searchQuery = ref('');
 const selectedCourse = ref(null);
 const selectedCategory = ref(null);
-const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
+const viewMode = ref('grid');
 
 // خيارات القوائم المنسدلة
 const categoryOptions = [
@@ -177,9 +189,9 @@ const categoryOptions = [
 ];
 
 const perPageOptions = [
-  { label: '5 عناصر', value: 5 },
-  { label: '10 عناصر', value: 10 },
-  { label: '20 عنصر', value: 20 },
+  { label: '6 عناصر', value: 6 },
+  { label: '12 عنصر', value: 12 },
+  { label: '24 عنصر', value: 24 },
 ];
 
 // قائمة الدورات الفريدة
@@ -197,10 +209,11 @@ const courseOptions = computed(() => {
 
 // الباجينيشن
 const currentPage = ref(1);
-const itemsPerPage = ref(5);
+const itemsPerPage = ref(6);
 
 // النوافذ المنبثقة
 const selectedApplication = ref(null);
+const isRecordPaymentOpen = ref(false);
 const isRescheduleOpen = ref(false);
 const isCancelOpen = ref(false);
 const isDetailsOpen = ref(false);
@@ -303,6 +316,11 @@ function openDetails(app) {
   isDetailsOpen.value = true;
 }
 
+function openRecordPayment(app) {
+  selectedApplication.value = app;
+  isRecordPaymentOpen.value = true;
+}
+
 function openReschedule(app) {
   selectedApplication.value = app;
   isRescheduleOpen.value = true;
@@ -313,14 +331,19 @@ function openCancel(app) {
   isCancelOpen.value = true;
 }
 
-function onModalReschedule(app) {
-  isDetailsOpen.value = false;
-  openReschedule(app);
-}
-
-function onModalCancel(app) {
-  isDetailsOpen.value = false;
-  openCancel(app);
+// تأكيد تسجيل سداد الرسوم وإصدار الإيصال المالي
+function onConfirmRecordPayment({ applicationId, receiptNumber, paidAmount, paymentDate }) {
+  const target = applications.value.find((a) => a.id === applicationId);
+  if (target) {
+    // إزالة الطلب من قائمة "في انتظار السداد" لأنه سُدد وانتقل للمكتمل والمقيد
+    applications.value = applications.value.filter((a) => a.id !== applicationId);
+    showFeedback(
+      `تم تسجيل سداد الرسوم بنجاح وإصدار إيصال الخزينة «${receiptNumber}» للدارس «${target.trainee?.fullName}» بقيمة ${paidAmount} ج.م وتم قيده بالدورة`,
+      'success'
+    );
+  }
+  isRecordPaymentOpen.value = false;
+  selectedApplication.value = null;
 }
 
 // تأكيد تحديد الموعد الجديد (تمديد المهلة)

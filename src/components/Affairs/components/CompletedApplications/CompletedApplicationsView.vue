@@ -60,6 +60,9 @@
         :is-filtered="Boolean(searchQuery || selectedCourse || selectedCategory || statusFilter !== 'all')"
         @open-trainee-details="openTraineeDetails"
         @open-application-details="openApplicationDetails"
+        @open-trainee="openTraineeDetails"
+        @print-receipt="openApplicationDetails"
+        @view-pass="openApplicationDetails"
         @clear-filters="clearFilters"
       />
 
@@ -76,12 +79,11 @@
     </div>
 
     <!-- 5. النوافذ المنبثقة التفاعلية -->
-    <!-- مودال بيانات الدارس الموحد من shared -->
+    <!-- مودال بيانات الدارس الموحد من shared (عرض تفاصيل المتدرب فقط بدون أي إجراءات) -->
     <TraineeDetailsModal
       :is-open="isTraineeModalOpen"
       :application="selectedApplication"
       @close="isTraineeModalOpen = false"
-      @switch-to-application="switchToApplication"
     />
 
     <!-- مودال تفاصيل الطلب وإيصال السداد وتصريح البوابة -->
@@ -113,7 +115,7 @@ import CompletedApplicationModal from './utils/CompletedApplicationModal.vue';
 import { INITIAL_COMPLETED_APPLICATIONS } from './helpers/completedMockData';
 
 // نمط العرض: جدول أو شبكة كروت
-const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
+const viewMode = ref('grid');
 
 // حالة البيانات الرئيسية
 const applications = ref([...INITIAL_COMPLETED_APPLICATIONS]);
@@ -134,9 +136,9 @@ const categoryOptions = [
 ];
 
 const perPageOptions = [
-  { label: '5 عناصر', value: 5 },
-  { label: '10 عناصر', value: 10 },
-  { label: '20 عنصر', value: 20 },
+  { label: '6 عناصر', value: 6 },
+  { label: '12 عنصر', value: 12 },
+  { label: '24 عنصر', value: 24 },
 ];
 
 // قائمة الدورات الفريدة
@@ -154,7 +156,7 @@ const courseOptions = computed(() => {
 
 // الباجينيشن
 const currentPage = ref(1);
-const itemsPerPage = ref(5);
+const itemsPerPage = ref(6);
 
 // المودالات
 const selectedApplication = ref(null);

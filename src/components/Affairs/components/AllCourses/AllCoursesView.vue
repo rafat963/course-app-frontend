@@ -185,7 +185,8 @@ import { INITIAL_COURSES, INITIAL_COURSE_ROUNDS } from './helpers/courseMockData
 import { INITIAL_ARCHIVED_ROUNDS } from '@/components/Affairs/components/ArchivedCourses/helpers/archivedCoursesMockData';
 
 // --- نمط العرض (جدول للديسك توب، وكروت افتراضياً للموبايل والتابلت) ---
-const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
+// الوضع الافتراضي لعرض البيانات: شبكة الكروت أولاً وفق رغبة المستخدم مع إمكانية التبديل للجدول
+const viewMode = ref('grid'); // 'grid' | 'table'
 
 // --- حالة البيانات الرئيسية ---
 const courses = ref([...INITIAL_COURSES]);

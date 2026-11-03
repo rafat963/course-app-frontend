@@ -127,7 +127,8 @@ import AppPagination from '@/shared/ui/Table/AppPagination.vue';
 import { INITIAL_ARCHIVED_ROUNDS } from './helpers/archivedCoursesMockData';
 
 // --- نمط العرض (جدول أو كروت) ---
-const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
+// الوضع الافتراضي لعرض البيانات: شبكة الكروت أولاً وفق رغبة المستخدم مع إمكانية التبديل للجدول
+const viewMode = ref('grid'); // 'grid' | 'table'
 
 // --- الحالة الأساسية للبيانات ---
 const rounds = ref([...INITIAL_ARCHIVED_ROUNDS]);

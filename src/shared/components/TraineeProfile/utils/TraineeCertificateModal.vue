@@ -6,27 +6,27 @@
   >
     <div class="relative w-full max-w-3xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col animate-scale-in">
       <!-- ترويسة المودال -->
-      <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-slate-50 dark:bg-slate-800/40">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-primary-50 dark:bg-primary-950/70 text-primary-600 dark:text-primary-400 flex items-center justify-center">
-            <Award class="w-5 h-5" />
+      <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-slate-50 dark:bg-slate-800/40">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-primary-50 dark:bg-primary-950/70 text-primary-600 dark:text-primary-400 flex items-center justify-center shrink-0">
+            <Award class="w-6 h-6" />
           </div>
           <div>
-            <h3 class="text-sm font-black text-slate-800 dark:text-slate-100 font-heading">
+            <h3 class="text-base sm:text-lg font-black text-slate-800 dark:text-slate-100 font-heading">
               الشهادة الرسمية المعتمدة
             </h3>
-            <p class="text-[11px] text-slate-400">
-              رقم الاعتماد: <span class="font-mono font-bold">{{ course.certificateNumber }}</span>
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              رقم الاعتماد: <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ course.certificateNumber }}</span>
             </p>
           </div>
         </div>
 
         <button
           type="button"
-          class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 flex items-center justify-center cursor-pointer"
+          class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 flex items-center justify-center cursor-pointer transition-colors"
           @click="$emit('close')"
         >
-          <X class="w-4 h-4" />
+          <X class="w-4.5 h-4.5" />
         </button>
       </div>
 
@@ -119,19 +119,19 @@
       </div>
 
       <!-- أسفل المودال: أزرار الطباعة والإغلاق -->
-      <div class="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-slate-50 dark:bg-slate-800/40">
+      <div class="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0 bg-slate-50 dark:bg-slate-800/40">
         <button
           type="button"
-          class="px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+          class="h-11 px-5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer shadow-xs"
           @click="printCertificate"
         >
-          <Printer class="w-4 h-4" />
+          <Printer class="w-4.5 h-4.5" />
           <span>طباعة الشهادة الرسمية</span>
         </button>
 
         <button
           type="button"
-          class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer"
+          class="h-11 px-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold transition-colors cursor-pointer"
           @click="$emit('close')"
         >
           إغلاق

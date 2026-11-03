@@ -13,7 +13,7 @@
       >
         <!-- Modal Header -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/80">
-          <h3 class="text-base font-bold text-slate-800 dark:text-slate-100 font-heading">{{ title }}</h3>
+          <h3 class="text-base sm:text-lg font-black text-slate-800 dark:text-slate-100 font-heading">{{ title }}</h3>
           <button
             class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
             @click="$emit('update:modelValue', false)"
@@ -25,7 +25,7 @@
         </div>
 
         <!-- Modal Body -->
-        <div class="p-6 overflow-y-auto flex-1 text-slate-800 dark:text-slate-200">
+        <div class="p-6 overflow-y-auto flex-1 text-slate-800 dark:text-slate-200 text-sm">
           <slot />
         </div>
 

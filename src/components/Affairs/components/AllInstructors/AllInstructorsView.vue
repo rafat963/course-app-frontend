@@ -184,7 +184,8 @@ function saveInstructors() {
 
 // --- حالة الواجهة والتحميل ---
 const isRefreshing = ref(false);
-const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table'); // 'table' | 'grid'
+// الوضع الافتراضي لعرض البيانات: شبكة الكروت أولاً وفق رغبة المستخدم مع إمكانية التبديل للجدول
+const viewMode = ref('grid'); // 'grid' | 'table'
 
 // --- الفلاتر والبحث ---
 const searchQuery = ref('');

@@ -13,21 +13,21 @@
       <div class="px-6 py-4.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 shrink-0">
         <div class="flex items-center gap-3">
           <div
-            class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-2xs"
+            class="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs"
             :class="
               isEdit
                 ? 'bg-amber-50 dark:bg-amber-950/70 border border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400'
                 : 'bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400'
             "
           >
-            <UserCheck v-if="isEdit" class="w-5 h-5" />
-            <UserPlus v-else class="w-5 h-5" />
+            <UserCheck v-if="isEdit" class="w-6 h-6" />
+            <UserPlus v-else class="w-6 h-6" />
           </div>
           <div>
-            <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-slate-100 font-heading">
+            <h3 class="text-lg sm:text-xl font-black text-slate-800 dark:text-slate-100 font-heading">
               {{ isEdit ? 'تعديل بيانات المحاضر المعتمد' : 'إضافة محاضر جديد لهيئة التدريس' }}
             </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               توثيق السجل الأكاديمي وبيانات التواصل وفق نموذج Instructors في الـ ERD
             </p>
           </div>
@@ -35,38 +35,38 @@
 
         <button
           type="button"
-          class="w-8 h-8 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+          class="w-10 h-10 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer"
           @click="handleClose"
         >
-          <X class="w-4 h-4" />
+          <X class="w-5 h-5" />
         </button>
       </div>
 
       <!-- 2. جسم النموذج مع حقول الإدخال -->
       <form @submit.prevent="handleSubmit">
-        <div class="p-6 space-y-4 max-h-[calc(85vh-140px)] overflow-y-auto text-xs">
+        <div class="p-6 space-y-4 max-h-[calc(85vh-140px)] overflow-y-auto text-xs sm:text-sm">
           <!-- رسالة الخطأ العام إن وجدت -->
           <div
             v-if="errorMessage"
-            class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 font-bold flex items-center gap-2"
+            class="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 font-bold flex items-center gap-2 text-xs sm:text-sm"
           >
-            <AlertCircle class="w-4 h-4 shrink-0" />
+            <AlertCircle class="w-4.5 h-4.5 shrink-0" />
             <span>{{ errorMessage }}</span>
           </div>
 
           <!-- اسم المحاضر -->
           <div class="space-y-1.5">
-            <label class="block font-bold text-slate-700 dark:text-slate-200">
+            <label class="block font-bold text-slate-700 dark:text-slate-200 text-xs sm:text-sm">
               اسم المحاضر بالكامل <span class="text-rose-500 font-black">*</span>
             </label>
             <input
               v-model="form.name"
               type="text"
               placeholder="مثال: د. طارق عبد الرحمن الجندي"
-              class="w-full h-10 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
+              class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 font-bold"
               :class="{ 'border-rose-400 ring-1 ring-rose-400': errors.name }"
             />
-            <p v-if="errors.name" class="text-[11px] text-rose-500 font-bold">
+            <p v-if="errors.name" class="text-xs text-rose-500 font-bold">
               {{ errors.name }}
             </p>
           </div>
@@ -75,7 +75,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- التخصص -->
             <div class="space-y-1.5">
-              <label class="block font-bold text-slate-700 dark:text-slate-200">
+              <label class="block font-bold text-slate-700 dark:text-slate-200 text-xs sm:text-sm">
                 التخصص العلمي والأكاديمي <span class="text-rose-500 font-black">*</span>
               </label>
               <input
@@ -83,30 +83,30 @@
                 type="text"
                 list="specialty-suggestions"
                 placeholder="اختر أو اكتب التخصص..."
-                class="w-full h-10 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium"
+                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 font-bold"
                 :class="{ 'border-rose-400 ring-1 ring-rose-400': errors.specialty }"
               />
               <datalist id="specialty-suggestions">
                 <option v-for="spec in specialties" :key="spec" :value="spec" />
               </datalist>
-              <p v-if="errors.specialty" class="text-[11px] text-rose-500 font-bold">
+              <p v-if="errors.specialty" class="text-xs text-rose-500 font-bold">
                 {{ errors.specialty }}
               </p>
             </div>
 
             <!-- رقم الهاتف -->
             <div class="space-y-1.5">
-              <label class="block font-bold text-slate-700 dark:text-slate-200">
+              <label class="block font-bold text-slate-700 dark:text-slate-200 text-xs sm:text-sm">
                 رقم هاتف التواصل <span class="text-rose-500 font-black">*</span>
               </label>
               <input
                 v-model="form.phone"
                 type="text"
                 placeholder="مثال: 01012345671 (11 رقماً)"
-                class="w-full h-10 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono font-medium"
+                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono font-bold"
                 :class="{ 'border-rose-400 ring-1 ring-rose-400': errors.phone }"
               />
-              <p v-if="errors.phone" class="text-[11px] text-rose-500 font-bold">
+              <p v-if="errors.phone" class="text-xs text-rose-500 font-bold">
                 {{ errors.phone }}
               </p>
             </div>
@@ -114,14 +114,14 @@
 
           <!-- البريد الإلكتروني -->
           <div class="space-y-1.5">
-            <label class="block font-bold text-slate-700 dark:text-slate-200">
+            <label class="block font-bold text-slate-700 dark:text-slate-200 text-xs sm:text-sm">
               البريد الإلكتروني المهني للتواصل
             </label>
             <input
               v-model="form.email"
               type="email"
               placeholder="example@mod-institute.edu.eg"
-              class="w-full h-10 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono font-medium"
+              class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono font-medium"
             />
           </div>
 
@@ -137,11 +137,11 @@
           >
             <div>
               <div class="flex items-center gap-2">
-                <strong class="text-xs font-black text-slate-800 dark:text-slate-100">
+                <strong class="text-sm font-black text-slate-800 dark:text-slate-100">
                   حالة الاعتماد والنشاط (IsActive)
                 </strong>
                 <span
-                  class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-colors"
+                  class="px-3 py-0.5 rounded-full text-xs font-bold border transition-colors"
                   :class="
                     form.isActive
                       ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
@@ -151,7 +151,7 @@
                   {{ form.isActive ? 'معتمد ونشط' : 'معطل وغير نشط' }}
                 </span>
               </div>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-medium">
+              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">
                 {{ form.isActive ? 'المحاضر مفعل ومتاح لإسناد دورات ودفعات جديدة له' : 'المحاضر معطل مؤقتاً ولن يظهر في القوائم المنسدلة عند فتح دفعات جديدة' }}
               </p>
             </div>
@@ -174,10 +174,10 @@
         </div>
 
         <!-- 3. الشريط السفلي للأزرار الموحد -->
-        <div class="px-6 py-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 shrink-0">
+        <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 shrink-0">
           <button
             type="button"
-            class="h-9 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer"
+            class="h-11 px-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold transition-colors cursor-pointer"
             @click="handleClose"
           >
             إلغاء
@@ -185,9 +185,9 @@
 
           <button
             type="submit"
-            class="h-9 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white text-xs font-black flex items-center gap-1.5 transition-all cursor-pointer shadow-sm shadow-emerald-500/20"
+            class="h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white text-sm sm:text-base font-black flex items-center gap-2 transition-all cursor-pointer shadow-sm shadow-emerald-500/20"
           >
-            <Save class="w-4 h-4" />
+            <Save class="w-4.5 h-4.5" />
             <span>{{ isEdit ? 'حفظ التعديلات' : 'إضافة المحاضر' }}</span>
           </button>
         </div>

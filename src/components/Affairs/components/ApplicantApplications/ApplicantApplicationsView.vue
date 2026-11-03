@@ -59,6 +59,9 @@
         @open-details="openDetails"
         @open-approval="openApproval"
         @open-rejection="openRejection"
+        @openDetails="openDetails"
+        @openApproval="openApproval"
+        @openRejection="openRejection"
       />
 
       <div
@@ -103,8 +106,6 @@
       :is-open="isDetailsOpen"
       :application="selectedApplication"
       @close="isDetailsOpen = false"
-      @approve="onModalApprove"
-      @reject="onModalReject"
     />
 
     <!-- مودال الموافقة والانتقال للسداد -->
@@ -153,7 +154,7 @@ const approvedCount = ref(0);
 const searchQuery = ref('');
 const selectedCategory = ref(null);
 const selectedCourse = ref(null);
-const viewMode = ref(typeof window !== 'undefined' && window.innerWidth < 1024 ? 'grid' : 'table');
+const viewMode = ref('grid');
 
 // خيارات القوائم المنسدلة لـ PrimeVue Select
 const categoryOptions = [
@@ -164,9 +165,9 @@ const categoryOptions = [
 ];
 
 const perPageOptions = [
-  { label: '5 عناصر', value: 5 },
-  { label: '10 عناصر', value: 10 },
-  { label: '20 عنصر', value: 20 },
+  { label: '6 عناصر', value: 6 },
+  { label: '12 عنصر', value: 12 },
+  { label: '24 عنصر', value: 24 },
 ];
 
 // قائمة الدورات الفريدة للفلتر
@@ -184,7 +185,7 @@ const courseOptions = computed(() => {
 
 // الباجينيشن
 const currentPage = ref(1);
-const itemsPerPage = ref(5);
+const itemsPerPage = ref(6);
 
 // المودالات
 const selectedApplication = ref(null);
@@ -282,16 +283,6 @@ function openApproval(app) {
 function openRejection(app) {
   selectedApplication.value = app;
   isRejectionOpen.value = true;
-}
-
-function onModalApprove(app) {
-  isDetailsOpen.value = false;
-  openApproval(app);
-}
-
-function onModalReject(app) {
-  isDetailsOpen.value = false;
-  openRejection(app);
 }
 
 // تأكيد الموافقة

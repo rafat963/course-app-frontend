@@ -24,8 +24,20 @@
         </div>
 
         <!-- منطقة عرض محتوى الصفحات (Router View) -->
-        <main class="flex-1 px-3 sm:px-4.5 lg:px-5 pb-3.5 sm:pb-4 pt-1 overflow-y-auto custom-scrollbar">
-          <RouterView />
+        <main
+          ref="mainContentRef"
+          class="flex-1 px-3 sm:px-4.5 lg:px-5 pb-3.5 sm:pb-4 pt-1 overflow-y-auto custom-scrollbar"
+        >
+          <RouterView v-slot="{ Component, route }">
+            <Transition
+              name="page-fade"
+              mode="out-in"
+              @before-enter="handleBeforeEnter"
+              @after-enter="handleAfterEnter"
+            >
+              <component :is="Component" :key="route.path" />
+            </Transition>
+          </RouterView>
         </main>
       </div>
     </div>
@@ -41,12 +53,26 @@ import Breadcrumbs from './Breadcrumbs.vue';
 
 const isCollapsed = ref(false);
 const isMobileOpen = ref(false);
+const mainContentRef = ref(null);
 
 function handleToggleSidebar() {
   if (typeof window !== 'undefined' && window.innerWidth < 1024) {
     isMobileOpen.value = !isMobileOpen.value;
   } else {
     isCollapsed.value = !isCollapsed.value;
+  }
+}
+
+// إعادة تمرير مساحة المحتوى الرئيسية لأول الصفحة فور انتهاء الصفحة السابقة وبدء ظهور الصفحة الجديدة
+function handleBeforeEnter() {
+  if (mainContentRef.value) {
+    mainContentRef.value.scrollTop = 0;
+  }
+}
+
+function handleAfterEnter() {
+  if (mainContentRef.value) {
+    mainContentRef.value.scrollTop = 0;
   }
 }
 </script>

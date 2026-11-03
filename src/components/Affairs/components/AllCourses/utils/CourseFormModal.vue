@@ -9,7 +9,7 @@
       <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 shrink-0">
         <div class="flex items-center gap-3">
           <div
-            class="w-10 h-10 rounded-2xl flex items-center justify-center border"
+            class="w-11 h-11 rounded-2xl flex items-center justify-center border shrink-0"
             :class="
               isEdit
                 ? 'bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-300 border-blue-200 dark:border-blue-800'
@@ -20,10 +20,10 @@
             <Plus v-else class="w-5 h-5" />
           </div>
           <div>
-            <h3 class="text-sm sm:text-base font-black text-slate-800 dark:text-slate-100 font-heading">
+            <h3 class="text-lg sm:text-xl font-black text-slate-800 dark:text-slate-100 font-heading">
               {{ isEdit ? 'تعديل بيانات الدورة التدريبية' : 'إضافة دورة تدريبية جديدة للكتالوج' }}
             </h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               {{ isEdit ? 'تعديل اسم الدورة، المحاضر المسؤول، التوصيف الأكاديمي، والأسعار المعتمدة للفئات' : 'تسجيل دورة جديدة بالكتالوج، تحديد المحاضر المسؤول، واعتماد أسعار الفئات الأربعة' }}
             </p>
           </div>
@@ -31,18 +31,18 @@
 
         <button
           type="button"
-          class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
+          class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 flex items-center justify-center transition-colors cursor-pointer"
           @click="$emit('close')"
         >
-          <X class="w-4 h-4" />
+          <X class="w-5 h-5" />
         </button>
       </div>
 
       <!-- 2. نموذج الإدخال المطابق للـ ERD -->
-      <form class="p-4 sm:p-5 space-y-4 overflow-y-auto custom-scrollbar text-xs" @submit.prevent="handleSubmit">
+      <form class="p-4 sm:p-5 space-y-4 overflow-y-auto custom-scrollbar text-xs sm:text-sm" @submit.prevent="handleSubmit">
         <!-- أ. اسم الدورة في الكتالوج (Courses.Name) -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 dark:text-slate-200 block">
+          <label class="font-bold text-slate-700 dark:text-slate-200 block text-xs sm:text-sm">
             اسم الدورة في الكتالوج <span class="text-rose-500">*</span>
           </label>
           <input
@@ -50,14 +50,14 @@
             type="text"
             placeholder="مثال: الأمن السيبراني واختبار الاختراق CEH v12"
             required
-            class="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 text-xs font-medium"
+            class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 text-sm font-bold"
           />
         </div>
 
         <!-- ب. المحاضر المعتمد للدورة من قائمة المحاضرين المسجلين في السيستم -->
-        <div class="space-y-1.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800">
-          <label class="font-bold text-slate-700 dark:text-slate-200 block text-xs flex items-center gap-1.5">
-            <UserCheck class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+        <div class="space-y-2 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800">
+          <label class="font-bold text-slate-700 dark:text-slate-200 block text-xs sm:text-sm flex items-center gap-1.5">
+            <UserCheck class="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400" />
             <span>المحاضر المعتمد (المسؤول عن شرح الدورة) <span class="text-rose-500">*</span></span>
           </label>
 
@@ -69,17 +69,17 @@
             filter
             filter-placeholder="ابحث بالاسم أو التخصص..."
             placeholder="اختر المحاضر الذي سيشرح الدورة من قائمة المحاضرين..."
-            class="w-full text-xs font-bold rounded-xl h-10 flex items-center bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+            class="w-full text-sm font-bold rounded-xl h-11 flex items-center bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
           >
             <template #option="{ option }">
-              <div class="flex items-center justify-between w-full py-0.5 text-xs">
+              <div class="flex items-center justify-between w-full py-1 text-xs sm:text-sm">
                 <div class="flex items-center gap-2">
-                  <div class="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-[10px]">
-                    <UserCheck class="w-3.5 h-3.5" />
+                  <div class="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs">
+                    <UserCheck class="w-4 h-4" />
                   </div>
                   <span class="font-bold text-slate-800 dark:text-slate-100">{{ option.name }}</span>
                 </div>
-                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/60">
+                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-bold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/60 dark:border-emerald-800/60">
                   {{ option.specialty }}
                 </span>
               </div>
@@ -89,31 +89,31 @@
           <!-- بطاقة معاينة المحاضر المختار -->
           <div
             v-if="selectedInstructor"
-            class="mt-2 p-2.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/60 flex items-center justify-between text-xs animate-fade-in"
+            class="mt-2 p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-900/60 flex items-center justify-between text-xs sm:text-sm animate-fade-in"
           >
             <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
-                <UserCheck class="w-4 h-4" />
+              <div class="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                <UserCheck class="w-4.5 h-4.5" />
               </div>
               <div>
-                <span class="font-bold text-slate-800 dark:text-slate-100 block">{{ selectedInstructor.name }}</span>
-                <span class="text-[10px] text-emerald-700 dark:text-emerald-300 font-semibold">{{ selectedInstructor.specialty }}</span>
+                <span class="font-bold text-slate-800 dark:text-slate-100 block text-sm">{{ selectedInstructor.name }}</span>
+                <span class="text-xs text-emerald-700 dark:text-emerald-300 font-bold">{{ selectedInstructor.specialty }}</span>
               </div>
             </div>
 
-            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1.5 shrink-0">
-              <Phone class="w-3 h-3 text-slate-400" />
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono flex items-center gap-1.5 shrink-0 font-bold">
+              <Phone class="w-3.5 h-3.5 text-slate-400" />
               <span>{{ selectedInstructor.phone }}</span>
             </div>
           </div>
-          <p v-else class="text-[11px] text-slate-400 pt-0.5">
+          <p v-else class="text-xs text-slate-400 pt-0.5">
             يتم اختيار المحاضر المعتمد من قاعدة بيانات المحاضرين المسجلين في السيستم.
           </p>
         </div>
 
         <!-- ج. التوصيف والمحتوى الأكاديمي (Courses.Description) -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 dark:text-slate-200 block">
+          <label class="font-bold text-slate-700 dark:text-slate-200 block text-xs sm:text-sm">
             توصيف ومحتوى الدورة <span class="text-rose-500">*</span>
           </label>
           <textarea
@@ -121,22 +121,22 @@
             rows="3"
             placeholder="اكتب نبذة عن أهداف الدورة، المحتوى التدريبي، والمخرجات التعليمية..."
             required
-            class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 text-xs font-medium resize-none"
+            class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 text-sm font-medium resize-none"
           ></textarea>
         </div>
 
         <!-- د. حالة الدورة في الكتالوج (Courses.IsActive) -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700 dark:text-slate-200 block">
+          <label class="font-bold text-slate-700 dark:text-slate-200 block text-xs sm:text-sm">
             حالة الدورة بالكتالوج (IsActive)
           </label>
-          <label class="flex items-center gap-2.5 h-10 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 cursor-pointer">
+          <label class="flex items-center gap-2.5 h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 cursor-pointer">
             <input
               v-model="form.isActive"
               type="checkbox"
-              class="w-4 h-4 rounded text-primary-600 focus:ring-primary-500 cursor-pointer"
+              class="w-4.5 h-4.5 rounded text-primary-600 focus:ring-primary-500 cursor-pointer"
             />
-            <span class="font-bold" :class="form.isActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500'">
+            <span class="font-bold text-xs sm:text-sm" :class="form.isActive ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500'">
               {{ form.isActive ? 'الدورة نشطة ومتاحة لفتح دورات انعقاد (دفعات)' : 'الدورة معطلة وموقوفة مؤقتاً بالكتالوج' }}
             </span>
           </label>
@@ -145,21 +145,21 @@
         <!-- هـ. أسعار الدورة بحسب فئات المتدربين (CoursePricings) -->
         <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/80 space-y-3">
           <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
-            <h4 class="font-black text-slate-800 dark:text-slate-100 text-xs flex items-center gap-1.5">
-              <DollarSign class="w-4 h-4 text-primary-600" />
+            <h4 class="font-black text-slate-800 dark:text-slate-100 text-sm flex items-center gap-1.5">
+              <DollarSign class="w-4.5 h-4.5 text-primary-600" />
               <span>أسعار الدورة المعتمدة بحسب الفئات (CoursePricings)</span>
             </h4>
-            <span class="text-[10px] text-slate-400 font-mono">
+            <span class="text-xs text-slate-400 font-mono font-bold">
               بالجنيه المصري (ج.م)
             </span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <!-- 1. سعر المدنيين -->
-            <div class="space-y-1">
-              <label class="font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+            <div class="space-y-1.5">
+              <label class="font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between text-xs sm:text-sm">
                 <span>سعر فئة المدنيين (Civilian):</span>
-                <span class="text-[10px] text-slate-400">السعر الأساسي</span>
+                <span class="text-xs text-slate-400 font-bold">السعر الأساسي</span>
               </label>
               <input
                 v-model.number="form.pricings.Civilian"
@@ -167,15 +167,15 @@
                 min="0"
                 step="50"
                 required
-                class="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono font-bold text-xs"
+                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono font-black text-sm sm:text-base"
               />
             </div>
 
             <!-- 2. سعر ضباط القوات المسلحة -->
-            <div class="space-y-1">
-              <label class="font-bold text-primary-800 dark:text-primary-300 flex items-center justify-between">
+            <div class="space-y-1.5">
+              <label class="font-bold text-primary-800 dark:text-primary-300 flex items-center justify-between text-xs sm:text-sm">
                 <span>سعر ضباط ق.م (MilitaryOfficer):</span>
-                <span class="text-[10px] text-primary-600 font-bold">خصم 50%</span>
+                <span class="text-xs text-primary-600 font-black">خصم 50%</span>
               </label>
               <input
                 v-model.number="form.pricings.MilitaryOfficer"
@@ -183,15 +183,15 @@
                 min="0"
                 step="50"
                 required
-                class="w-full h-9 px-3 rounded-xl border border-primary-200 dark:border-primary-800/80 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono font-bold text-xs"
+                class="w-full h-11 px-3.5 rounded-xl border border-primary-200 dark:border-primary-800/80 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono font-black text-sm sm:text-base"
               />
             </div>
 
             <!-- 3. سعر عائلات ضباط القوات المسلحة -->
-            <div class="space-y-1">
-              <label class="font-bold text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
+            <div class="space-y-1.5">
+              <label class="font-bold text-emerald-800 dark:text-emerald-300 flex items-center justify-between text-xs sm:text-sm">
                 <span>عائلات ضباط ق.م (MilitaryFamily):</span>
-                <span class="text-[10px] text-emerald-600 font-bold">خصم 40%</span>
+                <span class="text-xs text-emerald-600 font-black">خصم 40%</span>
               </label>
               <input
                 v-model.number="form.pricings.MilitaryFamily"
@@ -199,15 +199,15 @@
                 min="0"
                 step="50"
                 required
-                class="w-full h-9 px-3 rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono font-bold text-xs"
+                class="w-full h-11 px-3.5 rounded-xl border border-emerald-200 dark:border-emerald-800/80 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono font-black text-sm sm:text-base"
               />
             </div>
 
             <!-- 4. سعر ضباط الشرطة وعائلاتهم -->
-            <div class="space-y-1">
-              <label class="font-bold text-blue-800 dark:text-blue-300 flex items-center justify-between">
+            <div class="space-y-1.5">
+              <label class="font-bold text-blue-800 dark:text-blue-300 flex items-center justify-between text-xs sm:text-sm">
                 <span>الشرطة وعائلاتهم (PoliceOfficerOrFamily):</span>
-                <span class="text-[10px] text-blue-600 font-bold">خصم 35%</span>
+                <span class="text-xs text-blue-600 font-black">خصم 35%</span>
               </label>
               <input
                 v-model.number="form.pricings.PoliceOfficerOrFamily"
@@ -215,26 +215,26 @@
                 min="0"
                 step="50"
                 required
-                class="w-full h-9 px-3 rounded-xl border border-blue-200 dark:border-blue-800/80 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono font-bold text-xs"
+                class="w-full h-11 px-3.5 rounded-xl border border-blue-200 dark:border-blue-800/80 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-mono font-black text-sm sm:text-base"
               />
             </div>
           </div>
         </div>
 
         <!-- 3. أسفل المودال: أزرار الحفظ والإلغاء -->
-        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3">
           <button
             type="button"
-            class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+            class="h-11 px-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-bold transition-colors cursor-pointer"
             @click="$emit('close')"
           >
             إلغاء
           </button>
           <button
             type="submit"
-            class="px-5 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+            class="h-11 px-6 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm sm:text-base font-black flex items-center gap-2 transition-colors cursor-pointer shadow-xs"
           >
-            <Check class="w-4 h-4" />
+            <Check class="w-4.5 h-4.5" />
             <span>{{ isEdit ? 'حفظ التعديلات' : 'إضافة الدورة للكتالوج' }}</span>
           </button>
         </div>
