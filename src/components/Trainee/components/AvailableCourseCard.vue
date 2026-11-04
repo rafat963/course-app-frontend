@@ -128,9 +128,22 @@
         عرض التفاصيل
       </button>
 
+      <!-- حالة: تم التقديم مسبقاً على هذه الدفعة -->
+      <button
+        v-if="application"
+        type="button"
+        disabled
+        class="flex-1 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 text-[11px] font-black flex items-center justify-center gap-1.5 cursor-default select-none"
+        :title="`كود الطلب: ${application.applicationCode} — قيد المراجعة`"
+      >
+        <BadgeCheck class="w-3.5 h-3.5 shrink-0" />
+        <span v-if="submittedAtLabel">تم التقديم في {{ submittedAtLabel }}</span>
+        <span v-else>تم التقديم</span>
+      </button>
+
       <!-- زر التقديم (Available) أو شارة الاكتمال (Full) -->
       <button
-        v-if="round.status === 'Available' && remainingSeats > 0"
+        v-else-if="round.status === 'Available' && remainingSeats > 0"
         type="button"
         class="flex-1 h-9 rounded-xl bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
         @click="$emit('apply', round)"
@@ -163,10 +176,12 @@ import {
   Info,
   Send,
   Lock,
+  BadgeCheck,
 } from 'lucide-vue-next';
 import {
   formatLectureDays,
   formatDateAr,
+  formatSubmissionDate,
   calcLectureDuration,
   getDaysUntilDeadline,
   getPriceByCategory,
@@ -185,11 +200,19 @@ const props = defineProps({
     type: String,
     default: 'Civilian',
   },
+  /** طلب التقديم الحالي للمتدرب على هذه الدفعة (إن وُجد) */
+  application: {
+    type: Object,
+    default: null,
+  },
 });
 
 defineEmits(['open-details', 'apply']);
 
 const statusConfig = computed(() => getRoundStatusConfig(props.round.status));
+const submittedAtLabel = computed(() =>
+  formatSubmissionDate(props.application?.createdAt || props.application?.appliedAt)
+);
 const fillRate = computed(() => calcFillRate(props.round.enrolledCount, props.round.capacity));
 const remainingSeats = computed(() => calcRemainingSeats(props.round.enrolledCount, props.round.capacity));
 const daysUntilDeadline = computed(() => getDaysUntilDeadline(props.round.lastApplicationDate));

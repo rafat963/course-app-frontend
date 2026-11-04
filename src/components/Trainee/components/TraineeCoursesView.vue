@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-5 select-none pb-8">
     <!-- =========================================================
-         1. رأس الصفحة + إحصائيات سريعة
+         1. رأس الصفحة
          ========================================================= -->
     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm dark:shadow-xl overflow-hidden">
       <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -30,27 +30,6 @@
             <div class="text-[11px] text-slate-400">
               {{ CATEGORY_CONFIG[traineeProfile.category]?.label || traineeProfile.category }}
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- الإحصائيات السريعة -->
-      <div class="grid grid-cols-3 border-t border-slate-100 dark:border-slate-800">
-        <div
-          v-for="(stat, i) in pageStats"
-          :key="i"
-          class="flex items-center gap-3 px-5 py-3.5 text-xs"
-          :class="i < pageStats.length - 1 ? 'border-l border-slate-100 dark:border-slate-800' : ''"
-        >
-          <div
-            class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-            :class="stat.iconBg"
-          >
-            <component :is="stat.icon" class="w-4 h-4" :class="stat.iconColor" />
-          </div>
-          <div>
-            <div class="font-black text-base leading-none" :class="stat.valueColor">{{ stat.value }}</div>
-            <div class="text-slate-400 mt-0.5 leading-none">{{ stat.label }}</div>
           </div>
         </div>
       </div>
@@ -144,6 +123,7 @@
         :key="round.id"
         :round="round"
         :trainee-category="traineeProfile.category"
+        :application="applicationsByRound.get(String(round.id)) || null"
         @open-details="handleOpenDetails"
         @apply="handleOpenApply"
       />
@@ -175,8 +155,8 @@
       @apply="handleOpenApply"
     />
 
-    <!-- مودال التقديم -->
-    <ApplyModal
+    <!-- مودال التقديم السريع -->
+    <ApplyConfirmModal
       :is-open="isApplyModalOpen"
       :round="selectedRound"
       :trainee-profile="traineeProfile"
@@ -222,24 +202,23 @@ import {
   CheckCircle2,
   XCircle,
   X,
-  BookOpen,
-  Users,
-  Lock,
 } from 'lucide-vue-next';
 import AvailableCourseCard from './AvailableCourseCard.vue';
 import CourseDetailsModal from './CourseDetailsModal.vue';
-import ApplyModal from './ApplyModal.vue';
+import ApplyConfirmModal from './ApplyConfirmModal.vue';
 import AppPagination from '@/shared/ui/Table/AppPagination.vue';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
 import { useNotificationsStore } from '@/shared/stores/notificationsStore';
-import { AVAILABLE_ROUNDS, TRAINEE_MOCK_PROFILE, MOCK_APPLICATIONS, MOCK_AUDIT_LOGS } from '../helpers/availableCoursesMockData';
+import { AVAILABLE_ROUNDS, TRAINEE_MOCK_PROFILE } from '../helpers/availableCoursesMockData';
 import { CATEGORY_CONFIG } from '../helpers/availableCoursesHelpers';
+import { useTraineeApplicationsStore } from '../stores/traineeApplicationsStore';
 
 // ============================================================
-// متجر المصادقة والإشعارات
+// المتاجر: المصادقة، الإشعارات، طلبات المتدرب
 // ============================================================
 const authStore = useAuthStore();
 const notificationsStore = useNotificationsStore();
+const applicationsStore = useTraineeApplicationsStore();
 
 // ============================================================
 // بروفايل المتدرب — في مشروع حقيقي سيُجلب من API أو متجر Pinia
@@ -262,9 +241,17 @@ const userInitials = computed(() => {
 // البيانات الأساسية
 // ============================================================
 const rounds = ref([...AVAILABLE_ROUNDS]);
-const applications = ref([...MOCK_APPLICATIONS]);
-const auditLogs = ref([...MOCK_AUDIT_LOGS]);
 const isRefreshing = ref(false);
+
+// تحميل طلبات المتدرب الحالي (محفوظة لكل مستخدم) لاستعادة حالة "تم التقديم"
+applicationsStore.load(traineeProfile.value.userId);
+
+/** طلبات التقديم مفهرسة برقم الدفعة لتحديث حالة أزرار الكروت */
+const applicationsByRound = computed(() => {
+  const map = new Map();
+  applicationsStore.applications.forEach((app) => map.set(String(app.courseRoundId), app));
+  return map;
+});
 
 // ============================================================
 // فلاتر وبحث
@@ -285,44 +272,6 @@ const tabOptions = computed(() => [
     count: rounds.value.filter((r) => r.status === 'Full').length,
   },
 ]);
-
-// ============================================================
-// إحصائيات الصفحة (KPIs)
-// ============================================================
-const pageStats = computed(() => {
-  const available = rounds.value.filter((r) => r.status === 'Available').length;
-  const full = rounds.value.filter((r) => r.status === 'Full').length;
-  const totalSeats = rounds.value
-    .filter((r) => r.status === 'Available')
-    .reduce((sum, r) => sum + Math.max(0, r.capacity - r.enrolledCount), 0);
-
-  return [
-    {
-      label: 'دورات مفتوحة للتقديم',
-      value: available,
-      icon: BookOpen,
-      iconBg: 'bg-blue-50 dark:bg-blue-950/50',
-      iconColor: 'text-blue-600 dark:text-blue-400',
-      valueColor: 'text-blue-700 dark:text-blue-400',
-    },
-    {
-      label: 'مقاعد متاحة الآن',
-      value: totalSeats,
-      icon: Users,
-      iconBg: 'bg-emerald-50 dark:bg-emerald-950/50',
-      iconColor: 'text-emerald-600 dark:text-emerald-400',
-      valueColor: 'text-emerald-700 dark:text-emerald-400',
-    },
-    {
-      label: 'دورات مكتملة العدد',
-      value: full,
-      icon: Lock,
-      iconBg: 'bg-purple-50 dark:bg-purple-950/50',
-      iconColor: 'text-purple-600 dark:text-purple-400',
-      valueColor: 'text-purple-700 dark:text-purple-400',
-    },
-  ];
-});
 
 // ============================================================
 // الفلترة
@@ -382,6 +331,14 @@ function handleOpenDetails(round) {
 }
 
 function handleOpenApply(round) {
+  // منع التقديم المكرر على نفس الدفعة — التقديم أصبح بضغطة واحدة
+  const existing = applicationsStore.getByRound(round.id);
+  if (existing) {
+    isDetailsModalOpen.value = false;
+    showToast(`لقد قدّمت على هذه الدورة بالفعل — كود الطلب: ${existing.applicationCode}`, 'error');
+    return;
+  }
+
   selectedRound.value = round;
   isDetailsModalOpen.value = false;
   isApplyModalOpen.value = true;
@@ -393,29 +350,27 @@ function handleOpenApply(round) {
 function handleApplicationSubmitted(submissionData) {
   const { applicationCode, qrToken, courseRoundId, status, auditLog, affairsNotification } = submissionData;
 
-  // 1. تسجيل الطلب في الذاكرة
-  applications.value.push({
-    id: Date.now(),
-    applicationCode,
-    qrToken,
-    traineeId: traineeProfile.value.userId,
-    courseRoundId,
-    status,
-    qualificationPhotoPath: submissionData.qualificationPhotoPath,
-    createdAt: submissionData.createdAt,
-    updatedAt: submissionData.createdAt,
-  });
-
-  // 2. تسجيل AuditLog
-  auditLogs.value.push({
-    id: Date.now(),
-    applicationId: applications.value[applications.value.length - 1].id,
-    fromStatus: auditLog.fromStatus, // null
-    toStatus: auditLog.toStatus, // 'UnderReview'
-    changedByUserId: traineeProfile.value.userId,
-    changedAt: auditLog.changedAt,
-    note: auditLog.note, // 'تقديم إلكتروني جديد على الدورة'
-  });
+  // 1 + 2. تسجيل الطلب وحركة AuditLog (مع الحفظ للمتدرب الحالي)
+  applicationsStore.addApplication(
+    {
+      applicationCode,
+      qrToken,
+      traineeId: traineeProfile.value.userId,
+      courseRoundId,
+      status,
+      qualificationPhotoPath:
+        submissionData.qualificationPhotoPath || traineeProfile.value.qualificationPhotoPath || null,
+      createdAt: submissionData.createdAt,
+      updatedAt: submissionData.createdAt,
+    },
+    {
+      fromStatus: auditLog.fromStatus, // null
+      toStatus: auditLog.toStatus, // 'UnderReview'
+      changedByUserId: traineeProfile.value.userId,
+      changedAt: auditLog.changedAt,
+      note: auditLog.note, // 'تقديم إلكتروني سريع على الدورة'
+    }
+  );
 
   // 3. إشعار شؤون الدارسين عبر notificationsStore
   const newNotifId = Date.now();
@@ -437,8 +392,7 @@ function handleApplicationSubmitted(submissionData) {
   // 4. Toast نجاح
   showToast(`تم إرسال طلبك بنجاح! كود الطلب: ${applicationCode} — قيد المراجعة`, 'success');
 
-  // 5. إغلاق المودال (سيتم من داخل المودال بعد إجراء المستخدم)
-  isApplyModalOpen.value = false;
+  // 5. يبقى المودال مفتوحاً لعرض الكود، ويُغلق بإجراء المستخدم
 }
 
 // ============================================================
