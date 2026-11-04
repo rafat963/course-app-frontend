@@ -79,6 +79,20 @@ export function formatDateAr(dateStr) {
 }
 
 /**
+ * تنسيق تاريخ التقديم بصيغة DD/MM/YYYY
+ * @param {string|Date} value - تاريخ التقديم (ISO أو Date)
+ * @returns {string}
+ */
+export function formatSubmissionDate(value) {
+  if (!value) return '';
+  const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `${day}/${month}/${d.getFullYear()}`;
+}
+
+/**
  * حساب مدة المحاضرة بالساعات
  * @param {string} startTime
  * @param {string} endTime

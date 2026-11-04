@@ -404,6 +404,7 @@ import {
   Users,
   QrCode,
   ShieldCheck,
+  BookOpen,
 } from 'lucide-vue-next';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
 import { useNotificationsStore } from '@/shared/stores/notificationsStore';
@@ -486,7 +487,7 @@ const navGroups = computed(() => {
       items: [
         { label: 'لوحة التحكم', path: '/dashboard', icon: LayoutDashboard },
         { label: 'شؤون الدارسين', path: '/affairs/dashboard', icon: FileText },
-        { label: 'المتدرب', path: '/trainee/applications', icon: QrCode },
+        { label: 'المتدرب', path: '/trainee/courses', icon: BookOpen },
         { label: 'البوابة', path: '/security/gate-scan', icon: ShieldCheck },
         { label: 'مسؤول النظام', path: '/admin/users', icon: Users },
       ],

@@ -15,6 +15,10 @@ export const TRAINEE_MOCK_PROFILE = {
   gender: 'Male',
   governorate: 'القاهرة',
   occupation: 'مهندس حاسبات',
+  // بيانات المؤهل الدراسي المسجلة في ملف المتدرب — تُستخدم تلقائياً عند التقديم السريع
+  qualification: 'بكالوريوس هندسة الحاسبات ونظم التحكم - دفعة 2014',
+  qualificationPhotoPath:
+    'https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=600&auto=format&fit=crop&q=80',
   profilePhotoPath: null,
 };
 
