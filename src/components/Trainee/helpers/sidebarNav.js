@@ -5,14 +5,14 @@ export const traineeNav = [
     title: 'بوابة خدمات المتدرب',
     items: [
       {
-        label: 'الدورات المتاحة للتقديم',
-        path: '/trainee/courses',
-        icon: BookOpen,
-      },
-      {
         label: 'تصاريح الدخول (QR)',
         path: '/trainee/passes',
         icon: QrCode,
+      },
+      {
+        label: 'الدورات المتاحة للتقديم',
+        path: '/trainee/courses',
+        icon: BookOpen,
       },
       {
         label: 'متابعة الطلبات',

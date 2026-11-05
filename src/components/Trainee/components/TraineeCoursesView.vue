@@ -146,11 +146,12 @@
     <!-- =========================================================
          4. مودالات
          ========================================================= -->
-    <!-- مودال تفاصيل الدورة -->
+    <!-- مودال تفاصيل الدورة (يستبدل زر تقديم الآن بحالة تم التقديم في حال وجود طلب سابق) -->
     <CourseDetailsModal
       :is-open="isDetailsModalOpen"
       :round="selectedRound"
       :trainee-category="traineeProfile.category"
+      :application="selectedRound ? applicationsByRound.get(String(selectedRound.id)) || null : null"
       @close="isDetailsModalOpen = false"
       @apply="handleOpenApply"
     />
@@ -210,6 +211,7 @@ import AppPagination from '@/shared/ui/Table/AppPagination.vue';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
 import { useNotificationsStore } from '@/shared/stores/notificationsStore';
 import { AVAILABLE_ROUNDS, TRAINEE_MOCK_PROFILE } from '../helpers/availableCoursesMockData';
+import { TRAINEE_APPLICATIONS } from '../helpers/traineePortalMockData';
 import { CATEGORY_CONFIG } from '../helpers/availableCoursesHelpers';
 import { useTraineeApplicationsStore } from '../stores/traineeApplicationsStore';
 
@@ -221,11 +223,10 @@ const notificationsStore = useNotificationsStore();
 const applicationsStore = useTraineeApplicationsStore();
 
 // ============================================================
-// بروفايل المتدرب — في مشروع حقيقي سيُجلب من API أو متجر Pinia
+// بروفايل المتدرب
 // ============================================================
 const traineeProfile = ref({
   ...TRAINEE_MOCK_PROFILE,
-  // إذا كان المستخدم المسجل دوره Trainee نأخذ اسمه من authStore
   fullName: authStore.user?.fullName || TRAINEE_MOCK_PROFILE.fullName,
   userId: authStore.user?.id || TRAINEE_MOCK_PROFILE.userId,
 });
@@ -246,10 +247,23 @@ const isRefreshing = ref(false);
 // تحميل طلبات المتدرب الحالي (محفوظة لكل مستخدم) لاستعادة حالة "تم التقديم"
 applicationsStore.load(traineeProfile.value.userId);
 
-/** طلبات التقديم مفهرسة برقم الدفعة لتحديث حالة أزرار الكروت */
+/** طلبات التقديم مفهرسة برقم الدفعة لتحديث حالة أزرار الكروت والمودال */
 const applicationsByRound = computed(() => {
   const map = new Map();
-  applicationsStore.applications.forEach((app) => map.set(String(app.courseRoundId), app));
+  // 1. طلبات المتدرب المسبقة المسجلة بالمنظومة
+  TRAINEE_APPLICATIONS.forEach((app) => {
+    const roundId = app.round?.courseRoundId || app.courseRoundId || app.roundId;
+    if (roundId) {
+      map.set(String(roundId), app);
+    }
+  });
+  // 2. طلبات المتدرب المنشأة حديثاً عبر المتجر في الجلسة
+  applicationsStore.applications.forEach((app) => {
+    const roundId = app.courseRoundId || app.round?.courseRoundId || app.roundId;
+    if (roundId) {
+      map.set(String(roundId), app);
+    }
+  });
   return map;
 });
 
@@ -268,58 +282,62 @@ const tabOptions = computed(() => [
   },
   {
     value: 'full',
-    label: 'مكتملة',
+    label: 'مكتملة المقاعد',
     count: rounds.value.filter((r) => r.status === 'Full').length,
   },
 ]);
 
-// ============================================================
-// الفلترة
-// ============================================================
 const filteredRounds = computed(() => {
-  return rounds.value.filter((round) => {
-    // فلتر التبويب
-    if (activeTab.value === 'available' && round.status !== 'Available') return false;
-    if (activeTab.value === 'full' && round.status !== 'Full') return false;
+  let list = rounds.value;
 
-    // فلتر البحث
-    if (searchQuery.value) {
-      const q = searchQuery.value.trim().toLowerCase();
-      const name = round.courseName?.toLowerCase() || '';
-      const domain = round.courseDomain?.toLowerCase() || '';
-      const code = round.courseCode?.toLowerCase() || '';
-      const instructor = round.instructor?.name?.toLowerCase() || '';
-      if (!name.includes(q) && !domain.includes(q) && !code.includes(q) && !instructor.includes(q)) {
-        return false;
-      }
-    }
+  if (activeTab.value === 'available') {
+    list = list.filter((r) => r.status === 'Available');
+  } else if (activeTab.value === 'full') {
+    list = list.filter((r) => r.status === 'Full');
+  }
 
-    return true;
-  });
+  const query = searchQuery.value.trim().toLowerCase();
+  if (query) {
+    list = list.filter((r) => {
+      const name = (r.courseName || '').toLowerCase();
+      const code = (r.courseCode || '').toLowerCase();
+      const roundCode = (r.roundCode || '').toLowerCase();
+      const domain = (r.courseDomain || '').toLowerCase();
+      const instructor = (r.instructor?.name || '').toLowerCase();
+      return (
+        name.includes(query) ||
+        code.includes(query) ||
+        roundCode.includes(query) ||
+        domain.includes(query) ||
+        instructor.includes(query)
+      );
+    });
+  }
+
+  return list;
 });
 
 // ============================================================
-// الترقيم
+// ترقيم الصفحات (Pagination)
 // ============================================================
 const currentPage = ref(1);
 const itemsPerPage = ref(6);
-const perPageOptions = [
-  { label: '6 دورات', value: 6 },
-  { label: '12 دورة', value: 12 },
-  { label: 'الكل', value: 100 },
-];
+const perPageOptions = [3, 6, 9, 12];
 
 const paginatedRounds = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   return filteredRounds.value.slice(start, start + itemsPerPage.value);
 });
 
-watch([activeTab, searchQuery, itemsPerPage], () => {
-  currentPage.value = 1;
+watch(filteredRounds, () => {
+  const maxPage = Math.ceil(filteredRounds.value.length / itemsPerPage.value) || 1;
+  if (currentPage.value > maxPage) {
+    currentPage.value = maxPage;
+  }
 });
 
 // ============================================================
-// المودالات
+// فتح المودالات
 // ============================================================
 const selectedRound = ref(null);
 const isDetailsModalOpen = ref(false);
@@ -331,51 +349,76 @@ function handleOpenDetails(round) {
 }
 
 function handleOpenApply(round) {
-  // منع التقديم المكرر على نفس الدفعة — التقديم أصبح بضغطة واحدة
-  const existing = applicationsStore.getByRound(round.id);
-  if (existing) {
-    isDetailsModalOpen.value = false;
-    showToast(`لقد قدّمت على هذه الدورة بالفعل — كود الطلب: ${existing.applicationCode}`, 'error');
-    return;
-  }
-
   selectedRound.value = round;
-  isDetailsModalOpen.value = false;
   isApplyModalOpen.value = true;
 }
 
 // ============================================================
-// منطق التقديم + AuditLog + إشعار الشؤون
+// معالجة تأكيد التقديم السريع
 // ============================================================
-function handleApplicationSubmitted(submissionData) {
-  const { applicationCode, qrToken, courseRoundId, status, auditLog, affairsNotification } = submissionData;
+function handleApplicationSubmitted(payload) {
+  const { round, qualification, qualificationPhotoPath, note, applicationCode } = payload;
 
-  // 1 + 2. تسجيل الطلب وحركة AuditLog (مع الحفظ للمتدرب الحالي)
-  applicationsStore.addApplication(
-    {
-      applicationCode,
-      qrToken,
-      traineeId: traineeProfile.value.userId,
-      courseRoundId,
-      status,
-      qualificationPhotoPath:
-        submissionData.qualificationPhotoPath || traineeProfile.value.qualificationPhotoPath || null,
-      createdAt: submissionData.createdAt,
-      updatedAt: submissionData.createdAt,
+  const newApp = {
+    courseRoundId: round.id,
+    applicationCode,
+    status: 'UnderReview',
+    qualificationPhotoPath,
+    createdAt: new Date().toISOString(),
+    round: {
+      courseRoundId: round.id,
+      courseName: round.courseName,
+      courseCode: round.courseCode,
+      courseDomain: round.courseDomain,
+      roundNumber: round.roundNumber,
+      roundCode: round.roundCode,
+      startDate: round.startDate,
+      endDate: round.endDate,
+      startTime: round.startTime,
+      endTime: round.endTime,
+      lectureDays: round.lectureDays,
+      totalLectures: round.totalLectures,
+      passingGrade: round.passingGrade,
+      capacity: round.capacity,
+      enrolledCount: (round.enrolledCount || 0) + 1,
+      hall: round.hall,
+      instructor: round.instructor,
+      pricings: round.pricings,
     },
-    {
-      fromStatus: auditLog.fromStatus, // null
-      toStatus: auditLog.toStatus, // 'UnderReview'
-      changedByUserId: traineeProfile.value.userId,
-      changedAt: auditLog.changedAt,
-      note: auditLog.note, // 'تقديم إلكتروني سريع على الدورة'
-    }
-  );
+  };
 
-  // 3. إشعار شؤون الدارسين عبر notificationsStore
-  const newNotifId = Date.now();
-  notificationsStore.notifications.unshift({
-    id: newNotifId,
+  const audit = {
+    fromStatus: null,
+    toStatus: 'UnderReview',
+    changedByUserId: traineeProfile.value.userId,
+    changedAt: new Date().toISOString(),
+    note: `تقديم إلكتروني سريع من المتدرب (المؤهل: ${qualification || 'غير محدد'})`,
+  };
+
+  applicationsStore.addApplication(newApp, audit);
+
+  notificationsStore.addNotification({
+    title: 'تم استلام طلب التقديم',
+    message: `تم تسجيل طلبك للدورة "${round.courseName}" برقم كود (${applicationCode}). الطلب قيد مراجعة الشؤون.`,
+    category: 'system',
+    priority: 'normal',
+    isRead: false,
+    isStarred: false,
+    createdAt: 'الآن',
+    sender: 'منظومة إدارة الدورات',
+    link: '/trainee/applications',
+    actionLabel: 'متابعة الطلب',
+    referenceId: applicationCode,
+  });
+
+  const affairsNotification = notificationsStore.notifyAffairsNewApplication({
+    applicationCode,
+    traineeName: traineeProfile.value.fullName,
+    courseName: round.courseName,
+    roundCode: round.roundCode,
+  });
+
+  notificationsStore.addNotification({
     title: affairsNotification.title,
     message: affairsNotification.message,
     category: 'affairs',
@@ -389,10 +432,7 @@ function handleApplicationSubmitted(submissionData) {
     referenceId: applicationCode,
   });
 
-  // 4. Toast نجاح
   showToast(`تم إرسال طلبك بنجاح! كود الطلب: ${applicationCode} — قيد المراجعة`, 'success');
-
-  // 5. يبقى المودال مفتوحاً لعرض الكود، ويُغلق بإجراء المستخدم
 }
 
 // ============================================================

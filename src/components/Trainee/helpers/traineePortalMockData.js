@@ -4,9 +4,9 @@
  * تُستخدم في صفحات: متابعة الطلبات، تصاريح الدخول (QR)، دوراتي وجدولي، الشهادات.
  */
 
-export const PORTAL_TODAY = '2026-11-03';
+export const PORTAL_TODAY = '2026-11-05';
 
-/** طلبات المتدرب مع بيانات دفعة الانعقاد المرتبطة بها */
+/** طلبات المتدرب مع بيانات دفعة الانعقاد المرتبطة بها — مجموعة منقحة ومركزة */
 export const TRAINEE_APPLICATIONS = [
   // ============================================================
   // 1. قيد المراجعة — Full Stack (الدفعة 7)
@@ -50,48 +50,7 @@ export const TRAINEE_APPLICATIONS = [
   },
 
   // ============================================================
-  // 2. قيد المراجعة — PMP (الدفعة 22)
-  // ============================================================
-  {
-    id: 902,
-    applicationCode: 'APP-B4M9X',
-    status: 'UnderReview',
-    createdAt: '2026-10-30T13:10:00',
-    updatedAt: '2026-10-30T13:10:00',
-    qrToken: 'c92f4e18-7a3d-4b06-8e21-5f7c9a1d3b62',
-    rejectionReason: null,
-    paymentDueDate: null,
-    paymentDate: null,
-    receiptNumber: null,
-    paidAmount: null,
-    certificateCode: null,
-    finalGrade: null,
-    isCertificateIssued: false,
-    extensionCount: 0,
-    round: {
-      courseRoundId: 203,
-      courseName: 'إدارة المشروعات الاحترافية PMP الإصدار السابع',
-      courseCode: 'CRS-PMP-03',
-      courseDomain: 'إدارة مشروعات',
-      roundNumber: 22,
-      roundCode: 'CR-3-22',
-      startDate: '2026-12-07',
-      endDate: '2027-01-28',
-      startTime: '09:00',
-      endTime: '13:00',
-      lectureDays: ['Sun', 'Tue', 'Thu'],
-      totalLectures: 18,
-      passingGrade: 60,
-      capacity: 32,
-      enrolledCount: 19,
-      hall: { name: 'قاعة إدارة الأعمال والمشروعات (قاعة ب)', location: 'المبنى الإداري - الدور الثاني' },
-      instructor: { name: 'د. أحمد كمال الدين الشريف', specialty: 'إدارة مشروعات احترافية - PMP, PMI-ACP, Agile' },
-      pricings: { Civilian: 4500, MilitaryOfficer: 2250, MilitaryFamily: 2700, PoliceOfficerOrFamily: 2900 },
-    },
-  },
-
-  // ============================================================
-  // 3. في انتظار السداد — مهلة قريبة (CEH CR-1-15)
+  // 2. في انتظار السداد — مهلة قريبة عاجلة (CEH CR-1-15)
   // ============================================================
   {
     id: 903,
@@ -101,7 +60,7 @@ export const TRAINEE_APPLICATIONS = [
     updatedAt: '2026-10-29T08:40:00',
     qrToken: 'd13b6a45-9c28-4e71-b0f6-aa27c4e91d08',
     rejectionReason: null,
-    paymentDueDate: '2026-11-05',
+    paymentDueDate: '2026-11-08',
     paymentDate: null,
     receiptNumber: null,
     paidAmount: null,
@@ -132,90 +91,7 @@ export const TRAINEE_APPLICATIONS = [
   },
 
   // ============================================================
-  // 4. في انتظار السداد — مهلة ممتدة (تحليل البيانات CR-2-9)
-  // ============================================================
-  {
-    id: 904,
-    applicationCode: 'APP-9B4M8',
-    status: 'PendingPayment',
-    createdAt: '2026-10-26T15:32:00',
-    updatedAt: '2026-10-31T10:12:00',
-    qrToken: 'e57c2f91-4d6a-4c87-9b13-71e8d0a6b4f2',
-    rejectionReason: null,
-    paymentDueDate: '2026-11-12',
-    paymentDate: null,
-    receiptNumber: null,
-    paidAmount: null,
-    certificateCode: null,
-    finalGrade: null,
-    isCertificateIssued: false,
-    extensionCount: 1,
-    round: {
-      courseRoundId: 202,
-      courseName: 'تحليل البيانات المتقدم باستخدام Python و Power BI',
-      courseCode: 'CRS-DATA-02',
-      courseDomain: 'تحليل البيانات',
-      roundNumber: 9,
-      roundCode: 'CR-2-9',
-      startDate: '2026-11-30',
-      endDate: '2027-01-15',
-      startTime: '10:00',
-      endTime: '14:00',
-      lectureDays: ['Sun', 'Tue', 'Thu'],
-      totalLectures: 18,
-      passingGrade: 65,
-      capacity: 26,
-      enrolledCount: 11,
-      hall: { name: 'معمل الذكاء الاصطناعي وتحليل البيانات (معمل 2)', location: 'المبنى التقني - الطابق الثاني' },
-      instructor: { name: 'م. سارة محمود عزت', specialty: 'تحليل البيانات وذكاء الأعمال - Power BI, Python' },
-      pricings: { Civilian: 3800, MilitaryOfficer: 1900, MilitaryFamily: 2300, PoliceOfficerOrFamily: 2500 },
-    },
-  },
-
-  // ============================================================
-  // 5. مرفوض — التسويق الرقمي (CR-6-10)
-  // ============================================================
-  {
-    id: 905,
-    applicationCode: 'APP-3C8N5',
-    status: 'Rejected',
-    createdAt: '2026-10-20T12:48:00',
-    updatedAt: '2026-10-23T09:15:00',
-    qrToken: 'b08e5d32-16f4-4a9c-8d27-3c904b6e1f75',
-    rejectionReason:
-      'عدم استيفاء شرط المؤهل الدراسي المطلوب للدورة، حيث يشترط البرنامج مؤهلاً في التسويق أو إدارة الأعمال. يمكنك التقديم على دورة أخرى مناسبة أو مراجعة شؤون الدارسين لاستكمال المستندات.',
-    paymentDueDate: null,
-    paymentDate: null,
-    receiptNumber: null,
-    paidAmount: null,
-    certificateCode: null,
-    finalGrade: null,
-    isCertificateIssued: false,
-    extensionCount: 0,
-    round: {
-      courseRoundId: 206,
-      courseName: 'التسويق الرقمي وإدارة الحملات الإعلانية المتقدمة',
-      courseCode: 'CRS-MKT-06',
-      courseDomain: 'تسويق رقمي',
-      roundNumber: 10,
-      roundCode: 'CR-6-10',
-      startDate: '2026-11-10',
-      endDate: '2026-12-20',
-      startTime: '10:00',
-      endTime: '14:00',
-      lectureDays: ['Sat', 'Mon', 'Wed'],
-      totalLectures: 16,
-      passingGrade: 60,
-      capacity: 30,
-      enrolledCount: 30,
-      hall: { name: 'قاعة المحاضرات المركزية الكبرى (قاعة أ)', location: 'المبنى الإداري - الدور الأول' },
-      instructor: { name: 'م. كريم الدين ممدوح', specialty: 'تسويق رقمي وإعلانات ممولة - Google, Meta' },
-      pricings: { Civilian: 3200, MilitaryOfficer: 1600, MilitaryFamily: 1900, PoliceOfficerOrFamily: 2100 },
-    },
-  },
-
-  // ============================================================
-  // 6. مقيد بالدورة — CEH (CR-1-13) جارية الآن
+  // 3. مقيد بالدورة — CEH v12 (CR-1-13) جارية الآن
   // ============================================================
   {
     id: 906,
@@ -257,7 +133,7 @@ export const TRAINEE_APPLICATIONS = [
   },
 
   // ============================================================
-  // 7. مقيد بالدورة — CCNA (CR-4-13) جارية الآن
+  // 4. مقيد بالدورة — CCNA 200-301 (CR-4-13) جارية ولها محاضرة اليوم الخميس
   // ============================================================
   {
     id: 907,
@@ -299,7 +175,7 @@ export const TRAINEE_APPLICATIONS = [
   },
 
   // ============================================================
-  // 8. انتهت الدورة — Full Stack (شهادة صادرة)
+  // 5. انتهت الدورة — Full Stack (شهادة رسمية صادرة بنجاح)
   // ============================================================
   {
     id: 908,
@@ -342,85 +218,41 @@ export const TRAINEE_APPLICATIONS = [
   },
 
   // ============================================================
-  // 9. انتهت الدورة — CCNA (شهادة صادرة)
+  // 6. مرفوض — التسويق الرقمي (شرط المؤهل الدراسي)
   // ============================================================
   {
-    id: 909,
-    applicationCode: 'APP-8E2L7',
-    status: 'CourseEnded',
-    createdAt: '2026-01-12T11:00:00',
-    updatedAt: '2026-04-25T09:30:00',
-    qrToken: '9d2b5a63-e04f-4c27-b8a1-47c6f0d3e982',
-    rejectionReason: null,
-    paymentDueDate: '2026-02-01',
-    paymentDate: '2026-02-01T09:30:00',
-    receiptNumber: 'REC-2025-03221',
-    paidAmount: 3500,
-    certificateCode: 'CERT-NET-2026-0113',
-    finalGrade: 88,
-    isCertificateIssued: true,
-    certificateIssuedAt: '2026-04-25',
-    extensionCount: 0,
-    attendedLectures: 19,
-    round: {
-      courseRoundId: 217,
-      courseName: 'إدارة الشبكات المتقدمة Cisco CCNA 200-301',
-      courseCode: 'CRS-NET-04',
-      courseDomain: 'شبكات وسحابة',
-      roundNumber: 11,
-      roundCode: 'CR-4-11',
-      startDate: '2026-02-10',
-      endDate: '2026-04-20',
-      startTime: '16:00',
-      endTime: '20:00',
-      lectureDays: ['Sat', 'Mon', 'Wed'],
-      totalLectures: 20,
-      passingGrade: 70,
-      capacity: 22,
-      enrolledCount: 22,
-      hall: { name: 'معمل النظم والشبكات المتطورة (معمل 4)', location: 'المبنى التقني - الطابق الأول' },
-      instructor: { name: 'م. مصطفى الشناوي', specialty: 'شبكات وسحابة إلكترونية - CCNA, CCNP, AWS' },
-      pricings: { Civilian: 3500, MilitaryOfficer: 1750, MilitaryFamily: 2100, PoliceOfficerOrFamily: 2300 },
-    },
-  },
-
-  // ============================================================
-  // 10. انتهت الدورة — التسويق الرقمي (لم تُصدر الشهادة — رسوب)
-  // ============================================================
-  {
-    id: 910,
-    applicationCode: 'APP-6G9S3',
-    status: 'CourseEnded',
-    createdAt: '2026-04-02T14:20:00',
-    updatedAt: '2026-06-20T10:40:00',
-    qrToken: 'f41a7c85-2e39-4d06-9b72-8c05a3e6d178',
-    rejectionReason: null,
-    paymentDueDate: '2026-04-18',
-    paymentDate: '2026-04-16T13:00:00',
-    receiptNumber: 'REC-2026-04510',
-    paidAmount: 3200,
+    id: 905,
+    applicationCode: 'APP-3C8N5',
+    status: 'Rejected',
+    createdAt: '2026-10-20T12:48:00',
+    updatedAt: '2026-10-23T09:15:00',
+    qrToken: 'b08e5d32-16f4-4a9c-8d27-3c904b6e1f75',
+    rejectionReason:
+      'عدم استيفاء شرط المؤهل الدراسي المطلوب للدورة، حيث يشترط البرنامج مؤهلاً متخصصاً. يمكنك التقديم على دورة أخرى مناسبة أو مراجعة شؤون الدارسين لاستكمال المستندات.',
+    paymentDueDate: null,
+    paymentDate: null,
+    receiptNumber: null,
+    paidAmount: null,
     certificateCode: null,
-    finalGrade: 58,
+    finalGrade: null,
     isCertificateIssued: false,
-    certificateIssuedAt: null,
     extensionCount: 0,
-    attendedLectures: 15,
     round: {
-      courseRoundId: 218,
+      courseRoundId: 206,
       courseName: 'التسويق الرقمي وإدارة الحملات الإعلانية المتقدمة',
       courseCode: 'CRS-MKT-06',
       courseDomain: 'تسويق رقمي',
-      roundNumber: 9,
-      roundCode: 'CR-6-9',
-      startDate: '2026-05-01',
-      endDate: '2026-06-18',
+      roundNumber: 10,
+      roundCode: 'CR-6-10',
+      startDate: '2026-11-10',
+      endDate: '2026-12-20',
       startTime: '10:00',
       endTime: '14:00',
       lectureDays: ['Sat', 'Mon', 'Wed'],
       totalLectures: 16,
       passingGrade: 60,
       capacity: 30,
-      enrolledCount: 27,
+      enrolledCount: 30,
       hall: { name: 'قاعة المحاضرات المركزية الكبرى (قاعة أ)', location: 'المبنى الإداري - الدور الأول' },
       instructor: { name: 'م. كريم الدين ممدوح', specialty: 'تسويق رقمي وإعلانات ممولة - Google, Meta' },
       pricings: { Civilian: 3200, MilitaryOfficer: 1600, MilitaryFamily: 1900, PoliceOfficerOrFamily: 2100 },

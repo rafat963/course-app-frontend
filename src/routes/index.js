@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import AppLayout from '@/shared/ui/Layout/AppLayout.vue';
 import { setupRouteGuards } from './guards';
+import { useAuthStore } from '@/components/Auth/stores/authStore';
 
 // 1. Modular routes imports from feature modules
 import authRoutes from '@/components/Auth/auth.route';
@@ -20,9 +21,13 @@ const routes = [
       {
         path: '',
         name: 'HomeRedirect',
-        redirect: (to) => {
-          // Defaults to dashboard or feature home
-          return '/dashboard';
+        redirect: () => {
+          try {
+            const authStore = useAuthStore();
+            return authStore.defaultHomePath || '/dashboard';
+          } catch {
+            return '/dashboard';
+          }
         },
       },
       ...dashboardRoutes,

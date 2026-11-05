@@ -72,6 +72,8 @@
         badge-class="text-amber-600 dark:text-amber-400 font-bold"
         icon-bg="bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400"
         :icon="Wallet"
+        class="cursor-pointer transition-all hover:scale-[1.01]"
+        @click="filterToPendingPayment"
       />
       <AppKpiCard
         title="دورات مكتملة"
@@ -83,37 +85,66 @@
       />
     </div>
 
-    <!-- تنبيه مواعيد السداد العاجلة -->
+    <!-- تنبيه مواعيد السداد — تفاعلي للتصفية الفورية على طلبات PendingPayment -->
     <div
-      v-if="urgentPayments.length"
-      class="rounded-3xl border border-amber-300 dark:border-amber-800/80 bg-amber-50/90 dark:bg-amber-950/40 px-5 py-4 flex items-start gap-3 shadow-xs"
+      v-if="statusCount('PendingPayment') > 0"
+      id="pending-payment-alert-banner"
+      class="group rounded-3xl border border-amber-300 dark:border-amber-800/80 bg-gradient-to-l from-amber-50 via-amber-50/90 to-amber-100/60 dark:from-amber-950/40 dark:via-amber-950/30 dark:to-amber-900/20 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs transition-all hover:border-amber-400 dark:hover:border-amber-600 hover:shadow-md cursor-pointer select-none active:scale-[0.995]"
+      role="button"
+      tabindex="0"
+      title="انقر لتصفية الجدول وعرض طلبات السداد المعلقة فوراً"
+      @click="filterToPendingPayment"
+      @keydown.enter="filterToPendingPayment"
     >
-      <AlertTriangle class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-      <div class="text-xs space-y-1.5 flex-1">
-        <div class="font-black text-amber-900 dark:text-amber-200 text-sm">
-          تنبيه مهلة سداد عاجلة
+      <div class="flex items-start gap-3.5 flex-1 min-w-0">
+        <div class="w-10 h-10 rounded-2xl bg-amber-500/15 dark:bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+          <AlertTriangle class="w-5 h-5 animate-pulse" />
         </div>
-        <p class="text-amber-800 dark:text-amber-300">
-          لديك طلبات تم اعتمادها وقيد انتظار السداد بالخزينة قبل انقضاء المهلة لتفادي إلغاء المقعد:
-        </p>
-        <ul class="space-y-1 text-amber-900 dark:text-amber-200">
-          <li v-for="app in urgentPayments" :key="app.id" class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-            <span class="font-bold">{{ app.round.courseName }}</span>
-            <span class="text-amber-500">•</span>
-            <span class="font-mono">الكود: {{ app.applicationCode }}</span>
-            <span class="text-amber-500">•</span>
-            <span>آخر موعد: <strong>{{ formatDateDmy(app.paymentDueDate) }}</strong></span>
-            <span class="text-amber-500">•</span>
-            <span class="font-black underline">{{ getPaymentUrgency(app.paymentDueDate)?.label }}</span>
-          </li>
-        </ul>
+        <div class="text-xs space-y-1.5 min-w-0">
+          <div class="font-black text-amber-900 dark:text-amber-200 text-sm flex items-center gap-2 flex-wrap">
+            <span>تنبيه مهلة سداد عاجلة بالخزينة</span>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-200/90 dark:bg-amber-900 text-amber-950 dark:text-amber-100 border border-amber-300 dark:border-amber-700">
+              {{ statusCount('PendingPayment') }} طلب بانتظار السداد
+            </span>
+            <span
+              v-if="activeTab === 'PendingPayment'"
+              class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-200 border border-emerald-300"
+            >
+              مفعّل في العرض حالياً ✓
+            </span>
+          </div>
+          <p class="text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
+            لديك طلبات تم اعتمادها وقيد انتظار السداد بالخزينة قبل انقضاء المهلة لتفادي إلغاء المقعد. <strong>انقر على هذا الإشعار لتصفية الجدول وعرض طلبات السداد فقط.</strong>
+          </p>
+          <ul v-if="urgentPayments.length" class="space-y-0.5 pt-1 text-amber-950 dark:text-amber-100 font-medium">
+            <li v-for="app in urgentPayments" :key="app.id" class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              <span class="font-bold">{{ app.round.courseName }}</span>
+              <span class="text-amber-500">•</span>
+              <span class="font-mono">الكود: {{ app.applicationCode }}</span>
+              <span class="text-amber-500">•</span>
+              <span>آخر موعد: <strong>{{ formatDateDmy(app.paymentDueDate) }}</strong></span>
+              <span class="text-amber-500">•</span>
+              <span class="font-black underline">{{ getPaymentUrgency(app.paymentDueDate)?.label }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 shrink-0 self-end sm:self-center">
+        <span class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-xs transition-transform flex items-center gap-1.5 group-hover:scale-105">
+          <span>تصفية وعرض السداد</span>
+          <Filter class="w-3.5 h-3.5" />
+        </span>
       </div>
     </div>
 
     <!-- =========================================================
          3. شريط البحث والفلاتر + تبديل العرض (Table / Cards)
          ========================================================= -->
-    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm dark:shadow-xl overflow-hidden">
+    <div
+      id="applications-data-container"
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm dark:shadow-xl overflow-hidden"
+    >
       <div class="px-5 py-3.5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         <!-- البحث والفلاتر -->
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1">
@@ -187,7 +218,7 @@
       <AppTable
         :columns="tableColumns"
         :data="filteredApplications"
-        min-width="840px"
+        min-width="880px"
       >
         <!-- كود الطلب -->
         <template #applicationCode="{ row }">
@@ -286,9 +317,10 @@
           </div>
         </template>
 
-        <!-- الإجراءات -->
+        <!-- الإجراءات (Direct Action Links) -->
         <template #actions="{ row }">
           <div class="flex items-center gap-1.5 justify-end">
+            <!-- تفاصيل الطلب -->
             <button
               type="button"
               class="h-8 px-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer flex items-center gap-1"
@@ -299,25 +331,29 @@
               <span>تفاصيل</span>
             </button>
 
-            <RouterLink
+            <!-- زر تصريح QR يفتح مودال الـ QR مباشرة دون مغادرة الصفحة -->
+            <button
               v-if="row.status === 'Enrolled'"
-              to="/trainee/passes"
-              class="h-8 px-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold transition-colors flex items-center gap-1"
-              title="عرض تصريح الدخول"
+              type="button"
+              class="h-8 px-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-xs active:scale-95"
+              title="عرض تصريح الدخول ورمز الـ QR المعتمد"
+              @click="openPassQr(row)"
             >
               <QrCode class="w-3.5 h-3.5" />
-              <span>تصريح</span>
-            </RouterLink>
+              <span>تصريح QR</span>
+            </button>
 
-            <RouterLink
+            <!-- زر الشهادة يفتح مودال المعاينة الرسمي مباشرة دون مغادرة الصفحة -->
+            <button
               v-else-if="row.status === 'CourseEnded' && row.isCertificateIssued"
-              to="/trainee/certificates"
-              class="h-8 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors flex items-center gap-1"
-              title="عرض الشهادة المعتمدة"
+              type="button"
+              class="h-8 px-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-xs active:scale-95"
+              title="معاينة وطباعة الشهادة المعتمدة"
+              @click="openCertificate(row)"
             >
               <Award class="w-3.5 h-3.5" />
               <span>شهادة</span>
-            </RouterLink>
+            </button>
           </div>
         </template>
       </AppTable>
@@ -356,26 +392,22 @@
         </div>
 
         <!-- جسم الكارت -->
-        <div class="p-5 space-y-3.5 flex-1">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-primary-50 dark:bg-primary-950/50 border border-primary-100 dark:border-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400 shrink-0">
-              <BookOpen class="w-5 h-5" />
-            </div>
-            <div class="min-w-0">
-              <h3 class="text-sm font-black text-slate-800 dark:text-slate-100 font-heading leading-snug">
-                {{ app.round.courseName }}
-              </h3>
-              <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-400 mt-1">
-                <span>{{ app.round.courseDomain }}</span>
-                <span class="text-slate-300 dark:text-slate-600">•</span>
-                <span class="font-mono">{{ app.round.roundCode }}</span>
-                <span class="text-slate-300 dark:text-slate-600">•</span>
-                <span>الدفعة {{ app.round.roundNumber }}</span>
-              </div>
+        <div class="p-5 space-y-4 flex-1">
+          <!-- اسم الدورة والدفعة -->
+          <div>
+            <h3 class="text-sm font-black text-slate-800 dark:text-slate-100 font-heading leading-snug">
+              {{ app.round.courseName }}
+            </h3>
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-400 mt-1 font-mono">
+              <span class="text-primary-600 dark:text-primary-400 font-bold">{{ app.round.courseDomain }}</span>
+              <span>•</span>
+              <span>{{ app.round.courseCode }}</span>
+              <span>•</span>
+              <span>الدفعة {{ app.round.roundNumber }} ({{ app.round.roundCode }})</span>
             </div>
           </div>
 
-          <!-- بيانات الدفعة -->
+          <!-- شبكة معلومات الدفعة -->
           <div class="grid grid-cols-2 gap-2 text-[11px]">
             <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/70 space-y-0.5">
               <div class="text-slate-400">المحاضر المسؤول</div>
@@ -421,8 +453,10 @@
           <!-- لوحة الحالة: في انتظار السداد (PendingPayment) -->
           <div
             v-else-if="app.status === 'PendingPayment' || app.status === 'PaymentMissed'"
-            class="p-3.5 rounded-2xl border space-y-2"
+            class="p-3.5 rounded-2xl border space-y-2 cursor-pointer transition-all hover:shadow-xs"
             :class="getPaymentUrgency(app.paymentDueDate)?.boxClass || 'bg-amber-50 border-amber-200'"
+            @click="copyCode(app.applicationCode)"
+            title="انقر لنسخ كود السداد"
           >
             <div class="flex items-center justify-between gap-2 flex-wrap">
               <div class="flex items-center gap-1.5 text-[11px] font-black" :class="getPaymentUrgency(app.paymentDueDate)?.textClass">
@@ -486,7 +520,7 @@
               <span>المسدد: <strong class="font-mono">{{ formatCurrency(app.paidAmount) }}</strong></span>
             </div>
             <p class="text-[10px] text-emerald-600/80 dark:text-emerald-400/80">
-              تصريح الدخول برمز QR متاح الآن — أبرزه عند بوابات المعهد.
+              تصريح الدخول برمز QR متاح الآن — يمكنك فتحه مباشرة من الزر أدناه.
             </p>
           </div>
 
@@ -538,23 +572,27 @@
             </button>
           </div>
 
-          <RouterLink
+          <!-- زر تصريح الدخول يفتح المودال مباشرة -->
+          <button
             v-if="app.status === 'Enrolled'"
-            to="/trainee/passes"
-            class="inline-flex items-center gap-1 text-[11px] font-black text-primary-600 dark:text-primary-400 hover:underline"
+            type="button"
+            class="inline-flex items-center gap-1 text-[11px] font-black text-primary-600 dark:text-primary-400 hover:underline cursor-pointer"
+            @click="openPassQr(app)"
           >
-            عرض تصريح الدخول
-            <ArrowLeft class="w-3 h-3" />
-          </RouterLink>
+            <QrCode class="w-3.5 h-3.5" />
+            <span>عرض تصريح QR</span>
+          </button>
 
-          <RouterLink
-            v-else-if="app.status === 'CourseEnded'"
-            to="/trainee/certificates"
-            class="inline-flex items-center gap-1 text-[11px] font-black text-primary-600 dark:text-primary-400 hover:underline"
+          <!-- زر الشهادة يفتح مودال المعاينة مباشرة -->
+          <button
+            v-else-if="app.status === 'CourseEnded' && app.isCertificateIssued"
+            type="button"
+            class="inline-flex items-center gap-1 text-[11px] font-black text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer"
+            @click="openCertificate(app)"
           >
-            عرض الشهادة
-            <ArrowLeft class="w-3 h-3" />
-          </RouterLink>
+            <Award class="w-3.5 h-3.5" />
+            <span>معاينة الشهادة</span>
+          </button>
 
           <button
             v-else-if="app.status === 'PendingPayment' || app.status === 'PaymentMissed'"
@@ -582,12 +620,31 @@
       </article>
     </div>
 
-    <!-- مودال تفاصيل الطلب الشاملة -->
+    <!-- =========================================================
+         5. المودالات التفاعلية المباشرة
+         ========================================================= -->
+    <!-- 1. مودال تفاصيل الطلب الشاملة -->
     <TraineeApplicationDetailsModal
       :is-open="isDetailsModalOpen"
       :application="selectedApplication"
       :trainee-category="traineeProfile.category"
       @close="isDetailsModalOpen = false"
+    />
+
+    <!-- 2. مودال تصريح الدخول ورمز QR المباشر (Direct Gate Pass Modal) -->
+    <TraineePassZoomModal
+      :is-open="isPassModalOpen"
+      :pass="selectedPass"
+      :trainee-profile="traineeProfile"
+      @close="isPassModalOpen = false"
+    />
+
+    <!-- 3. مودال معاينة الشهادة الرسمية المعتمدة المباشر (Direct Certificate Modal) -->
+    <CertificatePreviewModal
+      :is-open="isCertModalOpen"
+      :application="selectedCertApplication"
+      :trainee-profile="traineeProfile"
+      @close="isCertModalOpen = false"
     />
 
     <!-- Toast Notification -->
@@ -598,11 +655,10 @@
         :class="
           toast.type === 'success'
             ? 'bg-emerald-50 dark:bg-emerald-950/95 text-emerald-800 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800'
-            : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700'
+            : 'bg-primary-50 dark:bg-primary-950/95 text-primary-800 dark:text-primary-200 border-primary-200 dark:border-primary-800'
         "
       >
-        <CheckCircle2 v-if="toast.type === 'success'" class="w-4 h-4 shrink-0" />
-        <Info v-else class="w-4 h-4 shrink-0" />
+        <CheckCircle2 class="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
         <span>{{ toast.text }}</span>
       </div>
     </Transition>
@@ -621,20 +677,21 @@ import {
   RefreshCw,
   Copy,
   ArrowLeft,
-  BookOpen,
   GraduationCap,
   Award,
   XCircle,
   AlertTriangle,
   FileSearch,
-  Info,
   Eye,
   QrCode,
+  Filter,
 } from 'lucide-vue-next';
 import AppKpiCard from '@/shared/ui/Cards/AppKpiCard.vue';
 import ViewModeToggle from '@/shared/ui/Buttons/ViewModeToggle.vue';
 import AppTable from '@/shared/ui/Table/AppTable.vue';
 import TraineeApplicationDetailsModal from './TraineeApplicationDetailsModal.vue';
+import TraineePassZoomModal from './TraineePassZoomModal.vue';
+import CertificatePreviewModal from './CertificatePreviewModal.vue';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
 import { useTraineeApplicationsStore } from '../stores/traineeApplicationsStore';
 import { TRAINEE_MOCK_PROFILE } from '../helpers/availableCoursesMockData';
@@ -664,18 +721,36 @@ const userInitials = computed(() => {
   return name.slice(0, 2);
 });
 
-const viewMode = ref('cards'); // 'cards' | 'table'
+const viewMode = ref('table'); // افتراضياً جدول لسهولة الإجراءات
 const isRefreshing = ref(false);
 const searchQuery = ref('');
 const activeTab = ref('all');
 
-// مودال التفاصيل
+// مودال تفاصيل الطلب
 const isDetailsModalOpen = ref(false);
 const selectedApplication = ref(null);
 
 function openDetails(app) {
   selectedApplication.value = app;
   isDetailsModalOpen.value = true;
+}
+
+// مودال تصريح الدخول المباشر (QR Modal)
+const isPassModalOpen = ref(false);
+const selectedPass = ref(null);
+
+function openPassQr(app) {
+  selectedPass.value = app;
+  isPassModalOpen.value = true;
+}
+
+// مودال معاينة الشهادة المباشر (Certificate Modal)
+const isCertModalOpen = ref(false);
+const selectedCertApplication = ref(null);
+
+function openCertificate(app) {
+  selectedCertApplication.value = app;
+  isCertModalOpen.value = true;
 }
 
 // أعمدة جدول الطلبات
@@ -686,10 +761,9 @@ const tableColumns = [
   { key: 'price', label: 'الرسوم المقررة', width: '120px' },
   { key: 'status', label: 'حالة الطلب', width: '130px' },
   { key: 'details', label: 'الملاحظات والمهلة', minWidth: '180px' },
-  { key: 'actions', label: 'الإجراءات', width: '140px', align: 'left' },
+  { key: 'actions', label: 'الإجراءات', width: '160px', align: 'left' },
 ];
 
-// دمج البيانات الأساسية مع أي طلبات حديثة أضافها المتدرب من متجر التقديمات
 onMounted(() => {
   traineeStore.load(traineeProfile.userId);
 });
@@ -764,7 +838,7 @@ const nearestDueLabel = computed(() => {
 
 const urgentPayments = computed(() =>
   applications.value.filter(
-    (app) => app.status === 'PendingPayment' && (daysUntil(app.paymentDueDate) ?? 99) <= 3
+    (app) => app.status === 'PendingPayment' && (daysUntil(app.paymentDueDate) ?? 99) <= 5
   )
 );
 
@@ -789,6 +863,17 @@ const filteredApplications = computed(() =>
     );
   })
 );
+
+/** تصفية الجدول لعرض طلبات في انتظار السداد فورياً */
+function filterToPendingPayment() {
+  activeTab.value = 'PendingPayment';
+  searchQuery.value = '';
+  showToast('تم تصفية العرض: طلبات في انتظار السداد');
+  setTimeout(() => {
+    const el = document.getElementById('applications-data-container');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }, 100);
+}
 
 /** سعر فئة المتدرب من CoursePricings */
 function categoryPrice(app) {

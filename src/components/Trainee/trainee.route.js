@@ -5,19 +5,19 @@ export default [
     children: [
       {
         path: '',
-        redirect: '/trainee/courses',
-      },
-      {
-        path: 'courses',
-        name: 'TraineeCourses',
-        component: () => import('./components/TraineeCoursesView.vue'),
-        meta: { title: 'الدورات المتاحة للتقديم' },
+        redirect: '/trainee/passes',
       },
       {
         path: 'passes',
         name: 'TraineeGatePasses',
         component: () => import('./components/TraineeGatePassesView.vue'),
         meta: { title: 'تصاريح الدخول ورمز QR' },
+      },
+      {
+        path: 'courses',
+        name: 'TraineeCourses',
+        component: () => import('./components/TraineeCoursesView.vue'),
+        meta: { title: 'الدورات المتاحة للتقديم' },
       },
       {
         path: 'applications',

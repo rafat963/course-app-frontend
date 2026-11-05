@@ -14,8 +14,7 @@ export const TRAINEE_MOCK_PROFILE = {
   category: 'Civilian', // Civilian | MilitaryOfficer | MilitaryFamily | PoliceOfficerOrFamily
   gender: 'Male',
   governorate: 'القاهرة',
-  occupation: 'مهندس حاسبات',
-  // بيانات المؤهل الدراسي المسجلة في ملف المتدرب — تُستخدم تلقائياً عند التقديم السريع
+  occupation: 'مهندس حاسبات ونظم معلومات',
   qualification: 'بكالوريوس هندسة الحاسبات ونظم التحكم - دفعة 2014',
   qualificationPhotoPath:
     'https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=600&auto=format&fit=crop&q=80',
@@ -23,7 +22,7 @@ export const TRAINEE_MOCK_PROFILE = {
 };
 
 /**
- * الدورات المتاحة للتقديم - تجمع بيانات Courses + CourseRounds + CoursePricings + Halls + Instructors
+ * الدورات المتاحة للتقديم - قائمة منقحة ومركزة تجمع بيانات الدورات والقاعات والأسعار
  * @type {Array<Object>}
  */
 export const AVAILABLE_ROUNDS = [
@@ -37,7 +36,7 @@ export const AVAILABLE_ROUNDS = [
     courseName: 'الأمن السيبراني واختبار الاختراق المتقدم CEH v12',
     courseDomain: 'أمن سيبراني',
     courseDescription:
-      'تأهيل المتدربين لاحتراف الأمن السيبراني، الفحص الأمني الشامل، التحقيق الجنائي الرقمي، واكتشاف الثغرات في الأنظمة والشبكات بأدوات الصناعة العالمية. يغطي البرنامج: اختبار الاختراق، تحليل الشبكات، أمن الويب، التشفير العملي، والتصدي للهجمات المتقدمة APT.',
+      'تأهيل المتدربين لاحتراف الأمن السيبراني، الفحص الأمني الشامل، التحقيق الجنائي الرقمي، واكتشاف الثغرات في الأنظمة والشبكات بأدوات الصناعة العالمية. يغطي البرنامج: اختبار الاختراق، تحليل الشبكات، أمن الويب، والتصدي للهجمات المتقدمة APT.',
     totalHours: 60,
     passingGrade: 70,
     roundNumber: 15,
@@ -82,7 +81,7 @@ export const AVAILABLE_ROUNDS = [
     courseName: 'تحليل البيانات المتقدم باستخدام Python و Power BI',
     courseDomain: 'تحليل البيانات',
     courseDescription:
-      'معالجة البيانات الضخمة، النمذجة الإحصائية، بناء لوحات التحكم التفاعلية، واستخراج المؤشرات الاستراتيجية لصناع القرار. يشمل: Pandas, NumPy, Matplotlib, Power BI Desktop, وتقنيات Machine Learning التطبيقية.',
+      'معالجة البيانات الضخمة، النمذجة الإحصائية، بناء لوحات التحكم التفاعلية، واستخراج المؤشرات الاستراتيجية لصناع القرار. يشمل: Pandas, NumPy, Power BI Desktop، والتحليل التنبؤي المتقدم.',
     totalHours: 50,
     passingGrade: 65,
     roundNumber: 9,
@@ -163,52 +162,7 @@ export const AVAILABLE_ROUNDS = [
   },
 
   // ==========================================
-  // 4. Full Stack Vue & Node.js - الدفعة 7 (متاحة)
-  // ==========================================
-  {
-    id: 204,
-    courseId: 5,
-    courseCode: 'CRS-WEB-05',
-    courseName: 'تطوير تطبيقات الويب المتكاملة Full Stack (Vue & Node.js)',
-    courseDomain: 'تطوير الويب',
-    courseDescription:
-      'تطوير الواجهات التفاعلية الحديثة بـ Vue 3 Composition API، وبناء الواجهات البرمجية RESTful APIs بـ Node.js وExpress، وقواعد البيانات SQL/NoSQL الحديثة، والنشر السحابي.',
-    totalHours: 70,
-    passingGrade: 65,
-    roundNumber: 7,
-    roundCode: 'CR-5-7',
-    instructor: {
-      id: 5,
-      name: 'د. ياسمين خالد سالم',
-      specialty: 'تطوير تطبيقات الويب Full Stack - Vue, React, Node',
-    },
-    hall: {
-      id: 4,
-      name: 'معمل البرمجيات وتطوير الويب (معمل 3)',
-      location: 'المبنى التقني - الطابق الثالث',
-      type: 'Lab',
-      maxCapacity: 30,
-    },
-    capacity: 28,
-    enrolledCount: 12,
-    startDate: '2026-11-25',
-    endDate: '2027-01-05',
-    lastApplicationDate: '2026-11-18',
-    startTime: '17:00',
-    endTime: '21:00',
-    lectureDays: ['Sun', 'Tue', 'Thu'],
-    status: 'Available',
-    totalLectures: 20,
-    pricings: {
-      Civilian: 4000,
-      MilitaryOfficer: 2000,
-      MilitaryFamily: 2400,
-      PoliceOfficerOrFamily: 2600,
-    },
-  },
-
-  // ==========================================
-  // 5. شبكات CCNA - الدفعة 12 (مكتملة)
+  // 4. شبكات Cisco CCNA - الدفعة 12 (مكتملة المقاعد)
   // ==========================================
   {
     id: 205,
@@ -249,51 +203,6 @@ export const AVAILABLE_ROUNDS = [
       MilitaryOfficer: 1750,
       MilitaryFamily: 2100,
       PoliceOfficerOrFamily: 2300,
-    },
-  },
-
-  // ==========================================
-  // 6. التسويق الرقمي - الدفعة 10 (مكتملة)
-  // ==========================================
-  {
-    id: 206,
-    courseId: 6,
-    courseCode: 'CRS-MKT-06',
-    courseName: 'التسويق الرقمي وإدارة الحملات الإعلانية المتقدمة',
-    courseDomain: 'تسويق رقمي',
-    courseDescription:
-      'التسويق عبر منصات التواصل الاجتماعي، الحملات الإعلانية المدفوعة Google Ads & Meta Ads، تحسين محركات البحث SEO، التسويق بالمحتوى، وتحليل أداء الحملات بالأدوات التحليلية.',
-    totalHours: 40,
-    passingGrade: 60,
-    roundNumber: 10,
-    roundCode: 'CR-6-10',
-    instructor: {
-      id: 6,
-      name: 'م. كريم الدين ممدوح',
-      specialty: 'تسويق رقمي وإعلانات ممولة - Google, Meta',
-    },
-    hall: {
-      id: 3,
-      name: 'قاعة المحاضرات المركزية الكبرى (قاعة أ)',
-      location: 'المبنى الإداري - الدور الأول',
-      type: 'Hall',
-      maxCapacity: 45,
-    },
-    capacity: 30,
-    enrolledCount: 30,
-    startDate: '2026-11-10',
-    endDate: '2026-12-20',
-    lastApplicationDate: '2026-11-03',
-    startTime: '10:00',
-    endTime: '14:00',
-    lectureDays: ['Sat', 'Mon', 'Wed'],
-    status: 'Full',
-    totalLectures: 16,
-    pricings: {
-      Civilian: 3200,
-      MilitaryOfficer: 1600,
-      MilitaryFamily: 1900,
-      PoliceOfficerOrFamily: 2100,
     },
   },
 ];

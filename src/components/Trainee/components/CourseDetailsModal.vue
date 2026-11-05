@@ -190,27 +190,41 @@
 
       <!-- 3. الأزرار السفلية -->
       <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 shrink-0">
-        <!-- زر التقديم / الاكتمال -->
-        <button
-          v-if="round.status === 'Available' && calcRemainingSeats(round.enrolledCount, round.capacity) > 0"
-          type="button"
-          class="flex-1 h-9 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
-          @click="$emit('apply', round); $emit('close')"
-        >
-          <Send class="w-3.5 h-3.5" />
-          تقديم الآن
-        </button>
+        <!-- حالة: تم التقديم مسبقاً — إزالة زر "تقديم الآن" واستبداله ببادج/نص معطل يوضح تاريخ التقديم -->
         <div
-          v-else
-          class="flex-1 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"
+          v-if="application"
+          class="flex-1 h-10 px-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 text-xs font-black flex items-center justify-center gap-2 cursor-not-allowed select-none shadow-xs"
         >
-          <Lock class="w-3.5 h-3.5" />
-          المقاعد مكتملة
+          <BadgeCheck class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+          <span>تم التقديم في {{ appliedDateLabel }}</span>
+          <span v-if="application.applicationCode" class="text-[11px] font-mono text-emerald-600/80 dark:text-emerald-400/80 mr-1">
+            ({{ application.applicationCode }})
+          </span>
         </div>
+
+        <!-- أزرار التقديم / الاكتمال تظهر فقط عندما لا يكون هناك تقديم مسبق -->
+        <template v-else>
+          <button
+            v-if="round.status === 'Available' && calcRemainingSeats(round.enrolledCount, round.capacity) > 0"
+            type="button"
+            class="flex-1 h-10 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5"
+            @click="$emit('apply', round); $emit('close')"
+          >
+            <Send class="w-3.5 h-3.5" />
+            تقديم الآن
+          </button>
+          <div
+            v-else
+            class="flex-1 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs font-bold flex items-center justify-center gap-1.5 cursor-not-allowed"
+          >
+            <Lock class="w-3.5 h-3.5" />
+            المقاعد مكتملة
+          </div>
+        </template>
 
         <button
           type="button"
-          class="h-9 px-5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+          class="h-10 px-5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors cursor-pointer"
           @click="$emit('close')"
         >
           إغلاق
@@ -232,11 +246,13 @@ import {
   Banknote,
   Send,
   Lock,
+  BadgeCheck,
 } from 'lucide-vue-next';
 import {
   formatDateAr,
   formatPrice,
   calcRemainingSeats,
+  formatSubmissionDate,
   DAY_LABELS,
   CATEGORY_CONFIG,
 } from '../helpers/availableCoursesHelpers';
@@ -254,9 +270,20 @@ const props = defineProps({
     type: String,
     default: 'Civilian',
   },
+  application: {
+    type: Object,
+    default: null,
+  },
 });
 
 defineEmits(['close', 'apply']);
+
+/** تاريخ التقديم المنسق بصيغة [التاريخ] */
+const appliedDateLabel = computed(() => {
+  if (!props.application) return '';
+  const dateVal = props.application.createdAt || props.application.appliedAt;
+  return formatSubmissionDate(dateVal) || 'تاريخ معتمد';
+});
 
 /** صفوف جدول الأسعار مع تمييز فئة المتدرب الحالي */
 const pricingRows = computed(() => {

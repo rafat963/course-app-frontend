@@ -188,10 +188,6 @@
                         <span class="text-slate-500 font-sans text-[8.5pt]">رقم السجل الأكاديمي:</span>
                         <span class="font-bold text-slate-800">REG-2026-{{ application.id }}</span>
                       </div>
-                      <div class="flex items-center justify-end gap-1.5 text-emerald-800 font-sans font-bold text-[8pt]">
-                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-600"></span>
-                        <span>شهادة رسمية معتمدة وموثقة</span>
-                      </div>
                     </div>
                   </header>
 
@@ -604,7 +600,6 @@ function handleDownload() {
           <div>كود الشهادة: <strong>${app.certificateCode}</strong></div>
           <div>تاريخ الإصدار: <strong>${formatDateDmy(app.certificateIssuedAt)}</strong></div>
           <div>رقم القيد: <strong>REG-2026-${app.id}</strong></div>
-          <div style="color: #047857; font-family: sans-serif; font-weight: bold; font-size: 8pt; margin-top: 2px;">وثيقة معتمدة وموثقة ✓</div>
         </div>
       </div>
 

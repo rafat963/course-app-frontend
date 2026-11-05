@@ -14,8 +14,8 @@
         <div class="flex items-center gap-2">
           <ShieldCheck class="w-5 h-5 text-emerald-400" />
           <div>
-            <div class="text-xs font-black font-heading">تصريح بوابة رقمي — فحص فوري</div>
-            <div class="text-[10px] text-primary-200 font-mono">{{ pass.round.roundCode }}</div>
+            <div class="text-xs font-black font-heading">{{ pass.title || 'تصريح بوابة رقمي — فحص فوري' }}</div>
+            <div class="text-[10px] text-primary-200 font-mono">{{ pass.code || pass.round?.roundCode || 'UNIFIED-DAILY-PASS' }}</div>
           </div>
         </div>
         <button
@@ -58,18 +58,18 @@
             {{ pass.qrToken }}
           </div>
           <div class="text-xs font-bold text-slate-700 dark:text-slate-200">
-            {{ pass.round.courseName }}
+            {{ pass.courseName || pass.round?.courseName || 'تصريح الدخول اليومي الموحد' }}
           </div>
-          <div class="text-[11px] text-slate-500 dark:text-slate-400">
-            {{ pass.round.hall.name }} • {{ formatTimeRange(pass.round.startTime, pass.round.endTime) }}
+          <div v-if="pass.locationInfo || pass.round?.hall?.name" class="text-[11px] text-slate-500 dark:text-slate-400">
+            {{ pass.locationInfo || (pass.round?.hall?.name + ' • ' + formatTimeRange(pass.round?.startTime, pass.round?.endTime)) }}
           </div>
         </div>
 
         <!-- حالة الصلاحية -->
         <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs px-4">
-          <span class="text-slate-400">فترة الصلاحية:</span>
-          <span class="font-mono font-bold text-slate-700 dark:text-slate-200">
-            {{ formatDateDmy(pass.round.startDate) }} → {{ formatDateDmy(pass.round.endDate) }}
+          <span class="text-slate-400">حالة الصلاحية:</span>
+          <span class="font-bold text-emerald-600 dark:text-emerald-400">
+            {{ pass.validityLabel || 'ساري المفعول اليوم' }}
           </span>
         </div>
       </div>
@@ -99,7 +99,7 @@
 <script setup>
 import QrcodeVue from 'qrcode.vue';
 import { ShieldCheck, X, Printer } from 'lucide-vue-next';
-import { formatDateDmy, formatTimeRange } from '../helpers/traineePortalHelpers';
+import { formatTimeRange } from '../helpers/traineePortalHelpers';
 
 defineProps({
   isOpen: {
