@@ -63,48 +63,57 @@
           </div>
         </div>
 
-        <!-- حقل تحديد مهلة السداد -->
-        <div class="space-y-2.5 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800">
+        <!-- حقل تحديد مهلة السداد (مش يوم محدد، مهلة مفتوحة للدفع خلالها) -->
+        <div class="space-y-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800">
           <div class="flex items-center justify-between">
             <label class="block font-bold text-slate-800 dark:text-slate-200 text-sm">
-              آخر موعد لسداد الرسوم بالخزينة:
+              تحديد مهلة سداد الرسوم بالخزينة:
             </label>
             <span v-if="dueDate" class="text-xs sm:text-sm text-emerald-600 dark:text-emerald-400 font-bold">
               {{ formatSelectedDueDate }}
             </span>
           </div>
 
-          <input
-            v-model="dueDate"
-            type="date"
-            :min="todayDateString"
-            class="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all text-sm"
-          />
+          <!-- أزرار الاختيار السريع لمدد المهلة (3 أيام، 5 أيام، أسبوع، إلخ) -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button
+              v-for="preset in presets"
+              :key="preset.days"
+              type="button"
+              class="h-9 px-2.5 rounded-xl border text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1 shadow-2xs"
+              :class="
+                selectedDays === preset.days
+                  ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs font-black'
+                  : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/60'
+              "
+              @click="setQuickDueDate(preset.days)"
+            >
+              <span>{{ preset.label }}</span>
+            </button>
+          </div>
 
-          <!-- أزرار الاختيار السريع للمهلة -->
-          <div class="flex items-center gap-2 pt-1 flex-wrap">
-            <span class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-semibold ml-1">مهلة سريعة:</span>
-            <button
-              type="button"
-              class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-emerald-700 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs"
-              @click="setQuickDueDate(2)"
-            >
-              بعد يومين
-            </button>
-            <button
-              type="button"
-              class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-emerald-700 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs"
-              @click="setQuickDueDate(3)"
-            >
-              بعد 3 أيام
-            </button>
-            <button
-              type="button"
-              class="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/60 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:text-emerald-700 text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-2xs"
-              @click="setQuickDueDate(7)"
-            >
-              بعد أسبوع
-            </button>
+          <!-- إمكانية اختيار تاريخ محدد يدفع قبله -->
+          <div class="pt-1">
+            <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">
+              أو حدد تاريخ معين ينتهي عنده قبول السداد (يدفع قبله):
+            </label>
+            <input
+              v-model="dueDate"
+              type="date"
+              :min="todayDateString"
+              class="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all text-sm cursor-pointer"
+              @change="onManualDateChange"
+            />
+          </div>
+
+          <!-- ملخص المهلة المفتوحة -->
+          <div class="p-3 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 text-xs space-y-1">
+            <div class="font-bold text-emerald-800 dark:text-emerald-300">
+              📌 ملخص المهلة: متاح للمتدرب السداد في الخزينة في أي وقت خلال ({{ computedDaysText }}) وحتى نهاية يوم {{ formatSelectedDueDate || dueDate }}.
+            </div>
+            <p class="text-emerald-700/90 dark:text-emerald-400/90 leading-relaxed">
+              لا يلزم المتدرب الحضور في يوم محدد، بل يحق له السداد في أي وقت قبل انتهاء المهلة.
+            </p>
           </div>
         </div>
 
@@ -199,7 +208,17 @@ const formatSelectedDueDate = computed(() => {
   }
 });
 
+const presets = [
+  { label: 'مهلة 3 أيام', days: 3 },
+  { label: 'مهلة 5 أيام', days: 5 },
+  { label: 'مهلة أسبوع (7 أيام)', days: 7 },
+  { label: 'مهلة 10 أيام', days: 10 },
+];
+
+const selectedDays = ref(3);
+
 function setDefaultDueDate() {
+  selectedDays.value = 3;
   const d = new Date();
   d.setDate(d.getDate() + 3);
   dueDate.value = d.toISOString().split('T')[0];
@@ -207,10 +226,31 @@ function setDefaultDueDate() {
 }
 
 function setQuickDueDate(days) {
+  selectedDays.value = days;
   const d = new Date();
   d.setDate(d.getDate() + days);
   dueDate.value = d.toISOString().split('T')[0];
 }
+
+function onManualDateChange() {
+  if (!dueDate.value) return;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(dueDate.value);
+  target.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  selectedDays.value = diffDays > 0 ? diffDays : null;
+}
+
+const computedDaysText = computed(() => {
+  if (selectedDays.value) {
+    if (selectedDays.value === 1) return 'مهلة يوم واحد';
+    if (selectedDays.value === 2) return 'مهلة يومين';
+    if (selectedDays.value <= 10) return `مهلة ${selectedDays.value} أيام`;
+    return `مهلة ${selectedDays.value} يوماً`;
+  }
+  return 'حتى التاريخ المحدد';
+});
 
 watch(
   () => props.isOpen,

@@ -38,7 +38,7 @@
       <div class="p-5 sm:p-6 space-y-5 overflow-y-auto custom-scrollbar text-sm">
         <!-- 1. شريط حالة مهلة السداد -->
         <div
-          class="p-4 rounded-2xl border flex items-center justify-between"
+          class="p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3"
           :class="getDueInfo(application.paymentDueDate).badgeClass"
         >
           <div class="flex items-center gap-3">
@@ -48,11 +48,11 @@
                 {{ getDueInfo(application.paymentDueDate).statusText }}
               </div>
               <div class="text-xs sm:text-sm opacity-90 mt-0.5 font-medium">
-                تاريخ الاستحقاق المحدد: {{ formatDateOnly(application.paymentDueDate) }}
+                مهلة السداد المتاحة: متاح الدفع في أي وقت حتى <strong>{{ formatDateOnly(application.paymentDueDate) }}</strong> (يدفع قبله)
               </div>
             </div>
           </div>
-          <div class="text-left font-mono text-xs sm:text-sm font-bold">
+          <div class="text-right sm:text-left font-mono text-xs sm:text-sm font-bold">
             رمز السداد: <strong class="text-sm sm:text-base">{{ application.qrToken }}</strong>
           </div>
         </div>

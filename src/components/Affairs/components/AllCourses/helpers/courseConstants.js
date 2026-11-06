@@ -8,22 +8,18 @@ export const CATEGORY_PRICING_LABELS = {
   Civilian: {
     label: 'مدني',
     class: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700',
-    discountNote: 'السعر الأساسي',
   },
   MilitaryOfficer: {
     label: 'ضابط ق.م',
     class: 'bg-primary-50 text-primary-800 dark:bg-primary-950/70 dark:text-primary-300 border-primary-200 dark:border-primary-800/80',
-    discountNote: 'خصم 50%',
   },
   MilitaryFamily: {
     label: 'عائلات ضباط ق.م',
     class: 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/80',
-    discountNote: 'خصم 40%',
   },
   PoliceOfficerOrFamily: {
     label: 'شرطة / عائلاتهم',
     class: 'bg-blue-50 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border-blue-200 dark:border-blue-800/80',
-    discountNote: 'خصم 35%',
   },
 };
 

@@ -21,12 +21,12 @@
       />
 
       <!-- 2. بطاقات الإحصائيات الأربعة (KPIs) المتناسقة مع نظام التصميم الموحد -->
-      <InstructorsStats
+      <!-- <InstructorsStats
         :total-instructors="totalInstructors"
         :active-instructors="activeInstructors"
         :teaching-now-count="teachingNowCount"
         :total-rounds-assigned="totalRoundsAssigned"
-      />
+      /> -->
 
       <!-- 3. شريط التبويبات والبحث ومحدد التخصص ومحول طريقة العرض (جدول / كروت) -->
       <InstructorsFilters
@@ -144,6 +144,7 @@ import { INITIAL_INSTRUCTORS_DATA } from './helpers/instructorsMockData';
 import {
   PER_PAGE_OPTIONS,
   DEFAULT_PAGE_SIZE,
+  INSTRUCTOR_SPECIALTIES,
 } from './helpers/instructorsConstants';
 
 // استيراد المكونات الفرعية
@@ -242,7 +243,7 @@ const totalRoundsAssigned = computed(() => {
 
 // --- قائمة التخصصات للفلترة ---
 const specialtyOptions = computed(() => {
-  const set = new Set();
+  const set = new Set(INSTRUCTOR_SPECIALTIES);
   instructors.value.forEach((i) => {
     if (i.specialty) set.add(i.specialty);
   });

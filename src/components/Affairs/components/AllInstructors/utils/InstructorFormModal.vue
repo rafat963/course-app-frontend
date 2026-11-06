@@ -73,22 +73,23 @@
 
           <!-- التخصص العلمي ورقم الهاتف -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- التخصص -->
+            <!-- التخصص العلمي والأكاديمي (PrimeVue Select) -->
             <div class="space-y-1.5">
               <label class="block font-bold text-slate-700 dark:text-slate-200 text-xs sm:text-sm">
                 التخصص العلمي والأكاديمي <span class="text-rose-500 font-black">*</span>
               </label>
-              <input
+              <Select
                 v-model="form.specialty"
-                type="text"
-                list="specialty-suggestions"
-                placeholder="اختر أو اكتب التخصص..."
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 font-bold"
+                :options="specialtyOptions"
+                option-label="label"
+                option-value="value"
+                editable
+                filter
+                filter-placeholder="ابحث في قائمة التخصصات أو اكتب..."
+                placeholder="اختر التخصص أو اكتب تخصصاً جديداً..."
+                class="w-full text-sm font-bold rounded-xl h-11 flex items-center bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
                 :class="{ 'border-rose-400 ring-1 ring-rose-400': errors.specialty }"
               />
-              <datalist id="specialty-suggestions">
-                <option v-for="spec in specialties" :key="spec" :value="spec" />
-              </datalist>
               <p v-if="errors.specialty" class="text-xs text-rose-500 font-bold">
                 {{ errors.specialty }}
               </p>
@@ -198,6 +199,7 @@
 
 <script setup>
 import { ref, reactive, watch, computed } from 'vue';
+import Select from 'primevue/select';
 import {
   X,
   UserPlus,
@@ -220,9 +222,16 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save']);
 
-const specialties = INSTRUCTOR_SPECIALTIES;
 const isEdit = computed(() => Boolean(props.instructor?.id));
 const errorMessage = ref('');
+
+const specialtyOptions = computed(() => {
+  const set = new Set(INSTRUCTOR_SPECIALTIES);
+  if (form.specialty && form.specialty.trim()) {
+    set.add(form.specialty.trim());
+  }
+  return Array.from(set).map((spec) => ({ label: spec, value: spec }));
+});
 
 const form = reactive({
   name: '',

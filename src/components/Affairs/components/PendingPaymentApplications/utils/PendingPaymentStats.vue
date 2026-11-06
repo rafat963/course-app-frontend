@@ -26,9 +26,9 @@
       </template>
     </AppKpiCard>
 
-    <!-- 3. فات موعد سدادها -->
+    <!-- 3. انقضت مهلة السداد -->
     <AppKpiCard
-      title="فات موعد سدادها"
+      title="انقضت مهلتها"
       :value="overdueCount"
       badge="تتطلب إجراءً"
       badge-class="text-rose-600 dark:text-rose-400 font-bold"

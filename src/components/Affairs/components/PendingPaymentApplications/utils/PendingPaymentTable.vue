@@ -92,13 +92,13 @@
           :class="getDueInfo(row.paymentDueDate).badgeClass"
         >
           <AlertCircle v-if="getDueInfo(row.paymentDueDate).isOverdue" class="w-3 h-3 shrink-0" />
-          <Calendar v-else class="w-3 h-3 shrink-0" />
+          <Clock v-else class="w-3 h-3 shrink-0" />
           <span>{{ getDueInfo(row.paymentDueDate).statusText }}</span>
         </span>
 
-        <!-- تاريخ الاستحقاق الدقيق -->
-        <div class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
-          الموعد: <strong class="text-slate-700 dark:text-slate-300 font-mono">{{ formatDateOnly(row.paymentDueDate) }}</strong>
+        <!-- تاريخ نهاية المهلة (متاح السداد حتى يدفع قبله) -->
+        <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+          متاح السداد حتى: <strong class="text-slate-700 dark:text-slate-300 font-mono font-bold">{{ formatDateOnly(row.paymentDueDate) }}</strong>
         </div>
       </div>
     </template>
@@ -128,7 +128,7 @@
           <span>تفاصيل</span>
         </button>
 
-        <!-- زر تحديد موعد جديد / تمديد المهلة (يظهر بارزاً خصوصاً للمتأخرين) -->
+        <!-- زر تمديد مهلة السداد -->
         <button
           type="button"
           class="h-8 px-2.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs border"
@@ -137,11 +137,11 @@
               ? 'bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 text-white border-amber-600 shadow-amber-500/20'
               : 'bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/50 dark:hover:bg-primary-900/60 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800/80'
           "
-          :title="getDueInfo(row.paymentDueDate).isOverdue ? 'فات موعد السداد! اضغط لتحديد موعد جديد' : 'تعديل أو تمديد موعد السداد'"
+          title="تمديد مهلة السداد (3 أيام، 5 أيام، أو حتى تاريخ محدد)"
           @click="$emit('open-reschedule', row)"
         >
           <CalendarClock class="w-3.5 h-3.5" />
-          <span>{{ getDueInfo(row.paymentDueDate).isOverdue ? 'موعد جديد' : 'تمديد' }}</span>
+          <span>تمديد المهلة</span>
         </button>
 
         <!-- زر إلغاء الطلب -->
@@ -199,7 +199,7 @@ const columns = [
   { key: 'category', label: 'فئة المتقدم', cellClass: 'whitespace-nowrap' },
   { key: 'course', label: 'الدورة التدريبية' },
   { key: 'price', label: 'الرسوم المستحقة', cellClass: 'whitespace-nowrap' },
-  { key: 'dueDate', label: 'مهلة السداد والاستحقاق', cellClass: 'whitespace-nowrap' },
+  { key: 'dueDate', label: 'مهلة السداد (يدفع قبلها)', cellClass: 'whitespace-nowrap' },
   { key: 'actions', label: 'الإجراءات', align: 'center', cellClass: 'whitespace-nowrap' },
 ];
 

@@ -157,9 +157,8 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <!-- 1. سعر المدنيين -->
             <div class="space-y-1.5">
-              <label class="font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between text-xs sm:text-sm">
-                <span>سعر فئة المدنيين (Civilian):</span>
-                <span class="text-xs text-slate-400 font-bold">السعر الأساسي</span>
+              <label class="font-bold text-slate-700 dark:text-slate-300 block text-xs sm:text-sm">
+                سعر فئة المدنيين (Civilian):
               </label>
               <input
                 v-model.number="form.pricings.Civilian"
@@ -173,9 +172,8 @@
 
             <!-- 2. سعر ضباط القوات المسلحة -->
             <div class="space-y-1.5">
-              <label class="font-bold text-primary-800 dark:text-primary-300 flex items-center justify-between text-xs sm:text-sm">
-                <span>سعر ضباط ق.م (MilitaryOfficer):</span>
-                <span class="text-xs text-primary-600 font-black">خصم 50%</span>
+              <label class="font-bold text-primary-800 dark:text-primary-300 block text-xs sm:text-sm">
+                سعر ضباط ق.م (MilitaryOfficer):
               </label>
               <input
                 v-model.number="form.pricings.MilitaryOfficer"
@@ -189,9 +187,8 @@
 
             <!-- 3. سعر عائلات ضباط القوات المسلحة -->
             <div class="space-y-1.5">
-              <label class="font-bold text-emerald-800 dark:text-emerald-300 flex items-center justify-between text-xs sm:text-sm">
-                <span>عائلات ضباط ق.م (MilitaryFamily):</span>
-                <span class="text-xs text-emerald-600 font-black">خصم 40%</span>
+              <label class="font-bold text-emerald-800 dark:text-emerald-300 block text-xs sm:text-sm">
+                سعر عائلات ضباط ق.م (MilitaryFamily):
               </label>
               <input
                 v-model.number="form.pricings.MilitaryFamily"
@@ -205,9 +202,8 @@
 
             <!-- 4. سعر ضباط الشرطة وعائلاتهم -->
             <div class="space-y-1.5">
-              <label class="font-bold text-blue-800 dark:text-blue-300 flex items-center justify-between text-xs sm:text-sm">
-                <span>الشرطة وعائلاتهم (PoliceOfficerOrFamily):</span>
-                <span class="text-xs text-blue-600 font-black">خصم 35%</span>
+              <label class="font-bold text-blue-800 dark:text-blue-300 block text-xs sm:text-sm">
+                سعر الشرطة وعائلاتهم (PoliceOfficerOrFamily):
               </label>
               <input
                 v-model.number="form.pricings.PoliceOfficerOrFamily"

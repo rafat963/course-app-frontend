@@ -1,75 +1,72 @@
 <template>
   <div class="space-y-4 select-none pb-8">
-    <!-- 1. ترويسة الصفحة مع زر الإضافة بالأعلى يساراً وزر التحديث -->
-    <AllCoursesHeader
-      :total-count="totalCourses"
-      :active-count="activeCourses"
-      :is-refreshing="isRefreshing"
-      @refresh="handleRefresh"
-      @open-create="handleOpenCreate"
-      @open-create-round="handleOpenCreateRound"
+    <!-- أ. في حال فتح تفاصيل وسجل أي دفعة سابقة كصفحة كاملة ومستقلة (مش موديل) -->
+    <ArchivedRoundDetailsView
+      v-if="selectedArchivedRoundForDetails"
+      :round="selectedArchivedRoundForDetails"
+      :course="selectedCourseForPastRounds"
+      @back="selectedArchivedRoundForDetails = null"
+      @open-trainee-profile="handleOpenTraineeProfile"
     />
 
-    <!-- 2. بطاقات الإحصائيات الأربعة المتناسقة مع نظام التصميم الموحد -->
-    <AllCoursesStats
-      :total-courses="totalCourses"
-      :active-courses="activeCourses"
-      :total-rounds="totalRounds"
-      :total-trainees="totalTrainees"
+    <!-- ب. في حال فتح تفاصيل الدورة واستعراض سجل دوراتها السابقة كصفحة كاملة ومستقلة (مش موديل) -->
+    <CoursePastRoundsView
+      v-else-if="selectedCourseForPastRounds"
+      :course="selectedCourseForPastRounds"
+      :past-rounds="getCoursePastRounds(selectedCourseForPastRounds)"
+      @back="handleBackFromPastRoundsToCatalog"
+      @open-round-details="handleOpenArchivedRoundDetailsPage"
+      @open-create-round="handleOpenCreateRoundFromList"
     />
 
-    <!-- 3. شريط تبويبات الحالة والبحث الفوري ومحول طريقة العرض -->
-    <AllCoursesFilters
-      v-model:view-mode="viewMode"
-      v-model:search-query="searchQuery"
-      v-model:status-filter="statusFilter"
-      :total-count="totalCourses"
-      :active-count="activeCourses"
-      :filtered-count="filteredCourses.length"
-      @clear-filters="clearFilters"
-    />
+    <!-- جـ. في الحالة الافتراضية: استعراض دليل كل الدورات بالكتالوج -->
+    <template v-else>
+      <!-- 1. ترويسة الصفحة مع زر الإضافة بالأعلى يساراً وزر التحديث -->
+      <AllCoursesHeader
+        :total-count="totalCourses"
+        :active-count="activeCourses"
+        :is-refreshing="isRefreshing"
+        @refresh="handleRefresh"
+        @open-create="handleOpenCreate"
+        @open-create-round="handleOpenCreateRound"
+      />
 
-    <!-- 4. عرض البيانات: جدول أو كروت حسب طريقة العرض -->
-    <div v-if="viewMode === 'table'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm dark:shadow-xl overflow-hidden">
-      <!-- جدول الدورات المعتمد على AppTable وفق حقول الـ ERD -->
-      <AllCoursesTable
-        :courses="paginatedCourses"
-        :is-filtered="Boolean(searchQuery || statusFilter !== 'all')"
-        @edit-course="handleEditCourse"
-        @delete-course="handleDeleteCourse"
-        @create-round="handleOpenCreateRound($event.id)"
-        @view-rounds="handleViewRounds"
-        @view-details="handleViewCourseDetails"
+      <!-- 2. بطاقات الإحصائيات الأربعة المتناسقة مع نظام التصميم الموحد -->
+      <!-- <AllCoursesStats
+        :total-courses="totalCourses"
+        :active-courses="activeCourses"
+        :total-rounds="totalRounds"
+        :total-trainees="totalTrainees"
+      /> -->
+
+      <!-- 3. شريط تبويبات الحالة والبحث الفوري ومحول طريقة العرض -->
+      <AllCoursesFilters
+        v-model:view-mode="viewMode"
+        v-model:search-query="searchQuery"
+        v-model:status-filter="statusFilter"
+        :total-count="totalCourses"
+        :active-count="activeCourses"
+        :filtered-count="filteredCourses.length"
         @clear-filters="clearFilters"
       />
 
-      <!-- شريط الباجينيشن العام AppPagination -->
-      <AppPagination
-        v-if="filteredCourses.length > 0"
-        v-model:current-page="currentPage"
-        v-model:items-per-page="itemsPerPage"
-        :total-items="filteredCourses.length"
-        :per-page-options="perPageOptions"
-        item-label="دورة تدريبية"
-      />
-    </div>
+      <!-- 4. عرض البيانات: جدول أو كروت حسب طريقة العرض -->
+      <div v-if="viewMode === 'table'" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm dark:shadow-xl overflow-hidden">
+        <!-- جدول الدورات المعتمد على AppTable وفق حقول الـ ERD -->
+        <AllCoursesTable
+          :courses="paginatedCourses"
+          :is-filtered="Boolean(searchQuery || statusFilter !== 'all')"
+          @edit-course="handleEditCourse"
+          @delete-course="handleDeleteCourse"
+          @create-round="handleOpenCreateRound($event.id)"
+          @view-rounds="handleViewRounds"
+          @view-details="handleViewCourseDetails"
+          @clear-filters="clearFilters"
+        />
 
-    <!-- شبكة الكروت في حال اختيار viewMode === 'grid' -->
-    <div v-else class="space-y-4">
-      <AllCoursesCardsGrid
-        :courses="paginatedCourses"
-        :is-filtered="Boolean(searchQuery || statusFilter !== 'all')"
-        @edit-course="handleEditCourse"
-        @delete-course="handleDeleteCourse"
-        @create-round="handleOpenCreateRound($event.id)"
-        @view-rounds="handleViewRounds"
-        @view-details="handleViewCourseDetails"
-        @clear-filters="clearFilters"
-      />
-
-      <!-- شريط الباجينيشن لشبكة الكروت -->
-      <div v-if="filteredCourses.length > 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm dark:shadow-xl overflow-hidden">
+        <!-- شريط الباجينيشن العام AppPagination -->
         <AppPagination
+          v-if="filteredCourses.length > 0"
           v-model:current-page="currentPage"
           v-model:items-per-page="itemsPerPage"
           :total-items="filteredCourses.length"
@@ -77,7 +74,32 @@
           item-label="دورة تدريبية"
         />
       </div>
-    </div>
+
+      <!-- شبكة الكروت في حال اختيار viewMode === 'grid' -->
+      <div v-else class="space-y-4">
+        <AllCoursesCardsGrid
+          :courses="paginatedCourses"
+          :is-filtered="Boolean(searchQuery || statusFilter !== 'all')"
+          @edit-course="handleEditCourse"
+          @delete-course="handleDeleteCourse"
+          @create-round="handleOpenCreateRound($event.id)"
+          @view-rounds="handleViewRounds"
+          @view-details="handleViewCourseDetails"
+          @clear-filters="clearFilters"
+        />
+
+        <!-- شريط الباجينيشن لشبكة الكروت -->
+        <div v-if="filteredCourses.length > 0" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm dark:shadow-xl overflow-hidden">
+          <AppPagination
+            v-model:current-page="currentPage"
+            v-model:items-per-page="itemsPerPage"
+            :total-items="filteredCourses.length"
+            :per-page-options="perPageOptions"
+            item-label="دورة تدريبية"
+          />
+        </div>
+      </div>
+    </template>
 
     <!-- 5. نافذة إضافة وتعديل بيانات الدورة والتسعير وفق الـ ERD (CourseFormModal) -->
     <CourseFormModal
@@ -104,10 +126,10 @@
       :all-rounds="rounds"
       @close="isRoundsListModalOpen = false"
       @open-create-round="handleOpenCreateRoundFromList"
-      @open-round-details="handleOpenArchivedRoundDetails"
+      @open-round-details="handleOpenArchivedRoundDetailsPage"
     />
 
-    <!-- 8. نافذة تفاصيل الدورة الشاملة واستعراض الدورات السابقة المنعقدة بها (CourseDetailsModal) -->
+    <!-- 8. نافذة تفاصيل الدورة الشاملة (CourseDetailsModal) مقسمة لسكشن البيانات وسكشن الأسعار -->
     <CourseDetailsModal
       :is-open="isCourseDetailsModalOpen"
       :course="selectedCourseForDetails"
@@ -115,25 +137,18 @@
       :all-operational-rounds="rounds"
       @close="isCourseDetailsModalOpen = false"
       @open-create-round="handleOpenCreateRoundFromList"
-      @open-round-details="handleOpenArchivedRoundDetails"
+      @open-past-rounds="handleOpenPastRounds"
+      @open-active-rounds="handleViewRounds"
     />
 
-    <!-- 9. نافذة تفاصيل وسجل الدفعة المنعقدة سابقاً (الطلاب والتكلفة والمحاضر) -->
-    <ArchivedRoundDetailsModal
-      :is-open="isArchivedRoundModalOpen"
-      :round="selectedArchivedRound"
-      @close="isArchivedRoundModalOpen = false"
-      @open-trainee-profile="handleOpenTraineeProfile"
-    />
-
-    <!-- 10. نافذة ملف المتدرب الموحدة TraineeDetailsModal -->
+    <!-- 9. نافذة ملف المتدرب الموحدة TraineeDetailsModal -->
     <TraineeDetailsModal
       :is-open="isTraineeModalOpen"
-      :log="selectedTraineeForModal"
+      :application="selectedTraineeForModal"
       @close="isTraineeModalOpen = false"
     />
 
-    <!-- 11. نافذة تأكيد الحذف التحذيرية المطلوبة (CourseDeleteModal) -->
+    <!-- 10. نافذة تأكيد الحذف التحذيرية المطلوبة (CourseDeleteModal) -->
     <CourseDeleteModal
       :is-open="isDeleteModalOpen"
       :course="selectedCourseForDelete"
@@ -178,7 +193,8 @@ import CourseDeleteModal from './utils/CourseDeleteModal.vue';
 import CourseRoundModal from './utils/CourseRoundModal.vue';
 import CourseRoundsListModal from './utils/CourseRoundsListModal.vue';
 import CourseDetailsModal from './utils/CourseDetailsModal.vue';
-import ArchivedRoundDetailsModal from '@/components/Affairs/components/ArchivedCourses/utils/ArchivedRoundDetailsModal.vue';
+import CoursePastRoundsView from './utils/CoursePastRoundsView.vue';
+import ArchivedRoundDetailsView from './utils/ArchivedRoundDetailsView.vue';
 import TraineeDetailsModal from '@/shared/ui/Modals/TraineeDetailsModal.vue';
 import AppPagination from '@/shared/ui/Table/AppPagination.vue';
 import { INITIAL_COURSES, INITIAL_COURSE_ROUNDS } from './helpers/courseMockData';
@@ -223,13 +239,13 @@ const selectedCourseIdForRound = ref(null);
 const isRoundsListModalOpen = ref(false);
 const selectedCourseForRoundsList = ref(null);
 
-// مودال تفاصيل الدورة والدورات السابقة المنعقدة بها (CourseDetailsModal)
+// مودال تفاصيل الدورة (CourseDetailsModal)
 const isCourseDetailsModalOpen = ref(false);
 const selectedCourseForDetails = ref(null);
 
-// مودال تفاصيل وسجل الدفعة المنعقدة سابقاً (ArchivedRoundDetailsModal)
-const isArchivedRoundModalOpen = ref(false);
-const selectedArchivedRound = ref(null);
+// حالة استعراض الدورات السابقة وتفاصيل الدفعة كصفحة مستقلة (مش موديل)
+const selectedCourseForPastRounds = ref(null);
+const selectedArchivedRoundForDetails = ref(null);
 
 // مودال ملف المتدرب الموحد
 const isTraineeModalOpen = ref(false);
@@ -394,21 +410,39 @@ function handleViewRounds(course) {
   isRoundsListModalOpen.value = true;
 }
 
-// ح. استعراض تفاصيل الدورة والدورات السابقة المنعقدة بها (الطلب الأساسي)
+// ح. استعراض تفاصيل الدورة كصفحة كاملة ومستقلة بدلاً من المودال
 function handleViewCourseDetails(course) {
-  selectedCourseForDetails.value = course;
-  isCourseDetailsModalOpen.value = true;
+  selectedCourseForPastRounds.value = course;
+  selectedArchivedRoundForDetails.value = null;
+  isCourseDetailsModalOpen.value = false;
 }
 
-// ط. فتح تفاصيل وسجل أي دورة سابقة (الطلاب، التكلفة، المحاضر)
-function handleOpenArchivedRoundDetails(round) {
-  // البحث عن بيانات الدفعة الكاملة بالأرشيف إذا توفرت
+// ح.2 فتح صفحة الدورات السابقة المنعقدة لدورة معينة كصفحة كاملة ومستقلة (مش موديل)
+function handleOpenPastRounds(course) {
+  selectedCourseForPastRounds.value = course;
+  isCourseDetailsModalOpen.value = false;
+  selectedArchivedRoundForDetails.value = null;
+}
+
+// ح.3 العودة من الدورات السابقة إلى الكتالوج الرئيسي
+function handleBackFromPastRoundsToCatalog() {
+  selectedCourseForPastRounds.value = null;
+  selectedArchivedRoundForDetails.value = null;
+}
+
+// ط. فتح تفاصيل وسجل أي دورة سابقة كصفحة كاملة ومستقلة (مش موديل)
+function handleOpenArchivedRoundDetailsPage(round) {
   const fullArchivedRound = pastRounds.value.find(
     (r) => r.id === round.id || (r.courseId === round.courseId && r.roundNumber === round.roundNumber)
   );
 
-  selectedArchivedRound.value = fullArchivedRound || round;
-  isArchivedRoundModalOpen.value = true;
+  selectedArchivedRoundForDetails.value = fullArchivedRound || round;
+  isRoundsListModalOpen.value = false;
+}
+
+function getCoursePastRounds(course) {
+  if (!course) return [];
+  return pastRounds.value.filter((r) => r.courseId === course.id);
 }
 
 // ي. فتح ملف المتدرب الموحد من داخل كشف الدفعة السابقة

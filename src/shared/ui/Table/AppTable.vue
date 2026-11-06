@@ -39,7 +39,7 @@
           <tr v-if="loading">
             <td :colspan="columns.length" class="py-10 text-center text-slate-400">
               <slot name="loading">
-                <div class="flex flex-col items-center justify-center gap-2">
+                <div class="flex flex-col items-center justify-center gap-2 min-h-[380px] sm:min-h-[420px]">
                   <div class="w-6 h-6 border-2 border-slate-200 dark:border-slate-700 border-t-primary-600 rounded-full animate-spin"></div>
                   <span class="text-xs font-bold text-slate-500 dark:text-slate-400">جاري تحميل البيانات...</span>
                 </div>
@@ -49,9 +49,9 @@
 
           <!-- حالة عدم وجود بيانات -->
           <tr v-else-if="!data || data.length === 0">
-            <td :colspan="columns.length" class="py-10 text-center">
+            <td :colspan="columns.length" class="py-8 text-center">
               <slot name="empty">
-                <div class="flex flex-col items-center justify-center">
+                <div class="flex flex-col items-center justify-center min-h-[380px] sm:min-h-[420px]">
                   <div class="w-11 h-11 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-2">
                     <Inbox class="w-5 h-5" />
                   </div>
@@ -95,6 +95,27 @@
               </slot>
             </td>
           </tr>
+
+          <!-- صفوف تكميلية فارغة لتثبيت ارتفاع الجدول على 6 عناصر لمنع قفز وتذبذب الشاشة -->
+          <tr
+            v-for="fIdx in fillerRowsCount"
+            :key="`filler-row-${fIdx}`"
+            class="pointer-events-none select-none transition-colors"
+            aria-hidden="true"
+          >
+            <td
+              v-for="col in columns"
+              :key="`filler-col-${col.key}-${fIdx}`"
+              class="py-2.5 sm:py-3 px-3 sm:px-3.5 align-middle"
+              :class="[
+                col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right',
+                col.cellClass || ''
+              ]"
+              :style="col.width ? { width: col.width, minWidth: col.minWidth || col.width } : (col.minWidth ? { minWidth: col.minWidth } : {})"
+            >
+              <div class="h-10 sm:h-11 invisible" aria-hidden="true">&nbsp;</div>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -102,9 +123,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { Inbox, ArrowLeftRight } from 'lucide-vue-next';
 
-defineProps({
+const props = defineProps({
   columns: {
     type: Array,
     required: true,
@@ -133,7 +155,22 @@ defineProps({
     type: String,
     default: '',
   },
+  minRows: {
+    type: Number,
+    default: 6,
+  },
 });
 
 defineEmits(['clear-filters']);
+
+// حساب عدد الصفوف التكميلية لتثبيت ارتفاع الجدول على minRows (افتراضياً 6 عناصر)
+const fillerRowsCount = computed(() => {
+  if (props.loading) return 0;
+  if (!props.data || props.data.length === 0) return 0;
+  const currentCount = props.data.length;
+  if (props.minRows > 0 && currentCount < props.minRows) {
+    return props.minRows - currentCount;
+  }
+  return 0;
+});
 </script>

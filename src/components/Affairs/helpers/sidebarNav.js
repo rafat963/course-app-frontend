@@ -6,7 +6,7 @@ import {
   DoorOpen,
   BookOpen,
   PlayCircle,
-  History,
+  CalendarCheck,
   GraduationCap,
 } from 'lucide-vue-next';
 
@@ -63,9 +63,9 @@ export const affairsNav = [
         icon: PlayCircle,
       },
       {
-        label: 'الدورات المنعقدة سابقاً',
-        path: '/affairs/courses/archived',
-        icon: History,
+        label: 'الدورات المفتوحة للتسجيل',
+        path: '/affairs/courses/open-registration',
+        icon: CalendarCheck,
       },
     ],
   },

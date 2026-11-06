@@ -1,60 +1,145 @@
 <template>
-  <div class="space-y-3 select-none">
-    <!-- السطر الأول: تبويبات الفلترة السريعة والبحث النصي -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-      <!-- أزرار التبويبات السريعة -->
-      <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 overflow-x-auto">
+  <div class="space-y-2.5 sm:space-y-3 select-none">
+    <!-- 1. شريط تبويبات الحالة ومحول طريقة العرض -->
+    <div class="p-1.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-2.5">
+      <!-- أزرار الفلترة السريعة (Segmented Tabs) مع سكرول ناعم -->
+      <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900/60 rounded-xl overflow-x-auto custom-scrollbar max-w-full">
+        <!-- تبويب الكل -->
         <button
-          v-for="tab in tabs"
-          :key="tab.key"
           type="button"
-          class="h-8.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+          class="shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
           :class="
-            activeTab === tab.key
-              ? 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 shadow-2xs font-black'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            activeTab === 'all'
+              ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-2xs font-black'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
           "
-          @click="selectTab(tab.key)"
+          @click="selectTab('all')"
         >
-          <span>{{ tab.label }}</span>
+          <span>كافة الدورات المنعقدة</span>
           <span
-            class="px-1.5 py-0.2 rounded-md text-[10px] font-mono font-bold"
+            class="px-2 py-0.5 rounded-full text-[10px] font-bold"
             :class="
-              activeTab === tab.key
-                ? 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200'
-                : 'bg-slate-200/70 dark:bg-slate-700/60 text-slate-500 dark:text-slate-400'
+              activeTab === 'all'
+                ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'
             "
           >
-            {{ tab.count }}
+            {{ totalCount }}
+          </span>
+        </button>
+
+        <!-- تبويب جارية اليوم -->
+        <button
+          type="button"
+          class="shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+          :class="
+            activeTab === 'ongoing'
+              ? 'bg-white dark:bg-slate-800 text-emerald-700 dark:text-emerald-300 shadow-2xs font-black'
+              : 'text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'
+          "
+          @click="selectTab('ongoing')"
+        >
+          <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse"></span>
+          <span>جارية حالياً</span>
+          <span
+            class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+            :class="
+              activeTab === 'ongoing'
+                ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60'
+                : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'
+            "
+          >
+            {{ ongoingCount }}
+          </span>
+        </button>
+
+        <!-- تبويب شارفت على الانتهاء -->
+        <button
+          type="button"
+          class="shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+          :class="
+            activeTab === 'finishingSoon'
+              ? 'bg-white dark:bg-slate-800 text-amber-700 dark:text-amber-300 shadow-2xs font-black'
+              : 'text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400'
+          "
+          @click="selectTab('finishingSoon')"
+        >
+          <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+          <span>شارفت على الانتهاء</span>
+          <span
+            class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+            :class="
+              activeTab === 'finishingSoon'
+                ? 'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800/60'
+                : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'
+            "
+          >
+            {{ finishingSoonCount }}
+          </span>
+        </button>
+
+        <!-- تبويب انتهت حديثاً -->
+        <button
+          type="button"
+          class="shrink-0 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+          :class="
+            activeTab === 'ended'
+              ? 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 shadow-2xs font-black'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+          "
+          @click="selectTab('ended')"
+        >
+          <span class="w-2 h-2 rounded-full bg-slate-400 shrink-0"></span>
+          <span>انتهت حديثاً</span>
+          <span
+            class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+            :class="
+              activeTab === 'ended'
+                ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                : 'bg-slate-200/60 dark:bg-slate-800 text-slate-500'
+            "
+          >
+            {{ endedCount }}
           </span>
         </button>
       </div>
 
-      <!-- حقل البحث النصي السريع -->
-      <div class="relative w-full md:w-80">
+      <!-- محول طريقة العرض وعداد النتائج -->
+      <div class="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto px-1 md:px-0 shrink-0">
+        <ViewModeToggle
+          :model-value="viewMode"
+          @update:model-value="$emit('update:viewMode', $event)"
+        />
+        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+          المعروض: <strong class="text-slate-800 dark:text-slate-200">{{ filteredCount }}</strong> من أصل {{ totalCount }}
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. شريط البحث والفلترة التفصيلية -->
+    <div class="p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-2xs flex flex-col sm:flex-row gap-2.5">
+      <!-- حقل البحث النصي الفوري -->
+      <div class="relative flex-1">
+        <Search class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input
           :value="searchQuery"
           type="text"
           placeholder="ابحث باسم الدورة، المحاضر، أو القاعة..."
-          class="w-full h-9.5 pr-9 pl-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all font-medium"
+          class="w-full h-10 pr-10 pl-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all font-medium"
           @input="$emit('update:searchQuery', $event.target.value)"
         />
-        <Search class="w-4 h-4 text-slate-400 absolute right-3 top-3 pointer-events-none" />
         <button
           v-if="searchQuery"
           type="button"
-          class="absolute left-2.5 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+          class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
           @click="$emit('update:searchQuery', '')"
         >
-          <X class="w-4 h-4" />
+          <X class="w-3.5 h-3.5" />
         </button>
       </div>
-    </div>
 
-    <!-- السطر الثاني: الفلاتر المنسدلة (القاعة والمحاضر) وزر مسح التصفية -->
-    <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-      <div class="flex flex-wrap items-center gap-2 text-xs">
-        <!-- فلتر القاعة -->
+      <!-- فلتر القاعة -->
+      <div class="w-full sm:w-56">
         <Select
           :model-value="selectedHall"
           :options="hallOptions"
@@ -62,11 +147,13 @@
           option-value="value"
           placeholder="جميع القاعات والمعامل"
           show-clear
-          class="w-48 text-xs font-bold rounded-xl h-9 flex items-center"
+          class="w-full text-xs font-bold rounded-xl h-10 flex items-center"
           @update:model-value="$emit('update:selectedHall', $event)"
         />
+      </div>
 
-        <!-- فلتر المحاضر -->
+      <!-- فلتر المحاضر -->
+      <div class="w-full sm:w-56">
         <Select
           :model-value="selectedInstructor"
           :options="instructorOptions"
@@ -74,36 +161,22 @@
           option-value="value"
           placeholder="جميع المحاضرين"
           show-clear
-          class="w-52 text-xs font-bold rounded-xl h-9 flex items-center"
+          class="w-full text-xs font-bold rounded-xl h-10 flex items-center"
           @update:model-value="$emit('update:selectedInstructor', $event)"
         />
-
-        <!-- زر مسح الفلاتر إذا وُجد فلتر نشط -->
-        <button
-          v-if="hasActiveFilters"
-          type="button"
-          class="h-9 px-3 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-          @click="$emit('clear-filters')"
-        >
-          <RotateCcw class="w-3.5 h-3.5" />
-          <span>مسح التصفية</span>
-        </button>
       </div>
 
-      <!-- محول طريقة العرض وعداد النتائج المطابقة -->
-      <div class="flex items-center gap-3">
-        <ViewModeToggle
-          :model-value="viewMode"
-          @update:model-value="$emit('update:viewMode', $event)"
-        />
-        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
-          <span>عرض</span>
-          <strong class="font-mono text-slate-800 dark:text-slate-100 font-bold px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">
-            {{ filteredCount }}
-          </strong>
-          <span>من إجمالي {{ totalCount }} دورة تشغيلية</span>
-        </div>
-      </div>
+      <!-- زر مسح الفلاتر إذا وُجد فلتر نشط -->
+      <button
+        v-if="hasActiveFilters"
+        type="button"
+        class="h-10 px-4 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/70 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
+        title="مسح جميع الفلاتر والبحث"
+        @click="$emit('clear-filters')"
+      >
+        <RotateCcw class="w-3.5 h-3.5" />
+        <span>مسح التصفية</span>
+      </button>
     </div>
   </div>
 </template>
@@ -151,11 +224,11 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
-  availableCount: {
+  finishingSoonCount: {
     type: Number,
     default: 0,
   },
-  todayLecturesCount: {
+  endedCount: {
     type: Number,
     default: 0,
   },
@@ -172,13 +245,6 @@ const emit = defineEmits([
   'update:selectedHall',
   'update:selectedInstructor',
   'clear-filters',
-]);
-
-const tabs = computed(() => [
-  { key: 'all', label: 'جميع الدفعات النشطة', count: props.totalCount },
-  { key: 'ongoing', label: 'دفعات جارية حالياً', count: props.ongoingCount },
-  { key: 'available', label: 'مفتوحة للتسجيل / تبدأ قريباً', count: props.availableCount },
-  { key: 'today', label: 'محاضرات اليوم 📍', count: props.todayLecturesCount },
 ]);
 
 const hasActiveFilters = computed(() => {

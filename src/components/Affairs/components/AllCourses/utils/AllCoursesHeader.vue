@@ -22,7 +22,7 @@
     <!-- أزرار الإجراءات: متناسقة ومتجاوبة 100% على الموبايل والتابلت والديسكتوب -->
     <div class="flex items-center gap-2 w-full lg:w-auto">
       <!-- زر تحديث -->
-      <button
+      <!-- <button
         type="button"
         class="h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-2xs disabled:opacity-50 shrink-0"
         :disabled="isRefreshing"
@@ -31,10 +31,10 @@
       >
         <RefreshCw class="w-3.5 h-3.5" :class="{ 'animate-spin': isRefreshing }" />
         <span class="hidden sm:inline">تحديث</span>
-      </button>
+      </button> -->
 
       <!-- زر فتح دورة انعقاد جديدة (دفعة تشغيلية) -->
-      <button
+      <!-- <button
         type="button"
         class="flex-1 lg:flex-initial h-9 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm hover:shadow-md"
         title="جدولة وفتح دورة انعقاد جديدة من أي كورس"
@@ -42,7 +42,7 @@
       >
         <CalendarPlus class="w-4 h-4 stroke-[2.2] shrink-0" />
         <span class="truncate">فتح دورة انعقاد (دفعة)</span>
-      </button>
+      </button> -->
 
       <!-- زر إضافة دورة جديدة للكتالوج -->
       <button

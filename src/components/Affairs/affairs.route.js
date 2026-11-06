@@ -56,10 +56,14 @@ export default [
         meta: { title: 'الدورات المنعقدة حالياً' },
       },
       {
+        path: 'courses/open-registration',
+        name: 'OpenRegistrationCourses',
+        component: () => import('./components/OpenRegistrationCourses/OpenRegistrationCoursesView.vue'),
+        meta: { title: 'الدورات المفتوحة للتسجيل' },
+      },
+      {
         path: 'courses/archived',
-        name: 'ArchivedCourses',
-        component: () => import('./components/ArchivedCourses/ArchivedCoursesView.vue'),
-        meta: { title: 'الدورات المنعقدة سابقاً' },
+        redirect: '/affairs/courses/open-registration',
       },
 
       // ----------------- 3. سكشن المحاضرون -----------------

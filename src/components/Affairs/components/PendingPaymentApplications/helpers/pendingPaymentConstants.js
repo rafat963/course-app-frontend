@@ -79,7 +79,7 @@ export function getPaymentDueStatus(dueDateStr) {
       isOverdue: false,
       daysDiff: 0,
       badgeClass: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700',
-      statusText: 'غير محدد',
+      statusText: 'مهلة غير محددة',
       alertLevel: 'info',
     };
   }
@@ -94,7 +94,7 @@ export function getPaymentDueStatus(dueDateStr) {
   const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
   if (diffDays < 0) {
-    // فات موعد السداد (Overdue)
+    // انقضت مهلة السداد (Overdue)
     const overdueCount = Math.abs(diffDays);
     const countText =
       overdueCount === 1
@@ -108,7 +108,7 @@ export function getPaymentDueStatus(dueDateStr) {
       daysDiff: diffDays,
       badgeClass:
         'bg-rose-50 dark:bg-rose-950/70 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/80',
-      statusText: `فات الموعد منذ ${countText}`,
+      statusText: `انقضت المهلة منذ ${countText}`,
       alertLevel: 'danger',
     };
   }
@@ -119,7 +119,7 @@ export function getPaymentDueStatus(dueDateStr) {
       daysDiff: 0,
       badgeClass:
         'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/80',
-      statusText: 'ينتهي اليوم',
+      statusText: 'تنتهي المهلة اليوم (آخر موعد)',
       alertLevel: 'warning',
     };
   }
@@ -130,7 +130,7 @@ export function getPaymentDueStatus(dueDateStr) {
       daysDiff: 1,
       badgeClass:
         'bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/80',
-      statusText: 'ينتهي غداً',
+      statusText: 'متبقي يوم واحد في المهلة',
       alertLevel: 'warning',
     };
   }
@@ -140,7 +140,7 @@ export function getPaymentDueStatus(dueDateStr) {
     daysDiff: diffDays,
     badgeClass:
       'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/80',
-    statusText: `متبقي ${diffDays} أيام`,
+    statusText: `متبقي ${diffDays} أيام في المهلة`,
     alertLevel: 'safe',
   };
 }

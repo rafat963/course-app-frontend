@@ -54,130 +54,9 @@
         </button>
       </div>
 
-      <!-- 2. محتوى التمرير للمودال -->
+      <!-- 2. محتوى التمرير للمودال: بيانات المتدرب الشخصية ومستنداته فقط -->
       <div class="p-4 sm:p-5 space-y-4 overflow-y-auto custom-scrollbar text-sm">
-        <!-- أ. بطاقة الدورة والطلب الحالي (Context) -->
-        <div
-          v-if="courseRound || application || log"
-          class="p-4 rounded-2xl bg-primary-50/40 dark:bg-primary-950/20 border border-primary-200/70 dark:border-primary-800/50 space-y-3"
-        >
-          <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-primary-200/50 dark:border-primary-800/40">
-            <div class="flex items-center gap-2">
-              <BookOpen class="w-5 h-5 text-primary-600 dark:text-primary-400" />
-              <strong class="font-black text-slate-800 dark:text-slate-100 text-base sm:text-lg">
-                {{ courseRound?.courseName || 'الدورة التدريبية' }}
-              </strong>
-              <span v-if="courseRound?.roundNumber" class="px-3 py-0.5 rounded-full text-xs sm:text-sm font-bold bg-white dark:bg-slate-800 border border-primary-200 dark:border-primary-700 text-primary-800 dark:text-primary-300 font-mono">
-                الدفعة {{ courseRound.roundNumber }}
-              </span>
-            </div>
-
-            <!-- كود الطلب / الحركة وشارة الحالة -->
-            <div class="flex items-center gap-2">
-              <span v-if="application?.code" class="font-mono font-bold text-slate-600 dark:text-slate-300 text-xs sm:text-sm">
-                {{ application.code }}
-              </span>
-              <span
-                v-if="statusBadge"
-                class="px-3 py-1 rounded-full text-xs font-bold border"
-                :class="statusBadge.class"
-              >
-                {{ statusBadge.label }}
-              </span>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-slate-700 dark:text-slate-300 text-xs sm:text-sm">
-            <div v-if="courseRound?.hallName">
-              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">مقر الانعقاد:</span>
-              <span class="font-bold flex items-center gap-1.5 mt-0.5 text-slate-800 dark:text-slate-200">
-                <Building2 class="w-4 h-4 text-primary-600 shrink-0" />
-                <span>{{ courseRound.hallName }}</span>
-              </span>
-            </div>
-
-            <div v-if="courseRound?.instructorName">
-              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">المحاضر المسؤول:</span>
-              <span class="font-bold flex items-center gap-1.5 mt-0.5 text-slate-800 dark:text-slate-200">
-                <UserCheck class="w-4 h-4 text-primary-600 shrink-0" />
-                <span>{{ courseRound.instructorName }}</span>
-              </span>
-            </div>
-
-            <div v-if="courseRound?.timeRange">
-              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">توقيت المحاضرات:</span>
-              <span class="font-mono font-bold flex items-center gap-1.5 mt-0.5 text-slate-800 dark:text-slate-200">
-                <Clock class="w-4 h-4 text-primary-600 shrink-0" />
-                <span>{{ courseRound.timeRange }}</span>
-              </span>
-            </div>
-
-            <!-- موقف المقاعد والسعة الاستيعابية المعتمدة -->
-            <div v-if="courseRound?.capacity">
-              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">موقف المقاعد بالدفعة:</span>
-              <span class="font-bold flex items-center gap-1.5 mt-0.5 text-xs sm:text-sm">
-                <Armchair class="w-4 h-4 text-primary-600 dark:text-primary-400 shrink-0" />
-                <span
-                  :class="
-                    (courseRound.capacity - (courseRound.enrolledCount || 0)) <= 0
-                      ? 'text-rose-600 dark:text-rose-400 font-bold'
-                      : (courseRound.capacity - (courseRound.enrolledCount || 0)) <= 5
-                        ? 'text-amber-600 dark:text-amber-400 font-bold'
-                        : 'text-emerald-600 dark:text-emerald-400 font-bold'
-                  "
-                >
-                  {{
-                    (courseRound.capacity - (courseRound.enrolledCount || 0)) <= 0
-                      ? 'السعة مكتملة سداداً'
-                      : `متبقي ${courseRound.capacity - (courseRound.enrolledCount || 0)} مقعد شاغر`
-                  }}
-                </span>
-                <span class="text-slate-400 dark:text-slate-500 font-mono text-xs font-bold">
-                  ({{ courseRound.enrolledCount || 0 }}/{{ courseRound.capacity }})
-                </span>
-              </span>
-            </div>
-
-            <!-- الموقف المالي أو مهلة السداد -->
-            <div v-if="application?.appliedPrice">
-              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">الرسوم المقررة للفئة:</span>
-              <span class="font-black text-emerald-700 dark:text-emerald-400 font-mono text-sm sm:text-base">
-                {{ formatCurrency(application.appliedPrice) }}
-              </span>
-            </div>
-
-            <div v-if="application?.paymentDueDate">
-              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">مهلة السداد بالخزينة:</span>
-              <span class="font-mono font-bold text-slate-800 dark:text-slate-200">
-                {{ formatDate(application.paymentDueDate) }}
-              </span>
-            </div>
-
-            <div v-if="application?.receiptNumber">
-              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">رقم إيصال السداد:</span>
-              <span class="font-mono font-bold text-slate-800 dark:text-slate-200">
-                {{ application.receiptNumber }}
-              </span>
-            </div>
-
-            <!-- في حالة البوابة: فرد الأمن والبوابة -->
-            <div v-if="log?.officer">
-              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">فرد الأمن والبوابة:</span>
-              <span class="font-bold text-slate-800 dark:text-slate-200">
-                {{ log.officer.name }} ({{ log.officer.gateName }})
-              </span>
-            </div>
-
-            <div v-if="log?.reason">
-              <span class="text-slate-400 dark:text-slate-500 block text-xs font-bold">القرار الأمني المسجل:</span>
-              <span class="font-bold" :class="log.decision === 'Allowed' ? 'text-emerald-700 dark:text-emerald-300' : 'text-rose-600 dark:text-rose-400'">
-                {{ log.reason }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ب. شبكة بيانات البطاقة المدنية والتواصل -->
+        <!-- أ. شبكة بيانات البطاقة المدنية والتواصل -->
         <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 space-y-3">
           <div class="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-700">
             <h4 class="font-black text-slate-800 dark:text-slate-100 text-sm sm:text-base flex items-center gap-1.5">
@@ -399,17 +278,9 @@ import { useRoute } from 'vue-router';
 import {
   X,
   ExternalLink,
-  BookOpen,
-  Building2,
-  UserCheck,
-  Clock,
   IdCard,
   FileText,
   Eye,
-  CheckCircle2,
-  XCircle,
-  CalendarClock,
-  Armchair,
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -431,29 +302,9 @@ const props = defineProps({
     type: Object,
     default: null,
   },
-  // صلاحيات إظهار أزرار الإجراءات السياقية
-  showApproveReject: {
-    type: Boolean,
-    default: false,
-  },
-  showRescheduleCancel: {
-    type: Boolean,
-    default: false,
-  },
-  showSwitchApplication: {
-    type: Boolean,
-    default: false,
-  },
 });
 
-defineEmits([
-  'close',
-  'approve',
-  'reject',
-  'reschedule',
-  'cancel',
-  'switch-to-application',
-]);
+defineEmits(['close']);
 
 const activePreviewUrl = ref(null);
 const previewTitle = ref('');
@@ -463,12 +314,7 @@ const trainee = computed(() => {
   return props.trainee || props.application?.trainee || props.log?.trainee || null;
 });
 
-// استخلاص كائن الدورة
-const courseRound = computed(() => {
-  return props.application?.courseRound || props.log?.courseRound || null;
-});
-
-// الأحرف الأولى
+// الأحرف الأولى للأفاتار
 const initials = computed(() => {
   if (!trainee.value?.fullName) return 'م';
   const parts = trainee.value.fullName.trim().split(/\s+/);
@@ -486,21 +332,6 @@ const categoryBadge = computed(() => {
     PoliceOfficerOrFamily: { label: 'شرطة / عائلاتهم', class: 'bg-blue-50 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300 border-blue-200' },
   };
   return map[cat] || { label: cat || 'مدني', class: 'bg-slate-100 text-slate-700 border-slate-200' };
-});
-
-// شارة الحالة للطلب إن وجدت
-const statusBadge = computed(() => {
-  const status = props.application?.status || props.log?.decision;
-  if (!status) return null;
-  const map = {
-    UnderReview: { label: 'تحت المراجعة', class: 'bg-amber-50 text-amber-700 border-amber-200' },
-    PendingPayment: { label: 'في انتظار الدفع', class: 'bg-blue-50 text-blue-700 border-blue-200' },
-    PaymentMissed: { label: 'فات موعد السداد', class: 'bg-rose-50 text-rose-700 border-rose-200' },
-    Enrolled: { label: 'مقيد بالدورة', class: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    Allowed: { label: 'دخول مصرح به', class: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-    Denied: { label: 'دخول مرفوض', class: 'bg-rose-50 text-rose-700 border-rose-200' },
-  };
-  return map[status] || { label: status, class: 'bg-slate-100 text-slate-700 border-slate-200' };
 });
 
 // عمر المتدرب
@@ -527,27 +358,6 @@ const profileUrl = computed(() => {
   return `/trainee-profile/${id}?from=${from}`;
 });
 
-// أذونات ظهور الأزرار
-const canApprove = computed(() => {
-  return props.showApproveReject || props.application?.status === 'UnderReview';
-});
-
-const canReject = computed(() => {
-  return props.showApproveReject || props.application?.status === 'UnderReview';
-});
-
-const canReschedule = computed(() => {
-  return props.showRescheduleCancel || ['PendingPayment', 'PaymentMissed'].includes(props.application?.status);
-});
-
-const canCancel = computed(() => {
-  return props.showRescheduleCancel || ['PendingPayment', 'PaymentMissed'].includes(props.application?.status);
-});
-
-const canSwitchToApplication = computed(() => {
-  return props.showSwitchApplication || ['Enrolled', 'CourseEnded'].includes(props.application?.status);
-});
-
 // دوال التنسيق
 function formatDate(dateStr) {
   if (!dateStr) return '—';
@@ -557,11 +367,6 @@ function formatDate(dateStr) {
   } catch {
     return dateStr;
   }
-}
-
-function formatCurrency(val) {
-  if (val === undefined || val === null) return '—';
-  return `${Number(val).toLocaleString('ar-EG')} ج.م`;
 }
 
 function getMaritalStatusLabel(status) {

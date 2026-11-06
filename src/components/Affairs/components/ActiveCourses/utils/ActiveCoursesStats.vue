@@ -1,55 +1,43 @@
 <template>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 select-none">
-    <!-- 1. الدورات المنعقدة والجارية حالياً -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 select-none">
+    <!-- 1. إجمالي الدورات -->
     <AppKpiCard
-      title="دفعات جارية حالياً (Ongoing)"
-      :value="ongoingRounds"
-      label="دفعة دراسية"
-      status-text="بدأت الدراسة وتُعقد محاضراتها"
+      title="إجمالي الدورات"
+      :value="totalRounds"
+      label="دورة تدريبية"
+      status-text="كافة الدورات المنعقدة والتشغيلية"
       status-type="success"
-      :icon="PlayCircle"
+      :icon="BookOpen"
       variant="default"
     />
 
-    <!-- 2. دورات مفتوحة للتسجيل وتبدأ قريباً -->
+    <!-- 2. إجمالي محاضرات اليوم -->
     <AppKpiCard
-      title="مفتوحة للتسجيل (Available)"
-      :value="availableRounds"
-      label="دفعة مجدولة"
-      status-text="تستقبل طلبات المتدربين الجدد"
-      status-type="info"
-      :icon="CalendarPlus"
-      variant="primary"
-    />
-
-    <!-- 3. محاضرات اليوم المجدولة -->
-    <AppKpiCard
-      title="محاضرات اليوم المجدولة"
+      title="إجمالي محاضرات اليوم"
       :value="todayLectures"
-      label="محاضرة اليوم"
-      status-text="وفق جدول CourseLectureDays"
+      label="محاضرة مجدولة"
+      status-text="وفق جداول أيام الانعقاد المعتمدة"
       :status-type="todayLectures > 0 ? 'warning' : 'default'"
       :icon="CalendarCheck"
       variant="warning"
     />
 
-    <!-- 4. إجمالي الدارسين المقيدين -->
+    <!-- 3. إجمالي المتدربين -->
     <AppKpiCard
-      title="إجمالي الدارسين المقيدين"
+      title="إجمالي المتدربين"
       :value="totalTrainees"
-      label="دارساً مسجلاً"
-      status-text="بالدفعات الجارية والقادمة"
-      status-type="default"
+      label="متدرباً مقيداً"
+      status-text="المسجلون بالدفعات التدريبية"
+      status-type="info"
       :icon="Users"
-      variant="default"
+      variant="primary"
     />
   </div>
 </template>
 
 <script setup>
 import {
-  PlayCircle,
-  CalendarPlus,
+  BookOpen,
   CalendarCheck,
   Users,
 } from 'lucide-vue-next';
@@ -60,23 +48,11 @@ defineProps({
     type: Number,
     default: 0,
   },
-  ongoingRounds: {
-    type: Number,
-    default: 0,
-  },
-  availableRounds: {
-    type: Number,
-    default: 0,
-  },
   todayLectures: {
     type: Number,
     default: 0,
   },
   totalTrainees: {
-    type: Number,
-    default: 0,
-  },
-  averageAttendance: {
     type: Number,
     default: 0,
   },

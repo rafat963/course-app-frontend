@@ -97,7 +97,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
       isStarred: false,
       createdAt: 'منذ يومين',
       sender: 'قيادة المعهد والامتحانات',
-      link: '/affairs/courses/archived',
+      link: '/affairs/courses/open-registration',
       actionLabel: 'سجل الخريجين',
       referenceId: 'CERT-TR-2026',
     },

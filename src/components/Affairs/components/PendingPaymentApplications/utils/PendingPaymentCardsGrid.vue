@@ -66,18 +66,20 @@
 
             <!-- صف المعلومات: تاريخ المهلة والمبلغ المطلوب -->
             <div class="flex items-center justify-between pt-2.5 border-t border-dashed border-slate-100 dark:border-slate-800/80">
-              <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 text-xs sm:text-sm font-medium">
-                <Clock class="w-4 h-4 text-slate-400 shrink-0" />
-                <span>المهلة:</span>
+              <div class="flex flex-col items-start gap-0.5 text-xs sm:text-sm">
+                <div class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 font-medium">
+                  <Clock class="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span>متاح السداد حتى:</span>
+                </div>
                 <span
                   class="font-mono font-bold text-xs sm:text-sm"
-                  :class="isOverdue(app.paymentDueDate) ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-300'"
+                  :class="isOverdue(app.paymentDueDate) ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-200'"
                 >
-                  {{ formatDate(app.paymentDueDate) }}
+                  {{ formatDate(app.paymentDueDate) }} <span class="text-[10px] font-sans font-normal text-slate-400">(يدفع قبله)</span>
                 </span>
               </div>
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs sm:text-sm text-slate-400">المطلوب:</span>
+              <div class="flex flex-col items-end gap-0.5">
+                <span class="text-[11px] text-slate-400">المبلغ المطلوب:</span>
                 <strong class="font-black text-emerald-600 dark:text-emerald-400 text-base sm:text-lg font-mono">
                   {{ formatCurrency(app.courseRound?.price) }}
                 </strong>
@@ -116,11 +118,11 @@
             <button
               type="button"
               class="h-9 px-2 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/50 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-900/60 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5"
-              title="تمديد مهلة السداد"
+              title="تمديد مهلة السداد (3 أيام، 5 أيام، أو حتى تاريخ محدد)"
               @click="$emit('extendDeadline', app)"
             >
               <CalendarPlus class="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              <span>تمديد</span>
+              <span>تمديد المهلة</span>
             </button>
 
             <!-- زر إلغاء الطلب -->

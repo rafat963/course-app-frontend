@@ -11,14 +11,11 @@
       @open-create-round="isCreateRoundModalOpen = true"
     />
 
-    <!-- 2. بطاقات الإحصائيات الأربعة (KPIs) المتناسقة مع نظام التصميم -->
+    <!-- 2. بطاقات الإحصائيات الثلاثة (KPIs) المتناسقة مع نظام التصميم -->
     <ActiveCoursesStats
       :total-rounds="totalRounds"
-      :ongoing-rounds="ongoingRoundsCount"
-      :available-rounds="availableRoundsCount"
       :today-lectures="todayLecturesCount"
       :total-trainees="totalTrainees"
-      :average-attendance="averageAttendance"
     />
 
     <!-- 3. شريط التبويبات السريعة والبحث وفلاتر القاعات والمحاضرين ومحول العرض -->

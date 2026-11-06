@@ -53,7 +53,7 @@
           </span>
         </button>
 
-        <!-- تبويب فات موعد سدادها -->
+        <!-- تبويب انقضت مهلة السداد -->
         <button
           type="button"
           class="flex-1 sm:flex-initial px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
@@ -65,7 +65,7 @@
           @click="$emit('update:statusFilter', 'overdue')"
         >
           <span class="w-2 h-2 rounded-full bg-rose-500 shrink-0 animate-pulse"></span>
-          <span>فات موعد سدادها</span>
+          <span>انقضت مهلتها</span>
           <span
             class="px-2 py-0.5 rounded-full text-[10px] font-bold"
             :class="

@@ -8,12 +8,12 @@
     />
 
     <!-- 2. بطاقات الإحصائيات الأربعة (سارية، متأخرة، إجمالي، والرسوم المتوقعة) -->
-    <PendingPaymentStats
+    <!-- <PendingPaymentStats
       :total-count="applications.length"
       :active-count="activeCount"
       :overdue-count="overdueCount"
       :total-expected-amount="totalExpectedAmount"
-    />
+    /> -->
 
     <!-- 3. شريط الفلاتر والبحث مع تبويب واضح للطلبات المنتهية والسارية -->
     <PendingPaymentFilters
@@ -119,6 +119,13 @@
       @confirm="onConfirmRecordPayment"
     />
 
+    <!-- مودال تأكيد تسجيل السداد وعرض إيصال الخزينة الرسمي وقيد الدارس -->
+    <PaymentSuccessReceiptModal
+      :is-open="isPaymentSuccessOpen"
+      :receipt-data="paymentReceiptData"
+      @close="isPaymentSuccessOpen = false"
+    />
+
     <!-- مودال تحديد موعد جديد / تمديد مهلة السداد -->
     <ExtendDeadlineModal
       :is-open="isRescheduleOpen"
@@ -160,6 +167,7 @@ import PendingPaymentCardsGrid from './utils/PendingPaymentCardsGrid.vue';
 import RecordPaymentModal from './utils/RecordPaymentModal.vue';
 import ExtendDeadlineModal from './utils/ExtendDeadlineModal.vue';
 import CancelPaymentApplicationModal from './utils/CancelPaymentApplicationModal.vue';
+import PaymentSuccessReceiptModal from './utils/PaymentSuccessReceiptModal.vue';
 import TraineeDetailsModal from '@/shared/ui/Modals/TraineeDetailsModal.vue';
 
 // استيراد البيانات والمساعدات من helpers
@@ -217,6 +225,8 @@ const isRecordPaymentOpen = ref(false);
 const isRescheduleOpen = ref(false);
 const isCancelOpen = ref(false);
 const isDetailsOpen = ref(false);
+const isPaymentSuccessOpen = ref(false);
+const paymentReceiptData = ref(null);
 
 // رسائل التغذية الراجعة
 const feedbackMessage = ref({ text: '', type: 'success' });
@@ -332,18 +342,44 @@ function openCancel(app) {
 }
 
 // تأكيد تسجيل سداد الرسوم وإصدار الإيصال المالي
-function onConfirmRecordPayment({ applicationId, receiptNumber, paidAmount, paymentDate }) {
+function onConfirmRecordPayment({ applicationId, receiptNumber, paymentMethod, paidAmount, paymentDate, notes }) {
   const target = applications.value.find((a) => a.id === applicationId);
   if (target) {
+    // تجهيز بيانات إيصال السداد لمودال التأكيد
+    paymentReceiptData.value = {
+      receiptNumber,
+      paymentMethod: paymentMethod || 'Cash',
+      paidAmount: paidAmount || target.courseRound?.price || 0,
+      paymentDate: paymentDate || new Date().toISOString().slice(0, 10),
+      notes: notes || '',
+      applicationCode: target.code,
+      traineeName: target.trainee?.fullName,
+      nationalId: target.trainee?.nationalId,
+      phone: target.trainee?.phone,
+      category: target.trainee?.category,
+      courseName: target.courseRound?.courseName,
+      roundNumber: target.courseRound?.roundNumber || 1,
+      hallName: target.courseRound?.hallName || 'المقر المعتمد',
+      instructorName: target.courseRound?.instructorName,
+      paymentTime: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+    };
+
     // إزالة الطلب من قائمة "في انتظار السداد" لأنه سُدد وانتقل للمكتمل والمقيد
     applications.value = applications.value.filter((a) => a.id !== applicationId);
+
+    // إغلاق نافذة السداد وفتح نافذة التأكيد الرسمية مع رقم الإيصال
+    isRecordPaymentOpen.value = false;
+    isPaymentSuccessOpen.value = true;
+    selectedApplication.value = null;
+
     showFeedback(
-      `تم تسجيل سداد الرسوم بنجاح وإصدار إيصال الخزينة «${receiptNumber}» للدارس «${target.trainee?.fullName}» بقيمة ${paidAmount} ج.م وتم قيده بالدورة`,
+      `تم تسجيل سداد الرسوم بنجاح وإصدار إيصال الخزينة «${receiptNumber}» للدارس «${target.trainee?.fullName}» بقيمة ${paidAmount || target.courseRound?.price || 0} ج.م وتم قيده بالدورة`,
       'success'
     );
+  } else {
+    isRecordPaymentOpen.value = false;
+    selectedApplication.value = null;
   }
-  isRecordPaymentOpen.value = false;
-  selectedApplication.value = null;
 }
 
 // تأكيد تحديد الموعد الجديد (تمديد المهلة)
@@ -355,7 +391,7 @@ function onConfirmReschedule({ applicationId, newDueDate, reason }) {
     target.notes = reason;
 
     showFeedback(
-      `تم تحديد موعد سداد جديد للمتقدم «${target.trainee?.fullName}» حتى ${formatDateOnly(newDueDate)} بنجاح`,
+      `تم تمديد مهلة السداد للمتدرب «${target.trainee?.fullName}» حتى ${formatDateOnly(newDueDate)} (يدفع قبله) بنجاح`,
       'success'
     );
   }

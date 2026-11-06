@@ -8,12 +8,12 @@
     />
 
     <!-- 2. بطاقات الإحصائيات السريعة -->
-    <ApplicantApplicationsStats
+    <!-- <ApplicantApplicationsStats
       :total-under-review="applications.length"
       :civilian-count="civilianCount"
       :military-and-police-count="militaryAndPoliceCount"
       :approved-today-count="approvedCount"
-    />
+    /> -->
 
     <!-- 3. شريط الفلاتر والبحث (مع محول طريقة العرض جدول / كروت) -->
     <ApplicantApplicationsFilters

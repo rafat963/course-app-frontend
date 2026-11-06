@@ -8,12 +8,12 @@
     />
 
     <!-- 2. بطاقات الإحصائيات الأربعة الموحدة بتصميم AppKpiCard -->
-    <CompletedStats
+    <!-- <CompletedStats
       :total-count="applications.length"
       :active-rounds-count="activeRoundsCount"
       :total-collected-revenue="totalCollectedRevenue"
       :average-attendance="averageAttendance"
-    />
+    /> -->
 
     <!-- 3. شريط الفلاتر والبحث مع تبويب حالة الدارس ومحول طريقة العرض -->
     <CompletedFilters

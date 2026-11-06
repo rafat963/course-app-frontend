@@ -2,9 +2,37 @@
   <div
     v-if="isOpen && application"
     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs select-none"
-    @click.self="$emit('close')"
+    @click.self="!isSubmitting && $emit('close')"
   >
     <div class="relative w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden animate-scale-in">
+      
+      <!-- لودر معالجة وتوثيق السداد المالي بالخزينة (Processing Loader Overlay) -->
+      <div
+        v-if="isSubmitting"
+        class="absolute inset-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs flex flex-col items-center justify-center gap-4 p-6 animate-fade-in text-center"
+      >
+        <div class="relative flex items-center justify-center">
+          <div class="w-20 h-20 rounded-3xl bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center border border-emerald-200 dark:border-emerald-800 shadow-xl shadow-emerald-500/10">
+            <Receipt class="w-10 h-10 animate-bounce text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <div class="absolute -inset-2 rounded-3xl border-3 border-emerald-500/30 border-t-emerald-600 animate-spin"></div>
+        </div>
+
+        <div class="space-y-1">
+          <h4 class="font-black text-slate-800 dark:text-slate-100 text-lg sm:text-xl font-heading">
+            جاري تسجيل السداد المالي بالخزينة...
+          </h4>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-bold max-w-xs mx-auto leading-relaxed">
+            يتم توثيق إيصال التحصيل وقيد الدارس رسمياً في كشف الدورة
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs font-mono font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/70 px-4 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-800 shadow-2xs">
+          <Loader2 class="w-4 h-4 animate-spin text-emerald-600 dark:text-emerald-400" />
+          <span>إصدار الإيصال: {{ receiptNumber }}</span>
+        </div>
+      </div>
+
       <!-- 1. ترويسة المودال -->
       <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-emerald-50/70 dark:bg-emerald-950/40">
         <div class="flex items-center gap-3">
@@ -76,20 +104,19 @@
               />
             </div>
 
-            <!-- طريقة السداد -->
+            <!-- طريقة السداد (PrimeVue Select) -->
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-200 mb-1.5 text-xs sm:text-sm">
                 طريقة الدفع <span class="text-rose-500">*</span>
               </label>
-              <select
+              <Select
                 v-model="paymentMethod"
-                required
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
-              >
-                <option value="Cash">نقدي (خزينة المعهد)</option>
-                <option value="Card">بطاقة بنكية / فيزا (POS)</option>
-                <option value="BankTransfer">تحويل بنكي فوري</option>
-              </select>
+                :options="paymentMethodOptions"
+                option-label="label"
+                option-value="value"
+                placeholder="اختر طريقة الدفع..."
+                class="w-full text-sm font-bold rounded-xl h-11 flex items-center bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+              />
             </div>
           </div>
 
@@ -139,7 +166,8 @@
         <div class="pt-3.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
           <button
             type="button"
-            class="h-11 px-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-sm transition-colors cursor-pointer shadow-2xs"
+            :disabled="isSubmitting"
+            class="h-11 px-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-sm transition-colors cursor-pointer shadow-2xs disabled:opacity-50"
             @click="$emit('close')"
           >
             تراجع
@@ -147,10 +175,12 @@
 
           <button
             type="submit"
-            class="flex-1 h-11 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm hover:shadow"
+            :disabled="isSubmitting"
+            class="flex-1 h-11 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-75 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm hover:shadow"
           >
-            <CheckCircle2 class="w-5 h-5" />
-            <span>تأكيد تسجيل السداد وقيد الدارس</span>
+            <Loader2 v-if="isSubmitting" class="w-5 h-5 animate-spin" />
+            <CheckCircle2 v-else class="w-5 h-5" />
+            <span>{{ isSubmitting ? 'جاري معالجة السداد...' : 'تأكيد تسجيل السداد وقيد الدارس' }}</span>
           </button>
         </div>
       </form>
@@ -160,8 +190,15 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { Receipt, X, CheckCircle2 } from 'lucide-vue-next';
+import Select from 'primevue/select';
+import { Receipt, X, CheckCircle2, Loader2 } from 'lucide-vue-next';
 import { formatEgyptianCurrency } from '../helpers/pendingPaymentConstants';
+
+const paymentMethodOptions = [
+  { label: 'نقدي (خزينة المعهد)', value: 'Cash' },
+  { label: 'بطاقة بنكية / فيزا (POS)', value: 'Card' },
+  { label: 'تحويل بنكي فوري', value: 'BankTransfer' },
+];
 
 const props = defineProps({
   isOpen: {
@@ -176,6 +213,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'confirm']);
 
+const isSubmitting = ref(false);
 const receiptNumber = ref('');
 const paymentMethod = ref('Cash');
 const paidAmount = ref(0);
@@ -186,6 +224,7 @@ watch(
   () => props.application,
   (app) => {
     if (app) {
+      isSubmitting.value = false;
       receiptNumber.value = `REC-${Math.floor(10000 + Math.random() * 90000)}`;
       paymentMethod.value = 'Cash';
       paidAmount.value = app.courseRound?.price || 0;
@@ -197,13 +236,20 @@ watch(
 );
 
 function handleConfirm() {
-  emit('confirm', {
-    applicationId: props.application?.id,
-    receiptNumber: receiptNumber.value,
-    paymentMethod: paymentMethod.value,
-    paidAmount: paidAmount.value,
-    paymentDate: paymentDate.value,
-    notes: notes.value,
-  });
+  if (isSubmitting.value) return;
+  isSubmitting.value = true;
+
+  // تأخير واقعي لمعالجة السداد المالي (Loader Feedback) قبل فتح إيصال السداد
+  setTimeout(() => {
+    emit('confirm', {
+      applicationId: props.application?.id,
+      receiptNumber: receiptNumber.value,
+      paymentMethod: paymentMethod.value,
+      paidAmount: paidAmount.value,
+      paymentDate: paymentDate.value,
+      notes: notes.value,
+    });
+    isSubmitting.value = false;
+  }, 950);
 }
 </script>

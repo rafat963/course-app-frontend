@@ -5,7 +5,8 @@
     @click.self="handleClose"
   >
     <div
-      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden animate-scale-in"
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden animate-scale-in text-right"
+      dir="rtl"
       role="dialog"
       aria-modal="true"
     >
@@ -17,10 +18,10 @@
           </div>
           <div>
             <h3 class="text-lg sm:text-xl font-black text-slate-800 dark:text-slate-100 font-heading">
-              فتح دورة انعقاد جديدة (Course Round)
+              {{ modalTitle }}
             </h3>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              جدولة دفعة تدريبية جديدة وفق حقول جدولي CourseRounds و CourseLectureDays في الـ ERD
+            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 font-bold">
+              الدفعة رقم {{ form.roundNumber }} (تلقائي) — جدولة دورة انعقاد جديدة
             </p>
           </div>
         </div>
@@ -45,18 +46,38 @@
           <span>{{ validationError }}</span>
         </div>
 
-        <!-- السكشن الأول: الدورة التدريبية ورقم الدفعة -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-4">
-          <div class="flex items-center gap-2 text-sm font-black text-slate-800 dark:text-slate-100 border-b border-slate-200/60 dark:border-slate-700/60 pb-2.5">
-            <BookOpen class="w-4.5 h-4.5 text-primary-600 dark:text-primary-400" />
-            <span>1. الدورة التدريبية ورقم الدفعة بالكتالوج (CourseId & RoundNumber)</span>
+        <!-- السكشن الأول: الدورة التدريبية ورقم الدفعة التلقائي -->
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-3.5">
+          <!-- أ. في حال فتح الدورة من كارت دورة محددة (تم إخفاء الدروبداون ورقم الدفعة تلقائي وفق طلبك) -->
+          <div v-if="isSpecificCourse" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-950/70 border border-primary-200 dark:border-primary-800 text-primary-600 dark:text-primary-400 flex items-center justify-center shrink-0">
+                <BookOpen class="w-5 h-5" />
+              </div>
+              <div>
+                <span class="text-xs text-slate-400 dark:text-slate-500 font-bold block">الدورة التدريبية المعتمدة:</span>
+                <strong class="text-sm sm:text-base font-black text-slate-800 dark:text-slate-100">
+                  {{ selectedCourse?.name }}
+                </strong>
+              </div>
+            </div>
+
+            <!-- شارة رقم الدفعة التلقائي -->
+            <div class="flex items-center gap-2">
+              <span class="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono font-black text-xs sm:text-sm shadow-2xs">
+                الدفعة رقم {{ form.roundNumber }} (تلقائي)
+              </span>
+              <span v-if="calculatedPreviousRound > 0" class="text-xs text-slate-500 dark:text-slate-400 font-bold">
+                (السابقة: {{ calculatedPreviousRound }})
+              </span>
+            </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <!-- اختيار الدورة -->
-            <div class="sm:col-span-2 space-y-1.5">
+          <!-- ب. في حال فتح الدورة بشكل عام بدون تحديد كورس مسبق -->
+          <div v-else class="space-y-3">
+            <div class="space-y-1.5">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                الدورة التدريبية المعتمدة <span class="text-rose-500">*</span>
+                اختر الدورة التدريبية بالكتالوج <span class="text-rose-500">*</span>
               </label>
               <Select
                 v-model="form.courseId"
@@ -67,45 +88,13 @@
                 class="w-full text-sm font-bold rounded-xl h-11 flex items-center"
                 @change="onCourseSelected"
               />
-              <p v-if="selectedCourse" class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
-                {{ selectedCourse.description }}
-              </p>
             </div>
 
-            <!-- رقم الدورة / الدفعة -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                  رقم الدفعة (RoundNumber) <span class="text-rose-500">*</span>
-                </label>
-                <!-- شارة الحساب التلقائي للدفعة -->
-                <span
-                  v-if="calculatedPreviousRound > 0"
-                  class="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/70 px-2 py-0.5 rounded-md border border-emerald-200/80 dark:border-emerald-800 shadow-2xs"
-                >
-                  <span>السابقة رقم {{ calculatedPreviousRound }}</span>
-                </span>
-                <span
-                  v-else
-                  class="inline-flex items-center gap-1 text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/70 px-2 py-0.5 rounded-md border border-blue-200/80 dark:border-blue-800 shadow-2xs"
-                >
-                  <span>أول دفعة للدورة</span>
-                </span>
-              </div>
-              <div class="relative">
-                <input
-                  v-model.number="form.roundNumber"
-                  type="number"
-                  min="1"
-                  required
-                  class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-mono font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  placeholder="مثال: 15"
-                />
-                <span class="absolute left-3 top-3 text-xs text-slate-400 font-bold">الدفعة</span>
-              </div>
-              <p class="text-xs text-slate-500 dark:text-slate-400">
-                يزيد رقم الدفعة تلقائياً (+1) عن آخر دورة انعقاد سابقة مسجلة لنفس الكورس.
-              </p>
+            <div v-if="selectedCourse" class="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+              <span class="text-slate-600 dark:text-slate-300">رقم الدفعة القادمة:</span>
+              <span class="text-emerald-600 dark:text-emerald-400 font-mono font-black text-sm">
+                الدفعة رقم {{ form.roundNumber }} (يُحسب تلقائياً)
+              </span>
             </div>
           </div>
         </div>
@@ -114,14 +103,14 @@
         <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-4">
           <div class="flex items-center gap-2 text-sm font-black text-slate-800 dark:text-slate-100 border-b border-slate-200/60 dark:border-slate-700/60 pb-2.5">
             <Users class="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400" />
-            <span>2. المحاضر والقاعة التدريبية والسعة (Instructors, Halls, Capacity)</span>
+            <span>المحاضر والقاعة التدريبية والسعة</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <!-- اختيار المحاضر -->
             <div class="space-y-1.5">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                المحاضر المعتمد (المسؤول عن الشرح) <span class="text-rose-500">*</span>
+                المحاضر المعتمد للشرح <span class="text-rose-500">*</span>
               </label>
               <Select
                 v-model="form.instructorId"
@@ -130,7 +119,7 @@
                 option-value="id"
                 filter
                 filter-placeholder="ابحث بالاسم أو التخصص..."
-                placeholder="اختر المحاضر من قائمة المحاضرين..."
+                placeholder="اختر المحاضر من القائمة..."
                 class="w-full text-sm font-bold rounded-xl h-11 flex items-center"
               />
               <p v-if="selectedInstructor" class="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
@@ -141,7 +130,7 @@
             <!-- اختيار القاعة / المعمل -->
             <div class="space-y-1.5">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                القاعة أو المعمل (HallId) <span class="text-rose-500">*</span>
+                القاعة أو المعمل التدريبي <span class="text-rose-500">*</span>
               </label>
               <Select
                 v-model="form.hallId"
@@ -161,7 +150,7 @@
             <!-- السعة المستهدفة للدفعة -->
             <div class="space-y-1.5">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                سعة الدفعة (Capacity) <span class="text-rose-500">*</span>
+                سعة الدفعة (عدد الدارسين) <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model.number="form.capacity"
@@ -186,46 +175,46 @@
         <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-4">
           <div class="flex items-center gap-2 text-sm font-black text-slate-800 dark:text-slate-100 border-b border-slate-200/60 dark:border-slate-700/60 pb-2.5">
             <Calendar class="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" />
-            <span>3. المواعيد والجدول الزمني (StartDate, EndDate, LastApplicationDate)</span>
+            <span>المواعيد والجدول الزمني للدورة</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <!-- تاريخ البداية -->
             <div class="space-y-1.5">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                تاريخ بداية الدورة (StartDate) <span class="text-rose-500">*</span>
+                تاريخ بداية الدورة <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model="form.startDate"
                 type="date"
                 required
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
               />
             </div>
 
             <!-- تاريخ النهاية -->
             <div class="space-y-1.5">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                تاريخ انتهاء الدورة (EndDate) <span class="text-rose-500">*</span>
+                تاريخ انتهاء الدورة <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model="form.endDate"
                 type="date"
                 required
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
               />
             </div>
 
             <!-- آخر موعد للتقديم -->
             <div class="space-y-1.5">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                آخر موعد للتقديم (LastApplicationDate) <span class="text-rose-500">*</span>
+                آخر موعد لتلقي الطلبات <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model="form.lastApplicationDate"
                 type="date"
                 required
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
               />
             </div>
           </div>
@@ -236,7 +225,7 @@
           <div class="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/60 pb-2.5">
             <div class="flex items-center gap-2 text-sm font-black text-slate-800 dark:text-slate-100">
               <Clock class="w-4.5 h-4.5 text-amber-600 dark:text-amber-400" />
-              <span>4. توقيت المحاضرة وأيام الأسبوع (StartTime, EndTime, CourseLectureDays)</span>
+              <span>توقيت المحاضرات وأيام الأسبوع</span>
             </div>
             <span v-if="lectureDurationText" class="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 text-xs font-bold">
               ⏱️ مدة المحاضرة: {{ lectureDurationText }}
@@ -247,7 +236,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="space-y-1.5">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                وقت بدء المحاضرة (StartTime) <span class="text-rose-500">*</span>
+                وقت بدء المحاضرة <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model="form.startTime"
@@ -259,7 +248,7 @@
 
             <div class="space-y-1.5">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                وقت انتهاء المحاضرة (EndTime) <span class="text-rose-500">*</span>
+                وقت انتهاء المحاضرة <span class="text-rose-500">*</span>
               </label>
               <input
                 v-model="form.endTime"
@@ -270,11 +259,11 @@
             </div>
           </div>
 
-          <!-- اختيار أيام الأسبوع (CourseLectureDays) -->
+          <!-- اختيار أيام الأسبوع -->
           <div class="space-y-2.5 pt-2">
             <div class="flex items-center justify-between">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                أيام المحاضرات في الأسبوع (CourseLectureDays) <span class="text-rose-500">*</span>
+                أيام المحاضرات في الأسبوع <span class="text-rose-500">*</span>
               </label>
 
               <!-- خيارات سريعة جاهزة -->
@@ -319,47 +308,17 @@
           </div>
         </div>
 
-        <!-- السكشن الخامس: حالة دورة الانعقاد والملخص -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-4">
-          <div class="flex items-center gap-2 text-sm font-black text-slate-800 dark:text-slate-100 border-b border-slate-200/60 dark:border-slate-700/60 pb-2.5">
-            <CheckCircle2 class="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400" />
-            <span>5. حالة الدفعة التشغيلية (CourseRounds.Status)</span>
-          </div>
-
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <label
-              v-for="(cfg, statusKey) in ROUND_STATUS_CONFIG"
-              :key="statusKey"
-              class="h-11 px-3.5 rounded-xl border flex items-center justify-center gap-2 text-xs sm:text-sm font-bold cursor-pointer transition-all"
-              :class="
-                form.status === statusKey
-                  ? 'bg-white dark:bg-slate-800 border-primary-500 text-primary-700 dark:text-primary-300 ring-2 ring-primary-500/20 shadow-2xs font-black'
-                  : 'bg-white/60 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
-              "
-            >
-              <input
-                v-model="form.status"
-                type="radio"
-                :value="statusKey"
-                class="hidden"
-              />
-              <span class="w-2.5 h-2.5 rounded-full" :class="cfg.dotClass"></span>
-              <span>{{ cfg.label }}</span>
-            </label>
-          </div>
-        </div>
-
         <!-- بطاقة المعاينة والملخص المباشر -->
         <div class="p-4.5 rounded-2xl bg-gradient-to-tr from-primary-50/60 to-emerald-50/60 dark:from-primary-950/30 dark:to-emerald-950/30 border border-primary-200/70 dark:border-primary-800/60 space-y-2">
           <div class="text-sm font-black text-primary-900 dark:text-primary-200 flex items-center gap-2">
             <Layers class="w-4.5 h-4.5 text-primary-600" />
-            <span>معاينة بيانات دورة الانعقاد المستخرجة:</span>
+            <span>ملخص دورة الانعقاد الجديدة:</span>
           </div>
           <div class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 space-y-1.5 font-medium">
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
               <span><strong>الدورة:</strong> {{ selectedCourse?.name || 'لم تحدد بعد' }}</span>
               <span>•</span>
-              <span><strong>الدفعة:</strong> رقم {{ form.roundNumber || 1 }}</span>
+              <span><strong>الدفعة المعتمدة:</strong> رقم {{ form.roundNumber || 1 }} (تلقائي)</span>
               <span>•</span>
               <span><strong>المحاضر:</strong> {{ selectedInstructor?.name || 'لم يحدد بعد' }}</span>
             </div>
@@ -389,7 +348,7 @@
             class="h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm sm:text-base font-bold flex items-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <CalendarPlus class="w-4.5 h-4.5" />
-            <span>{{ isSubmitting ? 'جاري الاعتماد...' : 'اعتماد وجدولة دورة الانعقاد' }}</span>
+            <span>{{ isSubmitting ? 'جاري الاعتماد...' : 'اعتماد وجدولة الدفعة الجديدة' }}</span>
           </button>
         </div>
       </form>
@@ -408,12 +367,10 @@ import {
   Users,
   Calendar,
   Clock,
-  CheckCircle2,
   Layers,
 } from 'lucide-vue-next';
 import {
   LECTURE_DAYS_OPTIONS,
-  ROUND_STATUS_CONFIG,
   INITIAL_ROUND_FORM,
   formatLectureDays,
   calculateLectureDuration,
@@ -448,6 +405,19 @@ const form = ref({ ...INITIAL_ROUND_FORM });
 const isSubmitting = ref(false);
 const validationError = ref('');
 const calculatedPreviousRound = ref(0);
+
+// هل تم فتح المودال لكورس محدد مسبقاً (من الكارت أو المودال)
+const isSpecificCourse = computed(() => {
+  return Boolean(props.initialCourseId);
+});
+
+// عنوان النافذة الديناميكي وفق رغبة المستخدم
+const modalTitle = computed(() => {
+  if (selectedCourse.value?.name) {
+    return `فتح دورة جديدة من كورس «${selectedCourse.value.name}»`;
+  }
+  return 'فتح دورة انعقاد جديدة (Course Round)';
+});
 
 // خيارات الدورات المتاحة
 const courseOptions = computed(() => {
@@ -511,8 +481,8 @@ const formattedDaysPreview = computed(() => {
 
 // عند فتح النافذة
 watch(
-  () => props.isOpen,
-  (val) => {
+  () => [props.isOpen, props.initialCourseId],
+  ([val]) => {
     if (val) {
       validationError.value = '';
       initForm();
@@ -641,10 +611,6 @@ function handleSubmit() {
     validationError.value = 'يرجى اختيار الدورة التدريبية بالكتالوج أولاً.';
     return;
   }
-  if (!form.value.roundNumber || form.value.roundNumber < 1) {
-    validationError.value = 'يرجى إدخال رقم دفعة صحيح (أكبر من 0).';
-    return;
-  }
   if (!form.value.instructorId) {
     validationError.value = 'يرجى اختيار المحاضر المعتمد للدورة.';
     return;
@@ -680,7 +646,7 @@ function handleSubmit() {
       id: Date.now(),
       courseId: form.value.courseId,
       courseName: selectedCourse.value?.name || '',
-      roundNumber: Number(form.value.roundNumber),
+      roundNumber: Number(form.value.roundNumber || 1),
       instructorId: form.value.instructorId,
       instructorName: selectedInstructor.value?.name || '',
       hallId: form.value.hallId,
@@ -694,7 +660,7 @@ function handleSubmit() {
       startTime: form.value.startTime,
       endTime: form.value.endTime,
       lectureDays: [...form.value.lectureDays],
-      status: form.value.status,
+      status: 'Available',
       createdAt: new Date().toISOString(),
     };
 
