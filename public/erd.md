@@ -4,8 +4,10 @@
 > **أبرز القرارات التصميمية المعتمدة والتكامل مع الواجهات (UI Alignment):**
 > - **فصل كورس الكتالوج (`Courses`) عن دورة الانعقاد الفعلية (`CourseRounds`):** الشؤون تنشئ كتالوج الدورة وأسعارها وساعاتها ومجالها التخصصي، ثم تفتح دورات انعقاد (دفعات تشغيلية) متعددة بتواريخ وقاعات ومحاضرين وأكواد دفعات مستقلة.
 > - **كود فريد للطلب (`ApplicationCode`):** كود فريد ومختصر للطلب مكس حروف وأرقام عشوائية (مثال: `APP-7X9K2`) لتسهيل متابعة المتدرب واستعلام موظف الشؤون والخزينة عنه هاتفياً وبشكل مباشر، إلى جانب الـ `QRToken` المخصص لتصاريح البوابة.
+> - **موديول مستقل لإيصالات وسداد الخزينة (`Payments`):** تم فصل السداد عن جدول الطلبات في جدول مستقل للخزينة برتبة مستقلة (`Cashier`). السداد على دفعة واحدة كاملة لكل طلب (علاقة 1-to-1)، مع دعم طريقتين فقط (`Cash` أو `InstaPay`)، وتوثيق أمين الخزينة القائم بالتحصيل (`CollectedByUserId`) ورقم الإيصال وصورته/اسكرين إنستاباي.
+> - **آلية الاسترداد المالي وحوكمة الخزينة (`Refunds`):** توثيق عمليات استرداد المصروفات في نفس جدول `Payments` (تاريخ الاسترداد، سببه، أمين الخزينة الصارف، واعتماد الإدارة)، مع تحويل حالة الطلب آلياً إلى `Refunded`، مما يترتب عليه إبطال تصريح البوابة الـ QR فوراً، وتحرير مقعد المتدرب في الدفعة للملتحقين الجدد، وضبط جرد الخزينة اليومي (المحصل ناقص المسترد).
 > - **إلغاء تعقيدات استبيانات الجودة وتوثيق السجل الأكاديمي:** تم تبسيط نموذج المحاضرين (`Instructors`) للتركيز على البيانات العملية (الاسم، التخصص، الهاتف، البريد، النشاط) وإلغاء جداول وحقول استبيانات الجودة والتقييمات للدارسين والمحاضرين.
-> - **دورة حياة الطلب والسداد والشهادة (`Applications`):** توثيق سبب الرفض (`RejectionReason`)، تاريخ السداد الفعلي (`PaymentDate`)، صورة إيصال الخزينة (`ReceiptPhotoPath`)، كود الشهادة المعتمدة (`CertificateCode`)، والدرجة النهائية (`FinalGrade`).
+> - **دورة حياة الطلب والشهادة (`Applications`):** توثيق سبب الرفض (`RejectionReason`)، مهلة السداد المحددة من الشؤون (`PaymentDueDate`)، كود الشهادة المعتمدة (`CertificateCode`)، والدرجة النهائية (`FinalGrade`).
 > - **الحضور والأمن:** يُحسب مباشرة من `GateLogs` باستخدام `COUNT(DISTINCT Date)` بدون تكرار في نفس اليوم.
 
 ---
@@ -16,6 +18,7 @@
 erDiagram
     Users ||--o| TraineeProfiles : "has profile (for trainees)"
     Users ||--o{ Applications : "trainee applies"
+    Users ||--o{ Payments : "cashier collects or refunds"
     Users ||--o{ AuditLogs : "action by user"
     Users ||--o{ GateLogs : "scanned by security"
 
@@ -27,6 +30,7 @@ erDiagram
     CourseRounds ||--o{ CourseLectureDays : "lecture days of week"
     CourseRounds ||--o{ Applications : "applications to round"
 
+    Applications ||--o| Payments : "has single payment receipt"
     Applications ||--o{ AuditLogs : "lifecycle tracking"
     Applications ||--o{ GateLogs : "gate scan attempts"
 
@@ -36,7 +40,7 @@ erDiagram
         string PasswordHash
         string FullName
         string Phone
-        string Role "Admin|Trainee|Affairs|Security|Commander"
+        string Role "Admin|Trainee|Affairs|Security|Commander|Cashier"
         string ProfilePhotoPath "nullable"
         bool IsActive
         datetime CreatedAt
@@ -129,21 +133,34 @@ erDiagram
         int TraineeId FK "Users.Id"
         int CourseRoundId FK "CourseRounds.Id"
         string ApplicationCode UK "كود فريد مكس حروف وأرقام مثل APP-7X9K2"
-        string Status "UnderReview|PendingPayment|PaymentMissed|Enrolled|CourseEnded|Rejected"
+        string Status "UnderReview|PendingPayment|PaymentMissed|Enrolled|Refunded|CourseEnded|Rejected"
         string QRToken UK "Random GUID Token"
         string QualificationPhotoPath "صورة شهادة المؤهل"
         string RejectionReason "nullable سبب الرفض"
         date PaymentDueDate "nullable مهلة السداد"
-        datetime PaymentDate "nullable تاريخ السداد الفعلي"
-        string ReceiptNumber UK "nullable رقم الإيصال"
-        string ReceiptPhotoPath "nullable صورة إيصال السداد"
-        decimal PaidAmount "nullable المبلغ المسدد"
         string CertificateCode "nullable UK كود الشهادة"
         decimal FinalGrade "nullable النسبة المئوية للتقييم"
         bool IsCertificateIssued "إصدار الشهادة"
         int ExtensionCount "مرات تمديد المهلة"
         datetime CreatedAt
         datetime UpdatedAt
+    }
+
+    Payments {
+        int Id PK
+        int ApplicationId FK UK "1-to-1 Single Payment"
+        int CollectedByUserId FK "Users.Id أمين الخزينة المستلم"
+        string ReceiptNumber UK "رقم إيصال الخزينة المعتمد"
+        decimal Amount "المبلغ المسدد كاملاً"
+        string PaymentMethod "Cash|InstaPay"
+        string ReceiptPhotoPath "nullable صورة الإيصال أو اسكرين إنستاباي"
+        datetime PaymentDate "وقت التحصيل الفعلي"
+        bool IsRefunded "حالة الاسترداد 0=لا, 1=نعم"
+        datetime RefundDate "nullable وقت الاسترداد والصرف"
+        string RefundReason "nullable سبب الاسترداد"
+        int RefundedByUserId FK "nullable Users.Id أمين الخزينة الصارف"
+        string RefundApprovedBy "nullable اعتماد الشؤون أو الإدارة"
+        string Notes "nullable"
     }
 
     AuditLogs {
@@ -179,7 +196,7 @@ erDiagram
 | `PasswordHash` | `nvarchar(max)` | Not Null (BCrypt/Argon2) |
 | `FullName` | `nvarchar(255)` | الاسم الرباعي |
 | `Phone` | `nvarchar(20)` | رقم الهاتف للتواصل |
-| `Role` | `nvarchar(50)` | `Admin`, `Trainee`, `Affairs`, `Security`, `Commander` |
+| `Role` | `nvarchar(50)` | `Admin`, `Trainee`, `Affairs`, `Security`, `Commander`, `Cashier` |
 | `ProfilePhotoPath` | `nvarchar(500)` | Nullable — صورة شخصية لأي مستخدم (تظهر للأمن عند المسح وفي بروفايل المتدرب) |
 | `IsActive` | `bit` | Default `1` (لا يوجد حذف نهائي، فقط تعطيل) |
 | `CreatedAt` | `datetime2` | تاريخ إنشاء الحساب |
@@ -299,15 +316,11 @@ erDiagram
 | `TraineeId` | `int` FK | -> `Users.Id` |
 | `CourseRoundId` | `int` FK | -> `CourseRounds.Id` |
 | `ApplicationCode` | `nvarchar(20)` | Unique, Not Null — كود فريد ومختصر للطلب، مزيج عشوائي من الحروف والأرقام (مثال: `APP-7X9K2` أو `APP-9B4M8`) لتسهيل متابعة المتدرب واستعلام موظف الشؤون والخزينة |
-| `Status` | `nvarchar(50)` | `UnderReview`, `PendingPayment`, `PaymentMissed`, `Enrolled`, `CourseEnded`, `Rejected` |
-| `QRToken` | `nvarchar(100)` | Unique, Not Null — رمز عشوائي GUID لإصدار كود الـ QR المشفر للتصريح الأمني عند البوابة |
+| `Status` | `nvarchar(50)` | `UnderReview`, `PendingPayment`, `PaymentMissed`, `Enrolled`, `Refunded`, `CourseEnded`, `Rejected` |
+| `QRToken` | `nvarchar(100)` | Unique, Not Null — رمز عشوائي GUID لإصدار كود الـ QR المشفر للتصريح الأمني عند البوابة (يُبطل آلياً في حال `Refunded` أو `Rejected`) |
 | `QualificationPhotoPath` | `nvarchar(500)` | صورة شهادة المؤهل الدراسي الخاصة بالتقديم الحالي |
 | `RejectionReason` | `nvarchar(500)` | Nullable — سبب الرفض المعتمد من موظف الشؤون في حال رفض الطلب |
 | `PaymentDueDate` | `date` | Nullable — مهلة السداد المحددة من الشؤون (ساري فيها QR للسداد بالخزينة) |
-| `PaymentDate` | `datetime2` | Nullable — تاريخ وتوقيت السداد الفعلي بالخزينة |
-| `ReceiptNumber` | `nvarchar(100)` | Unique, Nullable — رقم إيصال سداد الخزينة المسجل |
-| `ReceiptPhotoPath` | `nvarchar(500)` | Nullable — مسار صورة إيصال السداد الورقي الصادر من الخزينة |
-| `PaidAmount` | `decimal(18,2)` | Nullable — المبلغ المالي المسدد فعلياً (يساوي سعر فئة المتدرب المعتمد) |
 | `CertificateCode` | `nvarchar(100)` | Unique, Nullable — كود الشهادة المعتمدة الممنوحة بعد التخرج (مثل `CERT-2026-0812`) |
 | `FinalGrade` | `decimal(5,2)` | Nullable — الدرجة النهائية أو النسبة المئوية للتقييم الأكاديمي للمتدرب بالدورة |
 | `IsCertificateIssued` | `bit` | Default `0` — حالة إصدار وطباعة الشهادة الرسمية للخريج |
@@ -317,7 +330,29 @@ erDiagram
 
 ---
 
-### 10. `AuditLogs` (سجل التدقيق والحركات)
+### 10. `Payments` (إيصالات وسداد الخزينة والاسترداد)
+*(علاقة 1-to-1 مع `Applications` — دفعة سداد واحدة كاملة لكل طلب)*
+
+| الحقل | النوع | القيود والملاحظات |
+|---|---|---|
+| `Id` | `int` PK | Identity |
+| `ApplicationId` | `int` FK | Unique, Not Null -> `Applications.Id` (دفعة واحدة فقط لكل طلب) |
+| `ReceiptNumber` | `nvarchar(50)` | Unique, Not Null — رقم إيصال الخزينة المالي المعتمد أو كود الدفتر الورقي |
+| `Amount` | `decimal(18,2)` | Not Null — المبلغ المسدد بالكامل (يساوي سعر الدورة لفئة المتدرب المعتمدة) |
+| `PaymentMethod` | `nvarchar(20)` | Not Null — طريقة الدفع المعتمدة: `Cash` (نقدي) أو `InstaPay` (تحويل إنستاباي) |
+| `CollectedByUserId` | `int` FK | Not Null -> `Users.Id` (أمين الخزينة صاحب رتبة `Cashier` القائم بالتحصيل) |
+| `ReceiptPhotoPath` | `nvarchar(500)` | Nullable — مسار صورة إيصال السداد الورقي المختوم أو اسكرين شوت تحويل إنستاباي |
+| `PaymentDate` | `datetime2` | Not Null — تاريخ وتوقيت السداد الفعلي بالخزينة |
+| `IsRefunded` | `bit` | Default `0` — هل تم استرداد وإلغاء هذا الإيصال؟ (`1` = تم الاسترداد، `0` = سارٍ) |
+| `RefundDate` | `datetime2` | Nullable — تاريخ وتوقيت استرداد وصرف المبلغ للمتدرب |
+| `RefundReason` | `nvarchar(300)` | Nullable — سبب الاسترداد (اعتذار متدرب لظرف طارئ / إلغاء الدورة من المعهد) |
+| `RefundedByUserId` | `int` FK | Nullable -> `Users.Id` (أمين الخزينة القائم بصرف النقدية للمتدرب) |
+| `RefundApprovedBy` | `nvarchar(150)` | Nullable — القرار المعتمد للاسترداد (مثلاً: قرار شؤون المتدربين / تأشيرة القائد) |
+| `Notes` | `nvarchar(255)` | Nullable — ملاحظات الخزينة الإضافية |
+
+---
+
+### 11. `AuditLogs` (سجل التدقيق والحركات)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
@@ -332,7 +367,7 @@ erDiagram
 
 ---
 
-### 11. `GateLogs` (سجل حركات البوابة والحضور)
+### 12. `GateLogs` (سجل حركات البوابة والحضور)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
@@ -344,6 +379,21 @@ erDiagram
 | `Reason` | `nvarchar(300)` | السبب المسجل في القرار الأمني |
 
 ---
+
+> [!TIP]
+> **استعلام جرد الخزينة اليومي لأمين الخزينة (شاملاً المحصل والمسترد وصافي النقدية بالدرج):**
+> ```sql
+> SELECT 
+>     PaymentMethod,
+>     COUNT(*) AS TotalTransactions,
+>     SUM(CASE WHEN IsRefunded = 0 THEN Amount ELSE 0 END) AS TotalCollected,
+>     SUM(CASE WHEN IsRefunded = 1 THEN Amount ELSE 0 END) AS TotalRefunded,
+>     SUM(CASE WHEN IsRefunded = 0 THEN Amount ELSE -Amount END) AS NetDrawerBalance
+> FROM Payments 
+> WHERE CAST(COALESCE(RefundDate, PaymentDate) AS DATE) = CAST(GETDATE() AS DATE)
+>   AND (CollectedByUserId = @CashierUserId OR RefundedByUserId = @CashierUserId)
+> GROUP BY PaymentMethod;
+> ```
 
 > [!TIP]
 > **معادلة حساب الحضور الإحصائية:**
