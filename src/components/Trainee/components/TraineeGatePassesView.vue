@@ -178,7 +178,7 @@
                 <!-- hover overlay -->
                 <div class="absolute inset-0 rounded-3xl bg-primary-900/8 opacity-0 group-hover/qr:opacity-100 flex items-end justify-center pb-4 transition-opacity">
                   <span class="px-3 py-1.5 rounded-xl bg-primary-900/95 text-white text-xs font-bold shadow-lg backdrop-blur-sm">
-                    🔍 انقر للتكبير
+                    انقر للتكبير
                   </span>
                 </div>
               </div>
@@ -284,7 +284,7 @@
                     <div class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 font-mono">
                       <Clock class="w-3.5 h-3.5 text-amber-500 shrink-0" />
                       <span>
-                        الموعد: <strong>{{ session.round.startTime }} — {{ session.round.endTime }}</strong>
+                        الموعد: <strong>{{ formatTimeRange(session.round.startTime, session.round.endTime) }}</strong>
                       </span>
                     </div>
 
@@ -402,7 +402,7 @@
           <div>تاريخ الإصدار: <strong>{{ todayIso }}</strong></div>
           <div>فترة السريان: <strong>07:00 ص — 22:00 م</strong></div>
           <div class="mt-1 px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-900 font-bold border border-emerald-500 text-center font-sans text-[8.5pt]">
-            القرار الأمني: مصرح بالدخول (Allowed) ✓
+            القرار الأمني: مصرح بالدخول (Allowed)
           </div>
         </div>
       </div>
@@ -453,7 +453,7 @@
             </div>
             <div>
               <span class="text-slate-500 text-[8.5pt] block">حالة السداد والرسوم:</span>
-              <strong class="text-emerald-800 font-bold">مسدد بالكامل ومقيد بالدورات ✓</strong>
+              <strong class="text-emerald-800 font-bold">مسدد بالكامل ومقيد بالدورات</strong>
             </div>
             <div>
               <span class="text-slate-500 text-[8.5pt] block">تاريخ السريان:</span>
@@ -489,7 +489,7 @@
               <td class="p-1.5 border-l border-slate-200 font-bold">{{ session.round.courseName }}</td>
               <td class="p-1.5 border-l border-slate-200 font-mono font-bold">{{ session.round.roundCode }}</td>
               <td class="p-1.5 border-l border-slate-200">{{ session.round.hall.name }} ({{ session.round.hall.location }})</td>
-              <td class="p-1.5 border-l border-slate-200 font-mono font-bold">{{ session.round.startTime }} — {{ session.round.endTime }}</td>
+              <td class="p-1.5 border-l border-slate-200 font-mono font-bold">{{ formatTimeRange(session.round.startTime, session.round.endTime) }}</td>
               <td class="p-1.5">{{ session.round.instructor.name }}</td>
             </tr>
           </tbody>
@@ -631,7 +631,7 @@ const unifiedPassData = computed(() => {
       ? todaySessions.value.map((s) => s.round.courseName).join(' + ')
       : 'تصريح دخول عام لمرافق المعهد',
     locationInfo: todaySessions.value.length
-      ? todaySessions.value.map((s) => `${s.round.hall.name} (${s.round.startTime}—${s.round.endTime})`).join(' | ')
+      ? todaySessions.value.map((s) => `${s.round.hall.name} (${formatTimeRange(s.round.startTime, s.round.endTime)})`).join(' | ')
       : 'بوابات ومرافق معهد نظم المعلومات',
     validityLabel: 'القرار: مصرح بالدخول (Allowed) — ساري المفعول اليوم (07:00 ص — 22:00 م)',
   };

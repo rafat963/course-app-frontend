@@ -124,7 +124,7 @@
             <div class="space-y-0.5">
               <div class="text-[11px] text-slate-400">توقيت المحاضرة:</div>
               <div class="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">
-                {{ round.startTime }} — {{ round.endTime }}
+                {{ formatTimeRange(round.startTime, round.endTime) }}
               </div>
             </div>
             <div class="col-span-2 space-y-0.5">

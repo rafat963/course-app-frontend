@@ -5,13 +5,13 @@
     @click.self="handleClose"
   >
     <div
-      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-3xl overflow-hidden animate-scale-in text-right"
+      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl w-full max-w-5xl xl:max-w-6xl overflow-hidden animate-scale-in text-right flex flex-col max-h-[92vh]"
       dir="rtl"
       role="dialog"
       aria-modal="true"
     >
       <!-- 1. ترويسة النافذة -->
-      <div class="px-6 py-4.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 shrink-0">
+      <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/80 shrink-0">
         <div class="flex items-center gap-3">
           <div class="w-11 h-11 rounded-2xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-2xs">
             <CalendarPlus class="w-6 h-6" />
@@ -21,7 +21,7 @@
               {{ modalTitle }}
             </h3>
             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5 font-bold">
-              الدفعة رقم {{ form.roundNumber }} (تلقائي) — جدولة دورة انعقاد جديدة
+              معالج جدولة دورة انعقاد جديدة (الدفعة رقم {{ form.roundNumber }}) — حجز القاعة ومنع التعارض الزمني
             </p>
           </div>
         </div>
@@ -35,9 +35,55 @@
         </button>
       </div>
 
-      <!-- 2. محتوى النموذج (Scrollable) -->
-      <form class="p-6 space-y-6 max-h-[calc(85vh-130px)] overflow-y-auto text-xs sm:text-sm" @submit.prevent="handleSubmit">
-        <!-- رسائل الخطأ العامة إن وُجدت -->
+      <!-- 2. شريط خطوات المعالج (Stepper Header) -->
+      <div class="px-6 py-3 bg-slate-100/70 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 shrink-0">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <button
+            v-for="s in STEPS"
+            :key="s.step"
+            type="button"
+            class="flex items-center gap-2.5 p-2 rounded-2xl transition-all cursor-pointer text-right group"
+            :class="[
+              currentStep === s.step
+                ? 'bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-700'
+                : currentStep > s.step
+                  ? 'opacity-85 hover:bg-white/60 dark:hover:bg-slate-900/60'
+                  : 'opacity-50 cursor-not-allowed',
+            ]"
+            @click="goToStep(s.step)"
+          >
+            <div
+              class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 transition-colors"
+              :class="[
+                currentStep === s.step
+                  ? 'bg-emerald-600 text-white shadow-2xs'
+                  : currentStep > s.step
+                    ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400',
+              ]"
+            >
+              <Check v-if="currentStep > s.step" class="w-4 h-4 stroke-[3]" />
+              <span v-else>{{ s.step }}</span>
+            </div>
+
+            <div class="min-w-0">
+              <span
+                class="text-xs font-black block truncate"
+                :class="currentStep === s.step ? 'text-slate-900 dark:text-slate-100' : 'text-slate-600 dark:text-slate-400'"
+              >
+                {{ s.title }}
+              </span>
+              <span class="text-[10px] text-slate-400 block truncate font-medium hidden md:block">
+                {{ s.desc }}
+              </span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. محتوى النموذج (Scrollable Area) -->
+      <form class="p-6 overflow-y-auto flex-1 space-y-6 text-xs sm:text-sm" @submit.prevent="handleSubmit">
+        <!-- رسائل الخطأ والتنبيهات العامة إن وُجدت -->
         <div
           v-if="validationError"
           class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800 text-sm font-bold text-rose-700 dark:text-rose-300 flex items-center gap-2.5 animate-shake"
@@ -46,72 +92,71 @@
           <span>{{ validationError }}</span>
         </div>
 
-        <!-- السكشن الأول: الدورة التدريبية ورقم الدفعة التلقائي -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-3.5">
-          <!-- أ. في حال فتح الدورة من كارت دورة محددة (تم إخفاء الدروبداون ورقم الدفعة تلقائي وفق طلبك) -->
-          <div v-if="isSpecificCourse" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-2xs">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-primary-50 dark:bg-primary-950/70 border border-primary-200 dark:border-primary-800 text-primary-600 dark:text-primary-400 flex items-center justify-center shrink-0">
-                <BookOpen class="w-5 h-5" />
+        <!-- ========================================================
+             الخطوة 1: الدورة التدريبية والمحاضر والسعة المستهدفة
+             ======================================================== -->
+        <div v-show="currentStep === 1" class="space-y-6 animate-fade-in">
+          <!-- ترويسة الخطوة -->
+          <div class="flex items-center gap-2.5 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+            <div class="w-8 h-8 rounded-xl bg-primary-50 dark:bg-primary-950/70 border border-primary-200 dark:border-primary-800 flex items-center justify-center text-primary-600 dark:text-primary-400 shrink-0">
+              <BookOpen class="w-4.5 h-4.5" />
+            </div>
+            <div>
+              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 font-heading">
+                بيانات الدورة التدريبية والمحاضر المعتمد والسعة
+              </h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                حدد الدورة المراد فتح دفعة جديدة منها، واختر المحاضر المعتمد وعدد المتدربين المستهدف
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- 1.1 الدورة التدريبية -->
+            <div class="p-4.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
+                  الدورة التدريبية المعتمدة <span class="text-rose-500">*</span>
+                </label>
+                <span class="px-2.5 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-[11px] font-black font-mono">
+                  الدفعة رقم {{ form.roundNumber }} (تلقائي)
+                </span>
               </div>
-              <div>
-                <span class="text-xs text-slate-400 dark:text-slate-500 font-bold block">الدورة التدريبية المعتمدة:</span>
-                <strong class="text-sm sm:text-base font-black text-slate-800 dark:text-slate-100">
+
+              <!-- في حال فتح الدورة من كارت محدد -->
+              <div v-if="isSpecificCourse" class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 space-y-1">
+                <span class="text-[11px] text-slate-400 font-bold block">الدورة المحددة:</span>
+                <strong class="text-sm sm:text-base font-black text-slate-800 dark:text-slate-100 block">
                   {{ selectedCourse?.name }}
                 </strong>
+                <p v-if="selectedCourse?.description" class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-1">
+                  {{ selectedCourse.description }}
+                </p>
+              </div>
+
+              <!-- في حال فتح الدورة بشكل عام -->
+              <div v-else class="space-y-2">
+                <Select
+                  v-model="form.courseId"
+                  :options="courseOptions"
+                  option-label="name"
+                  option-value="id"
+                  placeholder="اختر الدورة التدريبية من الكتالوج..."
+                  class="w-full text-sm font-bold rounded-xl h-11 flex items-center bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                  @change="onCourseSelected"
+                />
+                <p v-if="selectedCourse" class="text-xs text-slate-500 dark:text-slate-400">
+                  إجمالي الدفعات السابقة المسجلة: {{ calculatedPreviousRound }} دفعة
+                </p>
               </div>
             </div>
 
-            <!-- شارة رقم الدفعة التلقائي -->
-            <div class="flex items-center gap-2">
-              <span class="px-3.5 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-mono font-black text-xs sm:text-sm shadow-2xs">
-                الدفعة رقم {{ form.roundNumber }} (تلقائي)
-              </span>
-              <span v-if="calculatedPreviousRound > 0" class="text-xs text-slate-500 dark:text-slate-400 font-bold">
-                (السابقة: {{ calculatedPreviousRound }})
-              </span>
-            </div>
-          </div>
-
-          <!-- ب. في حال فتح الدورة بشكل عام بدون تحديد كورس مسبق -->
-          <div v-else class="space-y-3">
-            <div class="space-y-1.5">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                اختر الدورة التدريبية بالكتالوج <span class="text-rose-500">*</span>
-              </label>
-              <Select
-                v-model="form.courseId"
-                :options="courseOptions"
-                option-label="name"
-                option-value="id"
-                placeholder="اختر الدورة التدريبية..."
-                class="w-full text-sm font-bold rounded-xl h-11 flex items-center"
-                @change="onCourseSelected"
-              />
-            </div>
-
-            <div v-if="selectedCourse" class="flex items-center justify-between p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-bold">
-              <span class="text-slate-600 dark:text-slate-300">رقم الدفعة القادمة:</span>
-              <span class="text-emerald-600 dark:text-emerald-400 font-mono font-black text-sm">
-                الدفعة رقم {{ form.roundNumber }} (يُحسب تلقائياً)
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- السكشن الثاني: المحاضر والقاعة وسعة الدفعة -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-4">
-          <div class="flex items-center gap-2 text-sm font-black text-slate-800 dark:text-slate-100 border-b border-slate-200/60 dark:border-slate-700/60 pb-2.5">
-            <Users class="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400" />
-            <span>المحاضر والقاعة التدريبية والسعة</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <!-- اختيار المحاضر -->
-            <div class="space-y-1.5">
+            <!-- 1.2 المحاضر المعتمد للشرح -->
+            <div class="p-4.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-3">
               <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
                 المحاضر المعتمد للشرح <span class="text-rose-500">*</span>
               </label>
+
               <Select
                 v-model="form.instructorId"
                 :options="instructorOptions"
@@ -119,239 +164,875 @@
                 option-value="id"
                 filter
                 filter-placeholder="ابحث بالاسم أو التخصص..."
-                placeholder="اختر المحاضر من القائمة..."
-                class="w-full text-sm font-bold rounded-xl h-11 flex items-center"
+                placeholder="اختر المحاضر المعتمد..."
+                class="w-full text-sm font-bold rounded-xl h-11 flex items-center bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700"
               />
-              <p v-if="selectedInstructor" class="text-xs text-emerald-600 dark:text-emerald-400 font-bold">
-                {{ selectedInstructor.specialty }}
-              </p>
-            </div>
 
-            <!-- اختيار القاعة / المعمل -->
-            <div class="space-y-1.5">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                القاعة أو المعمل التدريبي <span class="text-rose-500">*</span>
-              </label>
-              <Select
-                v-model="form.hallId"
-                :options="hallOptions"
-                option-label="name"
-                option-value="id"
-                placeholder="اختر القاعة..."
-                class="w-full text-sm font-bold rounded-xl h-11 flex items-center"
-                @change="onHallSelected"
-              />
-              <p v-if="selectedHall" class="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
-                <span>أقصى سعة للقاعة:</span>
-                <strong class="text-slate-800 dark:text-slate-200 font-bold font-mono">{{ selectedHall.maxCapacity }} مقعد</strong>
-              </p>
+              <div v-if="selectedInstructor" class="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-500 dark:text-slate-400">التخصص:</span>
+                  <strong class="text-slate-800 dark:text-slate-200">{{ selectedInstructor.specialty }}</strong>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-500 dark:text-slate-400">رقم الهاتف:</span>
+                  <span class="font-mono text-slate-700 dark:text-slate-300 font-bold">{{ selectedInstructor.phone }}</span>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <!-- السعة المستهدفة للدفعة -->
-            <div class="space-y-1.5">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                سعة الدفعة (عدد الدارسين) <span class="text-rose-500">*</span>
-              </label>
-              <input
-                v-model.number="form.capacity"
-                type="number"
-                min="1"
-                required
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-mono font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                :class="{ 'border-rose-400 focus:ring-rose-500': isCapacityExceeded }"
-                placeholder="مثال: 25"
-              />
-              <p v-if="isCapacityExceeded" class="text-xs text-rose-600 dark:text-rose-400 font-bold">
-                ⚠️ السعة تتجاوز سعة القاعة ({{ selectedHall?.maxCapacity }} مقعد)
-              </p>
-              <p v-else class="text-xs text-slate-400 font-medium">
-                يجب ألا تتعدى السعة القصوى للقاعة
-              </p>
+          <!-- 1.3 سعة الدفعة المستهدفة -->
+          <div class="p-4.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 shadow-2xs space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <label class="block text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100">
+                  سعة الدفعة المستهدفة (عدد المتدربين المطلوب) <span class="text-rose-500">*</span>
+                </label>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  الحد الأقصى لعدد المقاعد المتاحة للحجز والقبول في هذه الدفعة (سيتم التحقق من مطابقة سعة القاعة في الخطوة التالية)
+                </p>
+              </div>
+
+              <!-- حقل السعة وأزرار التحديد السريع -->
+              <div class="flex items-center gap-2">
+                <input
+                  v-model.number="form.capacity"
+                  type="number"
+                  min="1"
+                  required
+                  class="w-28 h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-mono font-black text-slate-800 dark:text-slate-100 text-center focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="25"
+                />
+                <div class="flex items-center gap-1">
+                  <button
+                    v-for="cap in [20, 25, 30, 35]"
+                    :key="cap"
+                    type="button"
+                    class="h-10 px-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer"
+                    :class="
+                      form.capacity === cap
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs font-black'
+                        : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-200'
+                    "
+                    @click="form.capacity = cap"
+                  >
+                    {{ cap }} مقعد
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- السكشن الثالث: التواريخ والجدول الزمني -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-4">
-          <div class="flex items-center gap-2 text-sm font-black text-slate-800 dark:text-slate-100 border-b border-slate-200/60 dark:border-slate-700/60 pb-2.5">
-            <Calendar class="w-4.5 h-4.5 text-blue-600 dark:text-blue-400" />
-            <span>المواعيد والجدول الزمني للدورة</span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <!-- تاريخ البداية -->
-            <div class="space-y-1.5">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                تاريخ بداية الدورة <span class="text-rose-500">*</span>
-              </label>
-              <input
-                v-model="form.startDate"
-                type="date"
-                required
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
-              />
+        <!-- ========================================================
+             الخطوة 2: التواريخ والقاعة التدريبية
+             ======================================================== -->
+        <div v-show="currentStep === 2" class="space-y-6 animate-fade-in">
+          <!-- ترويسة الخطوة -->
+          <div class="flex items-center gap-2.5 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+            <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+              <Building2 class="w-4.5 h-4.5" />
             </div>
-
-            <!-- تاريخ النهاية -->
-            <div class="space-y-1.5">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                تاريخ انتهاء الدورة <span class="text-rose-500">*</span>
-              </label>
-              <input
-                v-model="form.endDate"
-                type="date"
-                required
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
-              />
-            </div>
-
-            <!-- آخر موعد للتقديم -->
-            <div class="space-y-1.5">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                آخر موعد لتلقي الطلبات <span class="text-rose-500">*</span>
-              </label>
-              <input
-                v-model="form.lastApplicationDate"
-                type="date"
-                required
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
-              />
-            </div>
-          </div>
-        </div>
-
-        <!-- السكشن الرابع: أوقات المحاضرات وأيام الأسبوع -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/60 pb-2.5">
-            <div class="flex items-center gap-2 text-sm font-black text-slate-800 dark:text-slate-100">
-              <Clock class="w-4.5 h-4.5 text-amber-600 dark:text-amber-400" />
-              <span>توقيت المحاضرات وأيام الأسبوع</span>
-            </div>
-            <span v-if="lectureDurationText" class="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800 text-xs font-bold">
-              ⏱️ مدة المحاضرة: {{ lectureDurationText }}
-            </span>
-          </div>
-
-          <!-- توقيت البداية والنهاية -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="space-y-1.5">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                وقت بدء المحاضرة <span class="text-rose-500">*</span>
-              </label>
-              <input
-                v-model="form.startTime"
-                type="time"
-                required
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-mono font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                وقت انتهاء المحاضرة <span class="text-rose-500">*</span>
-              </label>
-              <input
-                v-model="form.endTime"
-                type="time"
-                required
-                class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-mono font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
+            <div>
+              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 font-heading">
+                فترة انعقاد الدورة واختيار القاعة المستوعبة
+              </h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                حدد تواريخ البداية والنهاية أولاً، ثم اختر القاعة أو المعمل المناسب لسعة {{ form.capacity }} متدرب
+              </p>
             </div>
           </div>
 
-          <!-- اختيار أيام الأسبوع -->
-          <div class="space-y-2.5 pt-2">
+          <!-- 2.1 تواريخ الدورة -->
+          <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-3">
+            <div class="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200">
+              <Calendar class="w-4 h-4 text-primary-600 dark:text-primary-400" />
+              <span>فترة الانعقاد والمواعيد الزمنية</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <!-- تاريخ البداية -->
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  تاريخ بداية الدورة <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="form.startDate"
+                  type="date"
+                  required
+                  class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                />
+              </div>
+
+              <!-- تاريخ النهاية -->
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  تاريخ انتهاء الدورة <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="form.endDate"
+                  type="date"
+                  required
+                  class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                />
+              </div>
+
+              <!-- آخر موعد للتقديم -->
+              <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                  آخر موعد لتلقي الطلبات <span class="text-rose-500">*</span>
+                </label>
+                <input
+                  v-model="form.lastApplicationDate"
+                  type="date"
+                  required
+                  class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 2.2 استعراض واختيار القاعات التدريبية ومطابقة السعة -->
+          <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-                أيام المحاضرات في الأسبوع <span class="text-rose-500">*</span>
+              <label class="block text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100">
+                اختر القاعة التدريبية أو معمل الحاسب <span class="text-rose-500">*</span>
               </label>
+              <span class="text-xs text-slate-500 dark:text-slate-400 font-bold">
+                السعة المطلوبة: <strong class="text-emerald-600 dark:text-emerald-400">{{ form.capacity }}</strong> متدرب
+              </span>
+            </div>
 
-              <!-- خيارات سريعة جاهزة -->
-              <div class="flex items-center gap-1.5 text-xs">
+            <!-- شبكة كروت القاعات للاختيار السريع -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div
+                v-for="hall in hallsList"
+                :key="hall.id"
+                class="p-4 rounded-2xl border text-right transition-all cursor-pointer flex flex-col justify-between gap-3 relative overflow-hidden group shadow-2xs"
+                :class="[
+                  form.hallId === hall.id
+                    ? 'bg-emerald-50/70 dark:bg-emerald-950/50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-sm'
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700',
+                  form.capacity > hall.maxCapacity ? 'opacity-70 border-rose-200 dark:border-rose-900/60' : '',
+                ]"
+                @click="selectHall(hall)"
+              >
+                <!-- خط تحديد علوي -->
+                <div
+                  v-if="form.hallId === hall.id"
+                  class="absolute top-0 right-0 left-0 h-1 bg-emerald-600"
+                ></div>
+
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between gap-2">
+                    <span
+                      class="px-2 py-0.5 rounded-md text-[10px] font-bold"
+                      :class="
+                        hall.type === 'Lab'
+                          ? 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
+                          : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300'
+                      "
+                    >
+                      {{ hall.type === 'Lab' ? 'معمل حاسب' : 'قاعة محاضرات' }}
+                    </span>
+
+                    <!-- شارة مطابقة السعة -->
+                    <span
+                      class="px-2 py-0.5 rounded-md text-[10px] font-bold"
+                      :class="
+                        form.capacity <= hall.maxCapacity
+                          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                          : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 font-black'
+                      "
+                    >
+                      {{ form.capacity <= hall.maxCapacity ? 'تستوعب السعة' : 'تتجاوز السعة القصوى' }}
+                    </span>
+                  </div>
+
+                  <strong class="text-sm font-black text-slate-800 dark:text-slate-100 block">
+                    {{ hall.name }}
+                  </strong>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">
+                    {{ hall.location }}
+                  </p>
+                </div>
+
+                <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-mono">
+                  <span class="text-slate-400">السعة القصوى:</span>
+                  <strong class="font-bold text-slate-700 dark:text-slate-200">{{ hall.maxCapacity }} مقعد</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- ملخص الحجوزات القائمة في القاعة المختارة -->
+            <div
+              v-if="selectedHall"
+              class="p-3.5 rounded-xl border flex items-center justify-between text-xs font-bold"
+              :class="
+                activeReservationsInHall.length > 0
+                  ? 'bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border-amber-200 dark:border-amber-800'
+                  : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800'
+              "
+            >
+              <div class="flex items-center gap-2">
+                <Clock class="w-4 h-4 shrink-0" />
+                <span>
+                  حالة إشغال «{{ selectedHall.name }}» في الفترة من {{ form.startDate || '—' }} إلى {{ form.endDate || '—' }}:
+                </span>
+              </div>
+              <span>
+                {{ activeReservationsInHall.length > 0 ? `يوجد ${activeReservationsInHall.length} دورات محجوزة بالقاعة` : 'القاعة شاغرة تماماً طوال الفترة' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================
+             الخطوة 3: جدول إشغال القاعة والمواعيد وأيام المحاضرات
+             ======================================================== -->
+        <div v-show="currentStep === 3" class="space-y-6 animate-fade-in">
+          <!-- ترويسة الخطوة -->
+          <div class="flex items-center gap-2.5 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+            <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/70 border border-amber-200 dark:border-amber-800 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+              <Clock class="w-4.5 h-4.5" />
+            </div>
+            <div>
+              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 font-heading">
+                جدول إشغال القاعة الأسبوعي وتحديد مواعيد وأيام المحاضرات
+              </h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                استعرض جدول إشغال «{{ selectedHall?.name }}» أسبوعياً، واختر الأيام والتواقيت بدون تعارض زمني
+              </p>
+            </div>
+          </div>
+
+          <!-- 3.1 جدول إشغال القاعة الأسبوعي السريع (Sat -> Fri) -->
+          <div v-if="selectedHall" class="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-3">
+            <div class="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+              <span class="flex items-center gap-1.5">
+                <Calendar class="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                <span>حالة القاعة في كل يوم من أيام الأسبوع (الفترات المتاحة والمحجوزة):</span>
+              </span>
+              <span class="text-[11px] text-slate-400">انقر على أي فترة شاغرة لاعتمادها مباشرة</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              <div
+                v-for="daySchedule in weeklyHallSchedule"
+                :key="daySchedule.dayKey"
+                class="p-3 rounded-xl border text-xs space-y-2 transition-all"
+                :class="
+                  daySchedule.isOccupied
+                    ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/60'
+                    : 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/60'
+                "
+              >
+                <!-- عنوان اليوم وحالته -->
+                <div class="flex items-center justify-between pb-1.5 border-b border-slate-200/60 dark:border-slate-700/60">
+                  <div class="flex items-center gap-1.5">
+                    <span
+                      class="w-2 h-2 rounded-full"
+                      :class="daySchedule.isOccupied ? 'bg-rose-500' : 'bg-emerald-500'"
+                    ></span>
+                    <strong class="font-black text-slate-800 dark:text-slate-100">
+                      {{ daySchedule.dayLabel }}
+                    </strong>
+                  </div>
+
+                  <span
+                    class="text-[10px] font-bold px-1.5 py-0.5 rounded"
+                    :class="
+                      daySchedule.isOccupied
+                        ? 'bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300'
+                        : 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300'
+                    "
+                  >
+                    {{ daySchedule.isOccupied ? 'يوجد حجز' : 'شاغر كلياً' }}
+                  </span>
+                </div>
+
+                <!-- إذا كان اليوم محجوزاً -->
+                <div v-if="daySchedule.isOccupied" class="space-y-1.5">
+                  <div
+                    v-for="b in daySchedule.bookings"
+                    :key="b.id"
+                    class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/70 text-[11px] space-y-0.5"
+                  >
+                    <div class="font-black text-rose-700 dark:text-rose-300 truncate" :title="b.courseName">
+                      محجوز: {{ b.courseName }}
+                    </div>
+                    <div class="text-slate-500 dark:text-slate-400 font-mono font-bold flex items-center gap-1">
+                      <Clock class="w-3 h-3 text-slate-400" />
+                      <span>من {{ formatTime12(b.startTime) }} إلى {{ formatTime12(b.endTime) }}</span>
+                    </div>
+                    <div class="text-[10px] text-slate-400">
+                      حتى: {{ b.endDate }}
+                    </div>
+                  </div>
+
+                  <!-- موعد الدورة المختار في هذا اليوم -->
+                  <div
+                    v-if="form.lectureDays.includes(daySchedule.dayKey)"
+                    class="p-1.5 rounded-lg bg-primary-100/80 dark:bg-primary-950/80 border border-primary-300 dark:border-primary-800 text-[10px] font-bold text-primary-900 dark:text-primary-200"
+                  >
+                    <div class="flex items-center justify-between">
+                      <span class="flex items-center gap-1">
+                        <CheckCircle2 class="w-3 h-3 text-primary-600 dark:text-primary-400" />
+                        موعدك في هذا اليوم:
+                      </span>
+                      <span class="font-mono text-[9px]">{{ calculateDayDuration(daySchedule.dayKey) }}</span>
+                    </div>
+                    <div class="font-mono mt-0.5 font-black text-primary-800 dark:text-primary-300">
+                      {{ formatTime12(getDayStartTime(daySchedule.dayKey)) }} — {{ formatTime12(getDayEndTime(daySchedule.dayKey)) }}
+                    </div>
+                  </div>
+
+                  <!-- الفترات المتبقية الشاغرة باليوم -->
+                  <div v-if="daySchedule.availableSlots.length > 0" class="pt-1">
+                    <span class="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 block mb-1">فترات شاغرة باليوم:</span>
+                    <div class="flex flex-wrap gap-1">
+                      <button
+                        v-for="slot in daySchedule.availableSlots"
+                        :key="slot.id"
+                        type="button"
+                        class="px-2 py-0.5 rounded bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 text-[10px] font-bold transition-colors cursor-pointer"
+                        :title="`اختيار ${slot.label} (${formatTime12(slot.startTime)} - ${formatTime12(slot.endTime)}) ليوم ${daySchedule.dayLabel}`"
+                        @click="applySlotToForm(daySchedule.dayKey, slot)"
+                      >
+                        + {{ formatTime12(slot.startTime) }} - {{ formatTime12(slot.endTime) }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- إذا كان اليوم شاغراً بالكامل -->
+                <div v-else class="space-y-1.5 text-center py-1">
+                  <p class="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold flex items-center justify-center gap-1">
+                    <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600" />
+                    <span>متاح طوال اليوم</span>
+                  </p>
+
+                  <div
+                    v-if="form.lectureDays.includes(daySchedule.dayKey)"
+                    class="p-1.5 rounded-lg bg-emerald-100/90 dark:bg-emerald-950/80 border border-emerald-300 dark:border-emerald-800 text-[10px] font-bold text-emerald-900 dark:text-emerald-200 text-right"
+                  >
+                    <div class="flex items-center justify-between">
+                      <span class="flex items-center gap-1">
+                        <CheckCircle2 class="w-3 h-3 text-emerald-600" />
+                        موعدك المختار:
+                      </span>
+                      <span class="font-mono text-[9px]">{{ calculateDayDuration(daySchedule.dayKey) }}</span>
+                    </div>
+                    <div class="font-mono mt-0.5 font-black text-emerald-800 dark:text-emerald-300">
+                      {{ formatTime12(getDayStartTime(daySchedule.dayKey)) }} — {{ formatTime12(getDayEndTime(daySchedule.dayKey)) }}
+                    </div>
+                  </div>
+
+                  <button
+                    v-else
+                    type="button"
+                    class="w-full py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition-colors cursor-pointer"
+                    @click="addDayToForm(daySchedule.dayKey)"
+                  >
+                    اختيار يوم {{ daySchedule.dayLabel }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3.2 إعدادات توقيت المحاضرات ونمط المواعيد -->
+          <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-2xs space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200/60 dark:border-slate-700/60 pb-3 gap-2.5">
+              <div class="flex items-center gap-2 text-xs sm:text-sm font-black text-slate-800 dark:text-slate-100 font-heading">
+                <SlidersHorizontal class="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                <span>نمط مواعيد المحاضرات الأسبوعية</span>
+              </div>
+
+              <!-- محول النمط: موعد موحد vs مواعيد مخصصة -->
+              <div class="flex items-center p-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold border border-slate-200 dark:border-slate-700">
                 <button
                   type="button"
-                  class="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold transition-colors cursor-pointer"
-                  @click="setLecturePreset(['Sat', 'Mon', 'Wed'])"
+                  class="px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+                  :class="!form.isCustomDayTiming ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs font-black' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                  @click="form.isCustomDayTiming = false"
                 >
-                  سبت/إثنين/أربعاء
+                  <Clock class="w-3.5 h-3.5" />
+                  <span>موعد موحد لجميع الأيام</span>
                 </button>
+
                 <button
                   type="button"
-                  class="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold transition-colors cursor-pointer"
-                  @click="setLecturePreset(['Sun', 'Tue', 'Thu'])"
+                  class="px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5"
+                  :class="form.isCustomDayTiming ? 'bg-white dark:bg-slate-900 text-primary-700 dark:text-primary-300 shadow-2xs font-black' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                  @click="form.isCustomDayTiming = true"
                 >
-                  أحد/ثلاثاء/خميس
+                  <SlidersHorizontal class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />
+                  <span>مواعيد مخصصة لكل يوم</span>
                 </button>
               </div>
             </div>
 
-            <!-- أزرار الأيام التفاعلية -->
-            <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
-              <button
-                v-for="day in LECTURE_DAYS_OPTIONS"
-                :key="day.value"
-                type="button"
-                class="h-10 rounded-xl border text-xs sm:text-sm font-bold flex items-center justify-center transition-all cursor-pointer"
-                :class="
-                  form.lectureDays.includes(day.value)
-                    ? 'bg-primary-600 text-white border-primary-600 shadow-2xs font-black'
-                    : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
-                "
-                @click="toggleDay(day.value)"
+            <!-- أزرار الفترات القياسية المعتمدة -->
+            <div v-if="!form.isCustomDayTiming" class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/80">
+              <span class="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                <Sparkles class="w-3.5 h-3.5 text-amber-500" />
+                فترات قياسية سريعة (من 07:00 ص إلى 09:00 م):
+              </span>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button
+                  v-for="preset in STANDARD_TIME_PRESETS"
+                  :key="preset.id"
+                  type="button"
+                  class="px-2.5 py-1 rounded-lg text-xs font-bold transition-all border cursor-pointer flex items-center gap-1"
+                  :class="form.startTime === preset.startTime && form.endTime === preset.endTime
+                    ? 'bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-700 shadow-2xs font-black'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'"
+                  @click="setStandardSlotUnified(preset)"
+                >
+                  <span>{{ preset.label }}</span>
+                  <span class="font-mono text-[11px] opacity-80">({{ formatTime12(preset.startTime) }} - {{ formatTime12(preset.endTime) }})</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- حقول التوقيت الموحد (بصيغة 12 ساعة العربي المقيدة) -->
+            <div v-if="!form.isCustomDayTiming" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
+                  وقت بدء المحاضرة (موحد) <span class="text-rose-500">*</span>
+                </label>
+                <select
+                  :value="form.startTime"
+                  required
+                  class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                  @change="onUnifiedStartTimeChanged($event.target.value)"
+                >
+                  <option
+                    v-for="opt in ALLOWED_START_TIME_OPTIONS"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >
+                    {{ opt.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
+                  وقت انتهاء المحاضرة (موحد) <span class="text-rose-500">*</span>
+                </label>
+                <select
+                  v-model="form.endTime"
+                  required
+                  class="w-full h-11 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-bold text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer"
+                >
+                  <option
+                    v-for="opt in unifiedEndTimeOptions"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >
+                    {{ opt.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 3.3 اختيار أيام الأسبوع للمحاضرات -->
+            <div class="space-y-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
+                  أيام المحاضرات في الأسبوع <span class="text-rose-500">*</span>
+                </label>
+
+                <!-- خيارات سريعة جاهزة -->
+                <div class="flex items-center gap-1.5 text-xs">
+                  <button
+                    type="button"
+                    class="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-600 dark:text-slate-300 font-bold transition-colors cursor-pointer"
+                    @click="setLecturePreset(['Sat', 'Mon', 'Wed'])"
+                  >
+                    سبت/إثنين/أربعاء
+                  </button>
+                  <button
+                    type="button"
+                    class="px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-600 dark:text-slate-300 font-bold transition-colors cursor-pointer"
+                    @click="setLecturePreset(['Sun', 'Tue', 'Thu'])"
+                  >
+                    أحد/ثلاثاء/خميس
+                  </button>
+                </div>
+              </div>
+
+              <!-- أزرار الأيام التفاعلية -->
+              <div class="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                <button
+                  v-for="day in LECTURE_DAYS_OPTIONS"
+                  :key="day.value"
+                  type="button"
+                  class="h-10 rounded-xl border text-xs sm:text-sm font-bold flex items-center justify-center transition-all cursor-pointer relative"
+                  :class="
+                    form.lectureDays.includes(day.value)
+                      ? 'bg-primary-600 text-white border-primary-600 shadow-2xs font-black'
+                      : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                  "
+                  @click="toggleDay(day.value)"
+                >
+                  <span>{{ day.label }}</span>
+                  <span v-if="form.lectureDays.includes(day.value)" class="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full bg-white"></span>
+                </button>
+              </div>
+            </div>
+
+            <!-- تفاصيل جدول مواعيد الأيام المختارة (Day-by-Day Customized Timing Cards) -->
+            <div v-if="form.lectureDays.length > 0" class="space-y-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <Calendar class="w-4 h-4 text-primary-600" />
+                  مواعيد وساعات كل يوم من الأيام المختارة:
+                  <span v-if="form.isCustomDayTiming" class="text-primary-600 dark:text-primary-400 text-[11px] font-black">(مواعيد مرنة ومستقلة لكل يوم)</span>
+                  <span v-else class="text-slate-400 text-[11px] font-normal">(موعد موحد، يمكنك تخصيص كل يوم على حدة)</span>
+                </span>
+                <span class="text-[11px] text-slate-400 font-bold">
+                  {{ form.lectureDays.length }} أيام محددة
+                </span>
+              </div>
+
+              <!-- كروت الأيام المختارة -->
+              <div class="space-y-2">
+                <div
+                  v-for="dayKey in form.lectureDays"
+                  :key="dayKey"
+                  class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-2xs"
+                  :class="getDaySingleConflict(dayKey).hasConflict ? 'border-rose-300 dark:border-rose-800 bg-rose-50/20' : 'border-slate-200 dark:border-slate-700'"
+                >
+                  <!-- اسم اليوم وبادج المدة -->
+                  <div class="flex items-center gap-2.5 shrink-0 min-w-[130px]">
+                    <div class="w-9 h-9 rounded-xl bg-primary-50 dark:bg-primary-950/70 border border-primary-200 dark:border-primary-800 text-primary-700 dark:text-primary-300 flex items-center justify-center font-black text-xs">
+                      {{ DAY_SHORT_MAP[dayKey] }}
+                    </div>
+                    <div>
+                      <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 font-heading">
+                        يوم {{ DAY_NAMES_MAP[dayKey] }}
+                      </h4>
+                      <span class="text-[10px] text-slate-400 font-mono">
+                        المدة: {{ calculateDayDuration(dayKey) }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- مدخلات الوقت لهذا اليوم -->
+                  <div class="flex items-center gap-2 flex-1 max-w-xs">
+                    <div class="flex-1 space-y-0.5">
+                      <span class="text-[10px] font-bold text-slate-400 block">وقت البدء</span>
+                      <select
+                        :value="getDayStartTime(dayKey)"
+                        required
+                        class="w-full h-8 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 cursor-pointer"
+                        @change="onDayStartTimeChanged(dayKey, $event.target.value)"
+                      >
+                        <option
+                          v-for="opt in ALLOWED_START_TIME_OPTIONS"
+                          :key="opt.value"
+                          :value="opt.value"
+                        >
+                          {{ opt.label }}
+                        </option>
+                      </select>
+                    </div>
+                    <div class="flex-1 space-y-0.5">
+                      <span class="text-[10px] font-bold text-slate-400 block">وقت الانتهاء</span>
+                      <select
+                        :value="getDayEndTime(dayKey)"
+                        required
+                        class="w-full h-8 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-bold text-slate-800 dark:text-slate-100 cursor-pointer"
+                        @change="onDayTimeChanged(dayKey, getDayStartTime(dayKey), $event.target.value)"
+                      >
+                        <option
+                          v-for="opt in getDayEndTimeOptions(dayKey)"
+                          :key="opt.value"
+                          :value="opt.value"
+                        >
+                          {{ opt.label }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- أزرار الفترات السريعة لهذا اليوم بالتحديد -->
+                  <div class="flex items-center gap-1 shrink-0">
+                    <button
+                      v-for="p in STANDARD_TIME_PRESETS"
+                      :key="p.id"
+                      type="button"
+                      class="px-2 py-1 rounded-md text-[10px] font-bold border transition-colors cursor-pointer"
+                      :class="getDayStartTime(dayKey) === p.startTime && getDayEndTime(dayKey) === p.endTime
+                        ? 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200 font-black'
+                        : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100'"
+                      :title="`ضبط ${DAY_NAMES_MAP[dayKey]} على ${p.label} (${formatTime12(p.startTime)} - ${formatTime12(p.endTime)})`"
+                      @click="setDayTime(dayKey, p.startTime, p.endTime)"
+                    >
+                      {{ p.short }}
+                    </button>
+                  </div>
+
+                  <!-- مؤشر تعارض اليوم بالتحديد -->
+                  <div class="shrink-0 flex items-center gap-2">
+                    <span
+                      v-if="getDaySingleConflict(dayKey).hasConflict"
+                      class="px-2 py-1 rounded-lg text-[10px] font-bold bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-800 flex items-center gap-1"
+                      :title="getDaySingleConflict(dayKey).message"
+                    >
+                      <AlertCircle class="w-3 h-3 text-rose-600" />
+                      تعارض بالموعد
+                    </span>
+                    <span
+                      v-else
+                      class="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 flex items-center gap-1"
+                    >
+                      <CheckCircle2 class="w-3 h-3 text-emerald-600" />
+                      الموعد متاح بالقاعة
+                    </span>
+
+                    <!-- زر حذف اليوم -->
+                    <button
+                      type="button"
+                      class="w-7 h-7 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer"
+                      title="إزالة هذا اليوم من الدورة"
+                      @click="removeDayFromForm(dayKey)"
+                    >
+                      <Trash2 class="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- مؤشر وتنبيه الفحص اللحظي للتعارض العام -->
+            <div class="pt-1">
+              <div
+                v-if="conflictStatus.hasConflict"
+                class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-200 space-y-1.5 animate-shake"
               >
-                {{ day.label }}
-              </button>
-            </div>
-            <p v-if="form.lectureDays.length === 0" class="text-xs text-rose-500 font-bold">
-              يجب اختيار يوم واحد على الأقل للمحاضرات الأسبوعية
-            </p>
-          </div>
-        </div>
+                <div class="flex items-center gap-2 font-black text-sm">
+                  <AlertCircle class="w-5 h-5 text-rose-600 shrink-0" />
+                  <span>تنبيه: تعارض في حجز القاعة (الموعد غير متاح)</span>
+                </div>
+                <p class="text-xs leading-relaxed font-bold pr-7">
+                  {{ conflictStatus.message }}
+                </p>
+                <p class="text-[11px] text-rose-600 dark:text-rose-300 font-medium pr-7">
+                  يرجى تعديل توقيت هذا اليوم بالتحديد، أو اختيار فترة قياسية شاغرة بالقاعة.
+                </p>
+              </div>
 
-        <!-- بطاقة المعاينة والملخص المباشر -->
-        <div class="p-4.5 rounded-2xl bg-gradient-to-tr from-primary-50/60 to-emerald-50/60 dark:from-primary-950/30 dark:to-emerald-950/30 border border-primary-200/70 dark:border-primary-800/60 space-y-2">
-          <div class="text-sm font-black text-primary-900 dark:text-primary-200 flex items-center gap-2">
-            <Layers class="w-4.5 h-4.5 text-primary-600" />
-            <span>ملخص دورة الانعقاد الجديدة:</span>
-          </div>
-          <div class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 space-y-1.5 font-medium">
-            <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span><strong>الدورة:</strong> {{ selectedCourse?.name || 'لم تحدد بعد' }}</span>
-              <span>•</span>
-              <span><strong>الدفعة المعتمدة:</strong> رقم {{ form.roundNumber || 1 }} (تلقائي)</span>
-              <span>•</span>
-              <span><strong>المحاضر:</strong> {{ selectedInstructor?.name || 'لم يحدد بعد' }}</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-slate-600 dark:text-slate-400">
-              <span><strong>القاعة:</strong> {{ selectedHall?.name || 'لم تحدد' }} (سعة {{ form.capacity }} دارس)</span>
-              <span>•</span>
-              <span><strong>الأيام:</strong> {{ formattedDaysPreview }}</span>
-              <span>•</span>
-              <span><strong>المواعيد:</strong> من {{ form.startTime }} إلى {{ form.endTime }}</span>
+              <div
+                v-else-if="form.hallId && form.lectureDays.length > 0"
+                class="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 flex items-center gap-2 text-xs font-bold"
+              >
+                <CheckCircle2 class="w-4.5 h-4.5 text-emerald-600 shrink-0" />
+                <span>كافة المواعيد المحددة متاحة وشاغرة تماماً في «{{ selectedHall?.name }}» بدون أي تعارض زمني.</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- 3. أزرار التحكم السفلية -->
-        <div class="pt-3 flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-800">
-          <button
-            type="button"
-            class="h-11 px-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold transition-colors cursor-pointer"
-            @click="handleClose"
-          >
-            إلغاء
-          </button>
+        <!-- ========================================================
+             الخطوة 4: المراجعة والاعتماد النهائي
+             ======================================================== -->
+        <div v-show="currentStep === 4" class="space-y-6 animate-fade-in">
+          <!-- ترويسة الخطوة -->
+          <div class="flex items-center gap-2.5 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+            <div class="w-8 h-8 rounded-xl bg-primary-50 dark:bg-primary-950/70 border border-primary-200 dark:border-primary-800 flex items-center justify-center text-primary-600 dark:text-primary-400 shrink-0">
+              <Layers class="w-4.5 h-4.5" />
+            </div>
+            <div>
+              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 font-heading">
+                مراجعة واعتماد تفاصيل دورة الانعقاد وحجز القاعة
+              </h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                راجع كافة البيانات المدخلة قبل الحفظ النهائي في النظام وجدولة مواعيد القاعة
+              </p>
+            </div>
+          </div>
 
-          <button
-            type="submit"
-            :disabled="isSubmitting || isCapacityExceeded"
-            class="h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm sm:text-base font-bold flex items-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <CalendarPlus class="w-4.5 h-4.5" />
-            <span>{{ isSubmitting ? 'جاري الاعتماد...' : 'اعتماد وجدولة الدفعة الجديدة' }}</span>
-          </button>
+          <!-- بطاقة المعاينة والملخص النهائي الشامل -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- كارت 1: الدورة والمحاضر -->
+            <div class="p-4.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-3">
+              <div class="flex items-center gap-2 text-xs font-black text-primary-700 dark:text-primary-300 pb-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                <BookOpen class="w-4 h-4" />
+                <span>بيانات الدورة والمحاضر</span>
+              </div>
+              <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">اسم الدورة:</span>
+                  <strong class="text-slate-800 dark:text-slate-100 text-sm">{{ selectedCourse?.name }}</strong>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">رقم الدفعة:</span>
+                  <span class="px-2.5 py-0.5 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-mono font-black border border-emerald-200 dark:border-emerald-800">
+                    الدفعة رقم {{ form.roundNumber }}
+                  </span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">المحاضر المعتمد:</span>
+                  <strong class="text-slate-800 dark:text-slate-100">{{ selectedInstructor?.name }}</strong>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">سعة الدفعة المطلوبة:</span>
+                  <strong class="font-mono text-slate-800 dark:text-slate-100">{{ form.capacity }} متدرب</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- كارت 2: القاعة وفترة الانعقاد -->
+            <div class="p-4.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-3">
+              <div class="flex items-center gap-2 text-xs font-black text-emerald-700 dark:text-emerald-300 pb-2 border-b border-slate-200/60 dark:border-slate-700/60">
+                <Building2 class="w-4 h-4" />
+                <span>القاعة وفترة الانعقاد</span>
+              </div>
+              <div class="space-y-2 text-xs">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">القاعة / المعمل:</span>
+                  <strong class="text-slate-800 dark:text-slate-100 text-sm">{{ selectedHall?.name }} ({{ selectedHall?.location }})</strong>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">طاقة استيعاب القاعة:</span>
+                  <span class="font-mono text-slate-700 dark:text-slate-300 font-bold">{{ selectedHall?.maxCapacity }} مقعد</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">فترة انعقاد الدورة:</span>
+                  <span class="font-mono text-slate-800 dark:text-slate-100 font-bold">من {{ form.startDate }} إلى {{ form.endDate }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">آخر موعد للتقديم:</span>
+                  <span class="font-mono text-slate-700 dark:text-slate-300 font-bold">{{ form.lastApplicationDate || '—' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- كارت 3: جدول المواعيد والأيام التدريبية -->
+            <div class="md:col-span-2 p-4.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 shadow-2xs space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-2 text-xs font-black text-slate-800 dark:text-slate-200">
+                  <Clock class="w-4 h-4 text-amber-500" />
+                  <span>جدول مواعيد الأيام التدريبية الأسبوعية</span>
+                </div>
+                <span class="text-xs text-slate-400 font-bold">
+                  {{ form.lectureDays.length }} أيام بالأسبوع
+                </span>
+              </div>
+
+              <!-- كروت الأيام في الملخص -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                <div
+                  v-for="d in form.lectureDays"
+                  :key="d"
+                  class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between font-mono"
+                >
+                  <strong class="text-slate-800 dark:text-slate-200 font-sans font-black">
+                    {{ DAY_NAMES_MAP[d] }}
+                  </strong>
+                  <span class="font-bold text-primary-700 dark:text-primary-300">
+                    {{ formatTime12(getDayStartTime(d)) }} - {{ formatTime12(getDayEndTime(d)) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- كارت 4: حالة التأكيد والتعارض -->
+            <div class="md:col-span-2 p-4 rounded-2xl border flex items-center gap-3"
+              :class="
+                conflictStatus.hasConflict
+                  ? 'bg-rose-50 dark:bg-rose-950/50 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-200'
+                  : 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200'
+              "
+            >
+              <div
+                class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                :class="conflictStatus.hasConflict ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'"
+              >
+                <AlertCircle v-if="conflictStatus.hasConflict" class="w-5 h-5" />
+                <CheckCircle2 v-else class="w-5 h-5" />
+              </div>
+              <div class="text-xs font-bold">
+                <strong class="block text-sm">
+                  {{ conflictStatus.hasConflict ? 'يوجد تعارض زمني في القاعة' : 'تم التحقق بنجاح: القاعة شاغرة وخالية من أي تعارض' }}
+                </strong>
+                <p class="mt-0.5 opacity-90">
+                  {{ conflictStatus.hasConflict ? conflictStatus.message : 'المواعيد المختارة تقع بالكامل ضمن ساعات العمل الرسمية (07:00 ص - 09:00 م) وجاهزة للاعتماد.' }}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </form>
+
+      <!-- 4. شريط أزرار التنقل والتحكم السفلي (Stepper Navigation Footer) -->
+      <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/80 shrink-0">
+        <!-- زر التراجع / الإلغاء -->
+        <button
+          v-if="currentStep === 1"
+          type="button"
+          class="h-11 px-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold transition-colors cursor-pointer"
+          @click="handleClose"
+        >
+          إلغاء
+        </button>
+
+        <button
+          v-else
+          type="button"
+          class="h-11 px-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+          @click="prevStep"
+        >
+          <ChevronRight class="w-4 h-4" />
+          <span>الخطوة السابقة</span>
+        </button>
+
+        <!-- عداد الخطوات -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-500 dark:text-slate-400 font-bold hidden sm:inline-block">
+            الخطوة {{ currentStep }} من 4:
+          </span>
+          <span class="px-3 py-1 rounded-full text-xs font-black bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
+            {{ STEPS[currentStep - 1]?.title }}
+          </span>
+        </div>
+
+        <!-- زر التقدم / الاعتماد -->
+        <button
+          v-if="currentStep < 4"
+          type="button"
+          class="h-11 px-6 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg"
+          @click="nextStep"
+        >
+          <span>المتابعة إلى الخطوة التالية</span>
+          <ChevronLeft class="w-4 h-4" />
+        </button>
+
+        <button
+          v-else
+          type="button"
+          :disabled="isSubmitting || isCapacityExceeded || conflictStatus.hasConflict || form.lectureDays.length === 0"
+          class="h-11 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold flex items-center gap-2 transition-all cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          @click="handleSubmit"
+        >
+          <CalendarPlus class="w-4.5 h-4.5" />
+          <span>
+            {{
+              isSubmitting
+                ? 'جاري الاعتماد...'
+                : conflictStatus.hasConflict
+                  ? 'تعارض في موعد القاعة'
+                  : isCapacityExceeded
+                    ? 'تجاوز سعة القاعة'
+                    : 'اعتماد وجدولة الدفعة وحجز القاعة'
+            }}
+          </span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -364,10 +1045,17 @@ import {
   X,
   AlertCircle,
   BookOpen,
-  Users,
   Calendar,
   Clock,
   Layers,
+  Building2,
+  CheckCircle2,
+  Check,
+  SlidersHorizontal,
+  Sparkles,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-vue-next';
 import {
   LECTURE_DAYS_OPTIONS,
@@ -379,6 +1067,19 @@ import {
   INITIAL_HALLS,
   INITIAL_INSTRUCTORS,
 } from '../helpers/courseMockData';
+import {
+  checkRoundConflict,
+  checkSingleDayConflict,
+  getHallActiveReservations,
+  getHallWeeklySchedule,
+  formatTime12Hour,
+  DAY_NAMES_MAP,
+  ALLOWED_TIME_OPTIONS,
+  ALLOWED_START_TIME_OPTIONS,
+  ALLOWED_END_TIME_OPTIONS,
+  MIN_OPERATIONAL_TIME,
+  MAX_OPERATIONAL_TIME,
+} from '../helpers/hallScheduleHelper';
 
 const props = defineProps({
   isOpen: {
@@ -401,17 +1102,49 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save']);
 
+// تعريف خطوات المعالج (4 خطوات واضحة ومريحة)
+const STEPS = [
+  { step: 1, title: 'الدورة والمحاضر والسعة', desc: 'تحديد الكورس ورقم الدفعة والمحاضر والعدد المستهدف' },
+  { step: 2, title: 'التواريخ والقاعة', desc: 'فترة الانعقاد واختيار القاعة المستوعبة للسعة' },
+  { step: 3, title: 'المواعيد والأيام والتعارض', desc: 'جدول إشغال القاعة الأسبوعي وتحديد الساعات بدون تداخل' },
+  { step: 4, title: 'المراجعة والاعتماد', desc: 'ملخص شامل وتأكيد جدولة الدفعة وحجز القاعة' },
+];
+
+const currentStep = ref(1);
+
+// ثوابت الفترات القياسية للاختيار السريع (من 07:00 ص إلى 09:00 م كحد أقصى)
+const STANDARD_TIME_PRESETS = [
+  { id: 'morning', label: 'صباحي', short: 'صباحي', startTime: '09:00', endTime: '13:00' },
+  { id: 'afternoon', label: 'مسائي أول', short: 'مسائي 1', startTime: '13:30', endTime: '17:30' },
+  { id: 'evening', label: 'مسائي ثانٍ', short: 'مسائي 2', startTime: '17:30', endTime: '21:00' },
+];
+
+const DAY_SHORT_MAP = {
+  Sat: 'سبت',
+  Sun: 'أحد',
+  Mon: 'إثنين',
+  Tue: 'ثلاثاء',
+  Wed: 'أربعاء',
+  Thu: 'خميس',
+  Fri: 'جمعة',
+};
+
 const form = ref({ ...INITIAL_ROUND_FORM });
 const isSubmitting = ref(false);
 const validationError = ref('');
 const calculatedPreviousRound = ref(0);
+
+// قائمة القاعات النشطة
+const hallsList = computed(() => {
+  return INITIAL_HALLS.filter((h) => h.isActive);
+});
 
 // هل تم فتح المودال لكورس محدد مسبقاً (من الكارت أو المودال)
 const isSpecificCourse = computed(() => {
   return Boolean(props.initialCourseId);
 });
 
-// عنوان النافذة الديناميكي وفق رغبة المستخدم
+// عنوان النافذة الديناميكي
 const modalTitle = computed(() => {
   if (selectedCourse.value?.name) {
     return `فتح دورة جديدة من كورس «${selectedCourse.value.name}»`;
@@ -436,17 +1169,7 @@ const instructorOptions = computed(() => {
     name: `${i.name} (${i.specialty})`,
     rawName: i.name,
     specialty: i.specialty,
-  }));
-});
-
-// خيارات القاعات
-const hallOptions = computed(() => {
-  return INITIAL_HALLS.filter((h) => h.isActive).map((h) => ({
-    id: h.id,
-    name: `${h.name} — أقصى سعة: ${h.maxCapacity}`,
-    rawName: h.name,
-    maxCapacity: h.maxCapacity,
-    type: h.type,
+    phone: i.phone,
   }));
 });
 
@@ -469,6 +1192,34 @@ const isCapacityExceeded = computed(() => {
   return form.value.capacity > selectedHall.value.maxCapacity;
 });
 
+// استخراج الحجوزات القائمة في القاعة خلال الفترة المحددة
+const activeReservationsInHall = computed(() => {
+  if (!form.value.hallId) return [];
+  return getHallActiveReservations(
+    form.value.hallId,
+    form.value.startDate,
+    form.value.endDate,
+    props.existingRounds,
+    form.value.id
+  );
+});
+
+// جدول إشغال القاعة الأسبوعي والمواعيد المتاحة
+const weeklyHallSchedule = computed(() => {
+  if (!form.value.hallId) return [];
+  return getHallWeeklySchedule(
+    form.value.hallId,
+    form.value.startDate,
+    form.value.endDate,
+    props.existingRounds
+  );
+});
+
+// فحص التعارض اللحظي الدقيق مع دعم المواعيد المستقلة لكل يوم
+const conflictStatus = computed(() => {
+  return checkRoundConflict(form.value, props.existingRounds);
+});
+
 // مدة المحاضرة
 const lectureDurationText = computed(() => {
   return calculateLectureDuration(form.value.startTime, form.value.endTime);
@@ -479,12 +1230,248 @@ const formattedDaysPreview = computed(() => {
   return formatLectureDays(form.value.lectureDays);
 });
 
+// دوال إدارة مواعيد الأيام المستقلة
+function getDayStartTime(dayKey) {
+  return form.value.daySchedules?.[dayKey]?.startTime || form.value.startTime || '09:00';
+}
+
+function getDayEndTime(dayKey) {
+  return form.value.daySchedules?.[dayKey]?.endTime || form.value.endTime || '13:00';
+}
+
+function calculateDayDuration(dayKey) {
+  return calculateLectureDuration(getDayStartTime(dayKey), getDayEndTime(dayKey));
+}
+
+// دوال فلترة ومنع اختيار وقت انتهاء يسبق أو يساوي وقت البدء
+function getAvailableEndTimes(startTime) {
+  if (!startTime) return ALLOWED_END_TIME_OPTIONS;
+  return ALLOWED_TIME_OPTIONS.filter((opt) => opt.value > startTime);
+}
+
+function findNextEndTime(startTime, desiredDurationHours = 3) {
+  if (!startTime) return '13:00';
+  const available = getAvailableEndTimes(startTime);
+  if (available.length === 0) return '21:00';
+
+  const [sh, sm] = startTime.split(':').map(Number);
+  const targetMinutes = sh * 60 + sm + desiredDurationHours * 60;
+
+  const found = available.find((opt) => {
+    const [oh, om] = opt.value.split(':').map(Number);
+    return oh * 60 + om >= targetMinutes;
+  });
+
+  return found ? found.value : available[available.length - 1].value;
+}
+
+// قائمة أوقات النهاية المتاحة للتوقيت الموحد (تتغير ديناميكياً حسب وقت البدء المختار)
+const unifiedEndTimeOptions = computed(() => {
+  return getAvailableEndTimes(form.value.startTime);
+});
+
+// عند تغيير وقت البدء الموحد، نحدث النهاية تلقائياً إذا كانت تسبق أو تساوي البداية
+function onUnifiedStartTimeChanged(newStart) {
+  form.value.startTime = newStart;
+  if (!form.value.endTime || form.value.endTime <= newStart) {
+    form.value.endTime = findNextEndTime(newStart, 4);
+  }
+}
+
+// قائمة أوقات النهاية المتاحة لكل يوم على حدة
+function getDayEndTimeOptions(dayKey) {
+  const dayStart = getDayStartTime(dayKey);
+  return getAvailableEndTimes(dayStart);
+}
+
+// عند تغيير وقت بدء يوم معين، نحدث نهاية ذلك اليوم تلقائياً إذا كانت تسبق أو تساوي البداية
+function onDayStartTimeChanged(dayKey, newStart) {
+  let currentEnd = getDayEndTime(dayKey);
+  if (!currentEnd || currentEnd <= newStart) {
+    currentEnd = findNextEndTime(newStart, 4);
+  }
+  onDayTimeChanged(dayKey, newStart, currentEnd);
+}
+
+function onDayTimeChanged(dayKey, newStart, newEnd) {
+  if (!form.value.daySchedules) form.value.daySchedules = {};
+  form.value.daySchedules[dayKey] = {
+    startTime: newStart,
+    endTime: newEnd,
+  };
+  form.value.isCustomDayTiming = true;
+}
+
+function setDayTime(dayKey, startTime, endTime) {
+  if (!form.value.daySchedules) form.value.daySchedules = {};
+  form.value.daySchedules[dayKey] = {
+    startTime,
+    endTime,
+  };
+  form.value.isCustomDayTiming = true;
+}
+
+function setStandardSlotUnified(preset) {
+  form.value.startTime = preset.startTime;
+  form.value.endTime = preset.endTime;
+  if (!form.value.daySchedules) form.value.daySchedules = {};
+  for (const d of form.value.lectureDays) {
+    form.value.daySchedules[d] = {
+      startTime: preset.startTime,
+      endTime: preset.endTime,
+    };
+  }
+}
+
+function formatTime12(time24) {
+  return formatTime12Hour(time24);
+}
+
+function getDaySingleConflict(dayKey) {
+  const start = getDayStartTime(dayKey);
+  const end = getDayEndTime(dayKey);
+  return checkSingleDayConflict(
+    dayKey,
+    start,
+    end,
+    form.value.hallId,
+    form.value.startDate,
+    form.value.endDate,
+    props.existingRounds,
+    form.value.id
+  );
+}
+
+// التحقق من صحة بيانات الخطوة الحالية قبل الانتقال للخطوة التالية
+function validateStep(stepIndex) {
+  validationError.value = '';
+
+  if (stepIndex === 1) {
+    if (!form.value.courseId) {
+      validationError.value = 'يرجى اختيار الدورة التدريبية من الكتالوج أولاً.';
+      return false;
+    }
+    if (!form.value.instructorId) {
+      validationError.value = 'يرجى اختيار المحاضر المعتمد للدورة.';
+      return false;
+    }
+    if (!form.value.capacity || form.value.capacity <= 0) {
+      validationError.value = 'يرجى تحديد سعة الدفعة المستهدفة (عدد المتدربين).';
+      return false;
+    }
+    return true;
+  }
+
+  if (stepIndex === 2) {
+    if (!form.value.startDate || !form.value.endDate) {
+      validationError.value = 'يرجى تحديد تاريخ بداية ونهاية الدورة.';
+      return false;
+    }
+    if (new Date(form.value.endDate) <= new Date(form.value.startDate)) {
+      validationError.value = 'تاريخ انتهاء الدورة يجب أن يكون لاحقاً لتاريخ البداية.';
+      return false;
+    }
+    if (form.value.lastApplicationDate && new Date(form.value.lastApplicationDate) > new Date(form.value.startDate)) {
+      validationError.value = 'آخر موعد للتقديم يجب أن يكون سابقاً أو مساوياً لتاريخ بداية الدورة.';
+      return false;
+    }
+    if (!form.value.hallId) {
+      validationError.value = 'يرجى اختيار قاعة أو معمل التدريب المناسب.';
+      return false;
+    }
+    if (isCapacityExceeded.value) {
+      validationError.value = `سعة الدفعة (${form.value.capacity}) تتجاوز أقصى سعة للقاعة المحددة (${selectedHall.value?.maxCapacity || 0} مقعد).`;
+      return false;
+    }
+    return true;
+  }
+
+  if (stepIndex === 3) {
+    if (form.value.lectureDays.length === 0) {
+      validationError.value = 'يرجى اختيار يوم واحد على الأقل للمحاضرات الأسبوعية.';
+      return false;
+    }
+    for (const day of form.value.lectureDays) {
+      const s = getDayStartTime(day);
+      const e = getDayEndTime(day);
+      const arabicDay = DAY_NAMES_MAP[day] || day;
+      if (!s || !e) {
+        validationError.value = `يرجى تحديد وقت بدء وانتهاء المحاضرة ليوم (${arabicDay}).`;
+        return false;
+      }
+      if (s < MIN_OPERATIONAL_TIME) {
+        validationError.value = `أبكر موعد متاح لبدء المحاضرات هو 07:00 ص (يوم ${arabicDay}).`;
+        return false;
+      }
+      if (e > MAX_OPERATIONAL_TIME) {
+        validationError.value = `أقصى موعد لانتهاء المحاضرات هو 09:00 م (يوم ${arabicDay}). لا يمكن حجز مواعيد بعد 9:00 مساءً.`;
+        return false;
+      }
+      if (s >= e) {
+        validationError.value = `وقت انتهاء المحاضرة يجب أن يكون بعد وقت البدء (يوم ${arabicDay}).`;
+        return false;
+      }
+    }
+    if (conflictStatus.value.hasConflict) {
+      validationError.value = conflictStatus.value.message;
+      return false;
+    }
+    return true;
+  }
+
+  return true;
+}
+
+function nextStep() {
+  if (validateStep(currentStep.value)) {
+    if (currentStep.value < 4) {
+      currentStep.value += 1;
+    }
+  }
+}
+
+function prevStep() {
+  validationError.value = '';
+  if (currentStep.value > 1) {
+    currentStep.value -= 1;
+  }
+}
+
+function goToStep(targetStep) {
+  if (targetStep < currentStep.value) {
+    validationError.value = '';
+    currentStep.value = targetStep;
+  } else if (targetStep > currentStep.value) {
+    for (let s = currentStep.value; s < targetStep; s++) {
+      if (!validateStep(s)) return;
+    }
+    currentStep.value = targetStep;
+  }
+}
+
+// مراقبة توقيت البداية والنهاية لتحديث الأيام إذا كان النمط موحداً
+watch(
+  [() => form.value.startTime, () => form.value.endTime],
+  ([newStart, newEnd]) => {
+    if (!form.value.isCustomDayTiming && newStart && newEnd) {
+      if (!form.value.daySchedules) form.value.daySchedules = {};
+      for (const d of form.value.lectureDays) {
+        form.value.daySchedules[d] = {
+          startTime: newStart,
+          endTime: newEnd,
+        };
+      }
+    }
+  }
+);
+
 // عند فتح النافذة
 watch(
   () => [props.isOpen, props.initialCourseId],
   ([val]) => {
     if (val) {
       validationError.value = '';
+      currentStep.value = 1;
       initForm();
     }
   }
@@ -498,21 +1485,16 @@ function computeNextRoundNumber(courseId) {
     return 1;
   }
 
-  // 1. استخراج كل أرقام الدفعات المسجلة لهذا الكورس من جدول الدفعات
   const matchingRounds = props.existingRounds.filter(
     (r) => Number(r.courseId) === Number(courseId)
   );
   const roundNumsFromRounds = matchingRounds.map((r) => Number(r.roundNumber) || 0);
-
-  // 2. فحص عداد الدورة في الكتالوج إن وُجد
   const targetCourse = props.courses.find((c) => Number(c.id) === Number(courseId));
   const roundsCountFromCourse = Number(targetCourse?.roundsCount) || 0;
 
-  // 3. أعلى رقم سابق مسجل
   const maxPrevious = Math.max(0, ...roundNumsFromRounds, roundsCountFromCourse);
   calculatedPreviousRound.value = maxPrevious;
 
-  // 4. الرقم التلقائي الجديد = أعلى رقم + 1
   const nextNum = maxPrevious + 1;
   form.value.roundNumber = nextNum;
   return nextNum;
@@ -535,7 +1517,6 @@ watch(
 function initForm() {
   const targetCourseId = props.initialCourseId || (props.courses.length > 0 ? props.courses[0].id : null);
 
-  // تواريخ افتراضية مريحة للمستخدم
   const today = new Date();
   const start = new Date(today);
   start.setDate(today.getDate() + 14);
@@ -549,7 +1530,7 @@ function initForm() {
   form.value = {
     ...INITIAL_ROUND_FORM,
     courseId: targetCourseId,
-    roundNumber: 1, // سيتم حسابه بالأسفل
+    roundNumber: 1,
     instructorId: INITIAL_INSTRUCTORS[0]?.id || null,
     hallId: INITIAL_HALLS[0]?.id || null,
     capacity: 25,
@@ -559,6 +1540,12 @@ function initForm() {
     startTime: '09:00',
     endTime: '13:00',
     lectureDays: ['Sat', 'Mon', 'Wed'],
+    isCustomDayTiming: false,
+    daySchedules: {
+      Sat: { startTime: '09:00', endTime: '13:00' },
+      Mon: { startTime: '09:00', endTime: '13:00' },
+      Wed: { startTime: '09:00', endTime: '13:00' },
+    },
     status: 'Available',
   };
 
@@ -581,9 +1568,10 @@ function onCourseSelected() {
   }
 }
 
-function onHallSelected() {
-  if (selectedHall.value && form.value.capacity > selectedHall.value.maxCapacity) {
-    form.value.capacity = selectedHall.value.maxCapacity;
+function selectHall(hall) {
+  form.value.hallId = hall.id;
+  if (form.value.capacity > hall.maxCapacity) {
+    form.value.capacity = hall.maxCapacity;
   }
 }
 
@@ -593,11 +1581,69 @@ function toggleDay(dayValue) {
     form.value.lectureDays.splice(idx, 1);
   } else {
     form.value.lectureDays.push(dayValue);
+    if (!form.value.daySchedules) form.value.daySchedules = {};
+    if (!form.value.daySchedules[dayValue]) {
+      form.value.daySchedules[dayValue] = {
+        startTime: form.value.startTime || '09:00',
+        endTime: form.value.endTime || '13:00',
+      };
+    }
+  }
+}
+
+function addDayToForm(dayKey) {
+  if (!form.value.lectureDays.includes(dayKey)) {
+    form.value.lectureDays.push(dayKey);
+    if (!form.value.daySchedules) form.value.daySchedules = {};
+    if (!form.value.daySchedules[dayKey]) {
+      form.value.daySchedules[dayKey] = {
+        startTime: form.value.startTime || '09:00',
+        endTime: form.value.endTime || '13:00',
+      };
+    }
+  }
+}
+
+function removeDayFromForm(dayKey) {
+  const idx = form.value.lectureDays.indexOf(dayKey);
+  if (idx >= 0) {
+    form.value.lectureDays.splice(idx, 1);
+  }
+}
+
+function applySlotToForm(dayKey, slot) {
+  addDayToForm(dayKey);
+  if (!form.value.daySchedules) form.value.daySchedules = {};
+  form.value.daySchedules[dayKey] = {
+    startTime: slot.startTime,
+    endTime: slot.endTime,
+  };
+
+  const otherDaysDifferent = form.value.lectureDays.some((d) => {
+    if (d === dayKey) return false;
+    const s = form.value.daySchedules[d];
+    return s && (s.startTime !== slot.startTime || s.endTime !== slot.endTime);
+  });
+
+  if (otherDaysDifferent) {
+    form.value.isCustomDayTiming = true;
+  } else {
+    form.value.startTime = slot.startTime;
+    form.value.endTime = slot.endTime;
   }
 }
 
 function setLecturePreset(days) {
   form.value.lectureDays = [...days];
+  if (!form.value.daySchedules) form.value.daySchedules = {};
+  for (const d of days) {
+    if (!form.value.daySchedules[d]) {
+      form.value.daySchedules[d] = {
+        startTime: form.value.startTime || '09:00',
+        endTime: form.value.endTime || '13:00',
+      };
+    }
+  }
 }
 
 function handleClose() {
@@ -605,43 +1651,20 @@ function handleClose() {
 }
 
 function handleSubmit() {
-  validationError.value = '';
-
-  if (!form.value.courseId) {
-    validationError.value = 'يرجى اختيار الدورة التدريبية بالكتالوج أولاً.';
-    return;
-  }
-  if (!form.value.instructorId) {
-    validationError.value = 'يرجى اختيار المحاضر المعتمد للدورة.';
-    return;
-  }
-  if (!form.value.hallId) {
-    validationError.value = 'يرجى اختيار قاعة أو معمل التدريب.';
-    return;
-  }
-  if (isCapacityExceeded.value) {
-    validationError.value = `سعة الدفعة (${form.value.capacity}) تتجاوز أقصى سعة للقاعة المحددة (${selectedHall.value.maxCapacity}).`;
-    return;
-  }
-  if (!form.value.startDate || !form.value.endDate) {
-    validationError.value = 'يرجى تحديد تاريخ بداية ونهاية الدورة.';
-    return;
-  }
-  if (new Date(form.value.endDate) <= new Date(form.value.startDate)) {
-    validationError.value = 'تاريخ انتهاء الدورة يجب أن يكون لاحقاً لتاريخ البداية.';
-    return;
-  }
-  if (form.value.lastApplicationDate && new Date(form.value.lastApplicationDate) > new Date(form.value.startDate)) {
-    validationError.value = 'آخر موعد للتقديم يجب أن يكون سابقاً أو مساوياً لتاريخ بداية الدورة.';
-    return;
-  }
-  if (form.value.lectureDays.length === 0) {
-    validationError.value = 'يرجى اختيار يوم واحد على الأقل للمحاضرات الأسبوعية.';
+  if (!validateStep(1) || !validateStep(2) || !validateStep(3)) {
     return;
   }
 
   isSubmitting.value = true;
   setTimeout(() => {
+    const primaryDay = form.value.lectureDays[0];
+    const defaultStart = form.value.isCustomDayTiming && primaryDay
+      ? (form.value.daySchedules[primaryDay]?.startTime || form.value.startTime)
+      : form.value.startTime;
+    const defaultEnd = form.value.isCustomDayTiming && primaryDay
+      ? (form.value.daySchedules[primaryDay]?.endTime || form.value.endTime)
+      : form.value.endTime;
+
     const newRound = {
       id: Date.now(),
       courseId: form.value.courseId,
@@ -657,9 +1680,11 @@ function handleSubmit() {
       startDate: form.value.startDate,
       endDate: form.value.endDate,
       lastApplicationDate: form.value.lastApplicationDate,
-      startTime: form.value.startTime,
-      endTime: form.value.endTime,
+      startTime: defaultStart,
+      endTime: defaultEnd,
       lectureDays: [...form.value.lectureDays],
+      isCustomDayTiming: form.value.isCustomDayTiming,
+      daySchedules: { ...form.value.daySchedules },
       status: 'Available',
       createdAt: new Date().toISOString(),
     };

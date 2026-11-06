@@ -127,7 +127,7 @@
         <span>{{ row.courseRound?.lectureDays?.slice(0, 2).join('، ') }}</span>
         <span class="text-slate-300 dark:text-slate-600">•</span>
         <Clock class="w-3 h-3 text-slate-400 shrink-0" />
-        <span>{{ row.courseRound?.startTime?.slice(0, 5) }} - {{ row.courseRound?.endTime?.slice(0, 5) }}</span>
+        <span>{{ formatTime12Hour(row.courseRound?.startTime) }} - {{ formatTime12Hour(row.courseRound?.endTime) }}</span>
       </div>
     </template>
 

@@ -63,7 +63,7 @@
               <div class="flex items-center justify-between gap-2 flex-wrap">
                 <div class="flex items-center gap-2">
                   <div class="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center text-xs font-black">
-                    ✓
+                    
                   </div>
                   <span class="font-bold text-slate-800 dark:text-slate-100">{{ log.gateName }}</span>
                 </div>

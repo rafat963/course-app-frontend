@@ -20,6 +20,12 @@ export default [
         meta: { title: 'إدارة القاعات والمعامل' },
       },
       {
+        path: 'halls-schedule',
+        name: 'AdminHallsSchedule',
+        component: () => import('./components/AdminHallsScheduleView.vue'),
+        meta: { title: 'الجدول الشهري لإشغال القاعات' },
+      },
+      {
         path: 'audit-logs',
         name: 'AdminAuditLogs',
         component: () => import('./components/AdminAuditLogsView.vue'),

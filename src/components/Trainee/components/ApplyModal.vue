@@ -214,7 +214,7 @@
 
             <div class="space-y-1">
               <h4 class="text-base font-black text-slate-800 dark:text-slate-100 font-heading">
-                تم إرسال طلبك بنجاح! 🎉
+                تم إرسال طلبك بنجاح!
               </h4>
               <p class="text-xs text-slate-500 dark:text-slate-400">
                 سيتم مراجعة طلبك من قِبل شؤون الدارسين وإخطارك بالنتيجة
@@ -420,25 +420,25 @@ async function handleSubmit() {
 
   // محاكاة رفع الملف والمعالجة
   await sleep(400);
-  submittingMessages.value.push('تم رفع صورة المؤهل الدراسي بنجاح ✓');
+  submittingMessages.value.push('تم رفع صورة المؤهل الدراسي بنجاح');
 
   await sleep(500);
   const code = generateApplicationCode();
   generatedCode.value = code;
-  submittingMessages.value.push(`تم إنشاء كود الطلب: ${code} ✓`);
+  submittingMessages.value.push(`تم إنشاء كود الطلب: ${code}`);
 
   await sleep(400);
   const qrToken = generateQRToken();
-  submittingMessages.value.push('تم توليد رمز QR Token آمن ✓');
+  submittingMessages.value.push('تم توليد رمز QR Token آمن');
 
   await sleep(400);
-  submittingMessages.value.push('تم تسجيل الطلب بحالة "قيد المراجعة" ✓');
+  submittingMessages.value.push('تم تسجيل الطلب بحالة "قيد المراجعة"');
 
   await sleep(400);
-  submittingMessages.value.push('تم تسجيل حركة AuditLog للطلب ✓');
+  submittingMessages.value.push('تم تسجيل حركة AuditLog للطلب');
 
   await sleep(400);
-  submittingMessages.value.push('تم إشعار شؤون الدارسين بطلبك الجديد ✓');
+  submittingMessages.value.push('تم إشعار شؤون الدارسين بطلبك الجديد');
 
   await sleep(300);
 

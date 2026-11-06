@@ -135,7 +135,7 @@
             <div class="space-y-1">
               <span class="text-slate-400 text-xs font-bold block">توقيت المحاضرة اليومي:</span>
               <div class="font-mono font-bold text-slate-800 dark:text-slate-200">
-                من {{ round.startTime }} إلى {{ round.endTime }}
+                من {{ formatTime12Hour(round.startTime) }} إلى {{ formatTime12Hour(round.endTime) }}
               </div>
             </div>
 
@@ -248,6 +248,7 @@ import {
   calculateProgress,
   formatDate,
 } from '../helpers/activeCoursesConstants';
+import { formatTime12Hour } from '@/components/Affairs/components/AllCourses/helpers/hallScheduleHelper';
 
 const props = defineProps({
   isOpen: {

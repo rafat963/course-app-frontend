@@ -175,7 +175,7 @@
               >
                 <div class="text-[10px] text-slate-400 truncate">{{ CATEGORY_CONFIG[cat]?.label || cat }}</div>
                 <div class="font-mono mt-0.5 font-bold">{{ formatCurrency(price) }}</div>
-                <div v-if="cat === traineeCategory" class="text-[9px] text-primary-600 dark:text-primary-400 mt-0.5">فئتك المعتمدة ✓</div>
+                <div v-if="cat === traineeCategory" class="text-[9px] text-primary-600 dark:text-primary-400 mt-0.5">فئتك المعتمدة</div>
               </div>
             </div>
 

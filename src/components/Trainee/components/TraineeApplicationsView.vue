@@ -110,7 +110,7 @@
               v-if="activeTab === 'PendingPayment'"
               class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-200 border border-emerald-300"
             >
-              مفعّل في العرض حالياً ✓
+              مفعّل في العرض حالياً
             </span>
           </div>
           <p class="text-amber-800/90 dark:text-amber-300/90 leading-relaxed">
@@ -261,7 +261,7 @@
           <div class="font-mono text-xs font-bold text-slate-800 dark:text-slate-100">
             {{ formatCurrency(categoryPrice(row)) }}
             <span v-if="row.paidAmount" class="block text-[10px] text-emerald-600 dark:text-emerald-400 font-sans">
-              (مسدد ✓)
+              (مسدد)
             </span>
           </div>
         </template>

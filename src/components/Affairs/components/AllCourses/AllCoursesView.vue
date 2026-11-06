@@ -204,9 +204,18 @@ import { INITIAL_ARCHIVED_ROUNDS } from '@/components/Affairs/components/Archive
 // الوضع الافتراضي لعرض البيانات: شبكة الكروت أولاً وفق رغبة المستخدم مع إمكانية التبديل للجدول
 const viewMode = ref('grid'); // 'grid' | 'table'
 
-// --- حالة البيانات الرئيسية ---
+// --- حالة البيانات الرئيسية مع الحفظ المحلي ---
+const STORAGE_ROUNDS_KEY = 'affairs_course_rounds_v1';
+const initialStoredRounds = (() => {
+  try {
+    const raw = localStorage.getItem(STORAGE_ROUNDS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return [...INITIAL_COURSE_ROUNDS];
+})();
+
 const courses = ref([...INITIAL_COURSES]);
-const rounds = ref([...INITIAL_COURSE_ROUNDS]);
+const rounds = ref(initialStoredRounds);
 const pastRounds = ref([...INITIAL_ARCHIVED_ROUNDS]);
 const allCombinedRounds = computed(() => [...rounds.value, ...pastRounds.value]);
 const isRefreshing = ref(false);
@@ -389,6 +398,13 @@ function handleOpenCreateRoundFromList(courseId) {
 function handleSaveRound(newRound) {
   rounds.value.unshift(newRound);
 
+  // حفظ الدفعات في التخزين المحلي للاحتفاظ بالحجوزات المستمرة للقاعات
+  try {
+    localStorage.setItem(STORAGE_ROUNDS_KEY, JSON.stringify(rounds.value));
+  } catch (err) {
+    console.error('Failed to save rounds to localStorage:', err);
+  }
+
   // تحديث عداد الدفعات في كورس الكتالوج
   const matchedCourse = courses.value.find((c) => c.id === newRound.courseId);
   if (matchedCourse) {
@@ -399,7 +415,7 @@ function handleSaveRound(newRound) {
   }
 
   showToast(
-    `تم فتح دورة الانعقاد (الدفعة رقم ${newRound.roundNumber}) لدورة "${matchedCourse?.name || ''}" بنجاح!`,
+    `تم فتح دورة الانعقاد (الدفعة رقم ${newRound.roundNumber}) وحجز القاعة بنجاح لدورة "${matchedCourse?.name || ''}"!`,
     'success'
   );
 }

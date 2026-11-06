@@ -397,7 +397,7 @@
               <div>
                 <span class="text-slate-400 text-xs font-bold block">مواعيد المحاضرات اليومية:</span>
                 <div class="font-mono font-bold text-slate-800 dark:text-slate-200">
-                  من {{ round.startTime }} إلى {{ round.endTime }} ({{ lectureDuration }})
+                  من {{ formatTime12Hour(round.startTime) }} إلى {{ formatTime12Hour(round.endTime) }} ({{ lectureDuration }})
                 </div>
               </div>
 

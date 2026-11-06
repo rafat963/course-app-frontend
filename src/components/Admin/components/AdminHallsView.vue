@@ -28,6 +28,14 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <RouterLink
+          to="/admin/halls-schedule"
+          class="h-9 px-3.5 rounded-xl border border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-950/70 hover:bg-primary-100 dark:hover:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-2xs"
+        >
+          <CalendarDays class="w-3.5 h-3.5" />
+          <span>الجدول الشهري لإشغال القاعات</span>
+        </RouterLink>
+
         <button
           type="button"
           class="h-9 px-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -299,6 +307,15 @@
         <!-- الإجراءات -->
         <template #actions="{ row }">
           <div class="flex items-center justify-center gap-1.5">
+            <RouterLink
+              :to="{ path: '/admin/halls-schedule', query: { hallId: row.id } }"
+              class="h-8 px-2.5 rounded-lg bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/60 dark:hover:bg-primary-900/60 text-primary-700 dark:text-primary-300 border border-primary-200/80 dark:border-primary-800 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+              title="عرض الجدول الشهري ومواعيد إشغال هذه القاعة"
+            >
+              <CalendarDays class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />
+              <span>الجدول الشهري</span>
+            </RouterLink>
+
             <button
               type="button"
               class="h-8 px-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
@@ -317,7 +334,7 @@
                   ? 'bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/50 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/80'
                   : 'bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/80'
               "
-              @click="toggleStatus(hall)"
+              @click="toggleStatus(row)"
             >
               <span>{{ row.isActive ? 'تعطيل' : 'تفعيل' }}</span>
             </button>
@@ -438,6 +455,15 @@
             </span>
 
             <div class="flex items-center gap-1.5">
+              <RouterLink
+                :to="{ path: '/admin/halls-schedule', query: { hallId: hall.id } }"
+                class="h-8 px-2.5 rounded-lg bg-primary-50 hover:bg-primary-100 dark:bg-primary-950/60 dark:hover:bg-primary-900/60 text-primary-700 dark:text-primary-300 border border-primary-200/80 dark:border-primary-800 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
+                title="عرض الجدول الشهري ومواعيد إشغال هذه القاعة"
+              >
+                <CalendarDays class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />
+                <span>الجدول الشهري</span>
+              </RouterLink>
+
               <button
                 type="button"
                 class="h-8 px-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs"
@@ -539,6 +565,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { RouterLink } from 'vue-router';
 import {
   Building2,
   Users,
@@ -549,6 +576,7 @@ import {
   Edit,
   RotateCcw,
   X,
+  CalendarDays,
 } from 'lucide-vue-next';
 
 // استيراد مكونات الـ UI المشتركة
@@ -560,55 +588,10 @@ import BaseInput from '@/shared/ui/Inputs/BaseInput.vue';
 import BaseModal from '@/shared/ui/Modals/BaseModal.vue';
 import ViewModeToggle from '@/shared/ui/Buttons/ViewModeToggle.vue';
 import Select from 'primevue/select';
+import { INITIAL_HALLS } from '@/components/Affairs/components/AllCourses/helpers/courseMockData';
 
-// بيانات القاعات الدراسية فقط (تم استبعاد المعامل وحصرها بالقاعات)
-const halls = ref([
-  {
-    id: 1,
-    name: 'قاعة 1 (المدرج العام)',
-    type: 'Hall',
-    maxCapacity: 40,
-    currentOccupancy: 32,
-    location: 'المبنى الرئيسي - الدور الأول',
-    isActive: true,
-  },
-  {
-    id: 2,
-    name: 'قاعة 2 (محاضرات تخصصية)',
-    type: 'Hall',
-    maxCapacity: 25,
-    currentOccupancy: 20,
-    location: 'المبنى الرئيسي - الدور الأول',
-    isActive: true,
-  },
-  {
-    id: 3,
-    name: 'قاعة 3 (الندوات والمناقشات)',
-    type: 'Hall',
-    maxCapacity: 35,
-    currentOccupancy: 24,
-    location: 'المبنى الإداري - الدور الثاني',
-    isActive: true,
-  },
-  {
-    id: 4,
-    name: 'المدرج الرئيسي للمؤتمرات',
-    type: 'Hall',
-    maxCapacity: 80,
-    currentOccupancy: 55,
-    location: 'المبنى الإداري - الدور الأرضي',
-    isActive: true,
-  },
-  {
-    id: 5,
-    name: 'قاعة 4 (محاضرات عامة)',
-    type: 'Hall',
-    maxCapacity: 30,
-    currentOccupancy: 0,
-    location: 'مبنى التطوير - الدور الثاني',
-    isActive: false,
-  },
-]);
+// بيانات القاعات والمعامل التدريبية المعتمدة وفق الـ ERD
+const halls = ref([...INITIAL_HALLS]);
 
 // حالة الفلترة والتنقل
 const isRefreshing = ref(false);

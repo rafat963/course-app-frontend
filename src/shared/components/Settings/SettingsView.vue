@@ -513,7 +513,7 @@
                   class="text-[10.5px] font-bold"
                   :class="passwordsMatch ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'"
                 >
-                  {{ passwordsMatch ? '✓ متطابقتان' : '✗ غير متطابقتين' }}
+                  {{ passwordsMatch ? 'متطابقتان' : 'غير متطابقتين' }}
                 </span>
               </label>
               <div class="relative">

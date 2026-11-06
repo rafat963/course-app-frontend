@@ -204,7 +204,7 @@ function onNationalIdInput() {
   if (result) {
     form.value.dateOfBirth = result.dateOfBirth;
     form.value.gender = result.gender;
-    extractedInfoNotice.value = '✓ تم استخراج تاريخ الميلاد والنوع تلقائياً';
+    extractedInfoNotice.value = 'تم استخراج تاريخ الميلاد والنوع تلقائياً';
   }
 }
 

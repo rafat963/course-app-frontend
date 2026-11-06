@@ -97,7 +97,7 @@
             <span class="flex items-center gap-1.5">
               <Clock class="w-4 h-4 text-primary-600 dark:text-primary-400 shrink-0" />
               <span>التوقيت:</span>
-              <strong class="text-slate-800 dark:text-slate-200">{{ application.courseRound?.startTime }} إلى {{ application.courseRound?.endTime }}</strong>
+              <strong class="text-slate-800 dark:text-slate-200">{{ formatTime12Hour(application.courseRound?.startTime) }} إلى {{ formatTime12Hour(application.courseRound?.endTime) }}</strong>
             </span>
             <span class="flex items-center gap-1.5">
               <Calendar class="w-4 h-4 text-primary-600 dark:text-primary-400 shrink-0" />

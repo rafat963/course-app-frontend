@@ -671,11 +671,13 @@
               <Eye v-else class="w-4 h-4" />
             </button>
           </div>
-          <p v-if="confirmPassword && !isPasswordMatching" class="text-[11px] text-rose-500 font-bold mt-1">
-            ⚠️ كلمة المرور وتأكيدها غير متطابقين.
+          <p v-if="confirmPassword && !isPasswordMatching" class="text-[11px] text-rose-500 font-bold mt-1 flex items-center gap-1">
+            <AlertCircle class="w-3.5 h-3.5" />
+            <span>كلمة المرور وتأكيدها غير متطابقين.</span>
           </p>
-          <p v-else-if="confirmPassword && isPasswordMatching" class="text-[11px] text-emerald-600 font-bold mt-1">
-            ✓ كلمتا المرور متطابقتان.
+          <p v-else-if="confirmPassword && isPasswordMatching" class="text-[11px] text-emerald-600 font-bold mt-1 flex items-center gap-1">
+            <CheckCircle2 class="w-3.5 h-3.5" />
+            <span>كلمتا المرور متطابقتان.</span>
           </p>
         </div>
 
@@ -756,6 +758,8 @@ import {
   EyeOff,
   Trash2,
   AlertTriangle,
+  AlertCircle,
+  CheckCircle2,
   Phone,
 } from 'lucide-vue-next';
 

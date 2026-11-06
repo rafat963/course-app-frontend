@@ -84,7 +84,7 @@
             بإجمالي عدد ساعات تدريبية معتمدة <strong class="font-bold">{{ course.totalHours }} ساعة</strong> في الفترة من <span class="font-mono">{{ course.startDate }}</span> إلى <span class="font-mono">{{ course.endDate }}</span>
             وقد اجتاز الاختبارات النهائية بنجاح وحصل على تقدير عام:
             <div class="mt-2 text-base font-black text-emerald-800">
-              ★ {{ course.grade }} بنسبة نجاح ({{ course.gradeScore }}) ★
+              {{ course.grade }} بنسبة نجاح ({{ course.gradeScore }})
             </div>
           </div>
 

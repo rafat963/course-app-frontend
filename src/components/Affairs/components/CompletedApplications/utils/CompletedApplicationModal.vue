@@ -128,7 +128,7 @@
             </div>
             <div>
               <span class="text-slate-500 dark:text-slate-400 block text-xs sm:text-sm font-medium">توقيت المحاضرة:</span>
-              <span class="font-mono font-bold text-sm sm:text-base">{{ application.courseRound?.startTime?.slice(0, 5) }} - {{ application.courseRound?.endTime?.slice(0, 5) }}</span>
+              <span class="font-mono font-bold text-sm sm:text-base">{{ formatTime12Hour(application.courseRound?.startTime) }} - {{ formatTime12Hour(application.courseRound?.endTime) }}</span>
             </div>
           </div>
         </div>

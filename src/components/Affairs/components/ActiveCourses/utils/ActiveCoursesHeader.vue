@@ -35,7 +35,7 @@
             class="w-1.5 h-1.5 rounded-full"
             :class="todayLecturesCount > 0 ? 'bg-amber-500 animate-pulse' : 'bg-slate-400'"
           ></span>
-          <span>{{ todayLecturesCount }} محاضرة مجدولة اليوم 📍</span>
+          <span>{{ todayLecturesCount }} محاضرة مجدولة اليوم</span>
         </span>
       </div>
 

@@ -95,7 +95,7 @@
           </div>
           <div>
             <span class="font-bold text-slate-700 dark:text-slate-300">التوقيت: </span>
-            <span class="font-mono">{{ round.startTime }} — {{ round.endTime }}</span>
+            <span class="font-mono">{{ formatTimeRange(round.startTime, round.endTime) }}</span>
             <span class="text-slate-400 mr-1">({{ lectureDuration }})</span>
           </div>
         </div>
@@ -180,6 +180,7 @@ import {
 } from 'lucide-vue-next';
 import {
   formatLectureDays,
+  formatTimeRange,
   formatDateAr,
   formatSubmissionDate,
   calcLectureDuration,

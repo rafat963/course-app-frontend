@@ -93,6 +93,12 @@ export const INITIAL_ROUND_FORM = {
   startTime: '09:00',
   endTime: '13:00',
   lectureDays: ['Sat', 'Mon', 'Wed'],
+  isCustomDayTiming: false,
+  daySchedules: {
+    Sat: { startTime: '09:00', endTime: '13:00' },
+    Mon: { startTime: '09:00', endTime: '13:00' },
+    Wed: { startTime: '09:00', endTime: '13:00' },
+  },
   status: 'Available',
 };
 

@@ -215,7 +215,7 @@
               <span>•</span>
               <span>المحاضر: <strong class="text-slate-700 dark:text-slate-200 font-sans">{{ selectedTimelineCourse.round.instructor.name }}</strong></span>
               <span>•</span>
-              <span>الموعد: {{ selectedTimelineCourse.round.startTime }} — {{ selectedTimelineCourse.round.endTime }}</span>
+              <span>الموعد: {{ formatTimeRange(selectedTimelineCourse.round.startTime, selectedTimelineCourse.round.endTime) }}</span>
             </div>
           </div>
 
@@ -519,6 +519,7 @@ import {
   WEEK_DAYS,
   formatDateDmy,
   formatDateLong,
+  formatTimeRange,
   getNextLecture,
   buildWeeklySchedule,
   getCourseProgress,

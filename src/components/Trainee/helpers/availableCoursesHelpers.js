@@ -93,6 +93,33 @@ export function formatSubmissionDate(value) {
 }
 
 /**
+ * تحويل الوقت بصيغة 24 ساعة إلى 12 ساعة بالعربية (ص / م)
+ * @param {string} time24
+ * @returns {string}
+ */
+export function formatTime12Hour(time24) {
+  if (!time24) return '';
+  const parts = String(time24).split(':');
+  let h = parseInt(parts[0], 10) || 0;
+  const m = parts[1] || '00';
+  const period = h >= 12 ? 'م' : 'ص';
+  if (h === 0) h = 12;
+  else if (h > 12) h -= 12;
+  return `${String(h).padStart(2, '0')}:${m} ${period}`;
+}
+
+/**
+ * تنسيق المدى الزمني للمحاضرة بالعربية 12 ساعة (ص / م)
+ * @param {string} startTime
+ * @param {string} endTime
+ * @returns {string}
+ */
+export function formatTimeRange(startTime, endTime) {
+  if (!startTime || !endTime) return '';
+  return `${formatTime12Hour(startTime)} — ${formatTime12Hour(endTime)}`;
+}
+
+/**
  * حساب مدة المحاضرة بالساعات
  * @param {string} startTime
  * @param {string} endTime

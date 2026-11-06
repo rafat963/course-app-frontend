@@ -57,14 +57,14 @@
                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shadow-2xs"
               >
                 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                <span>مفتوحة للتسجيل 📝</span>
+                <span>مفتوحة للتسجيل</span>
               </span>
               <span
                 v-else-if="row.status === 'Ongoing'"
                 class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs sm:text-sm font-bold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 shadow-2xs"
               >
                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>جارية حالياً 🟢</span>
+                <span>جارية حالياً</span>
               </span>
 
               <span
@@ -72,7 +72,7 @@
                 class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs sm:text-sm font-bold bg-amber-50 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shadow-2xs"
               >
                 <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                <span>محاضرة اليوم 📍</span>
+                <span>محاضرة اليوم</span>
               </span>
             </div>
           </div>
@@ -115,7 +115,7 @@
               <CalendarDays class="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
               <span>{{ formatDays(row.lectureDays) }}</span>
               <span class="text-slate-400">|</span>
-              <span class="font-mono text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400">{{ row.startTime }}</span>
+              <span class="font-mono text-xs sm:text-sm font-bold text-amber-600 dark:text-amber-400">{{ formatTime12Hour(row.startTime) }}</span>
             </span>
           </div>
         </div>
@@ -248,6 +248,7 @@ import {
   formatDate,
   getDaysUntilStart,
 } from '../helpers/activeCoursesConstants';
+import { formatTime12Hour } from '@/components/Affairs/components/AllCourses/helpers/hallScheduleHelper';
 
 defineProps({
   rounds: {

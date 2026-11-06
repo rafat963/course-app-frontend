@@ -1,4 +1,4 @@
-import { Users, Building2, ShieldCheck } from 'lucide-vue-next';
+import { Users, Building2, CalendarDays, ShieldCheck } from 'lucide-vue-next';
 
 export const adminNav = [
   {
@@ -13,6 +13,11 @@ export const adminNav = [
         label: 'القاعات والمعامل التدريبية',
         path: '/admin/halls',
         icon: Building2,
+      },
+      {
+        label: 'الجدول الشهري لإشغال القاعات',
+        path: '/admin/halls-schedule',
+        icon: CalendarDays,
       },
       // {
       //   label: 'سجل تدقيق وحركات البوابة',

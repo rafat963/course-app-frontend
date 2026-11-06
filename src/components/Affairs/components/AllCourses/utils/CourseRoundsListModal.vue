@@ -118,7 +118,7 @@
                   </div>
                   <div class="text-slate-500 dark:text-slate-400 text-xs font-mono mt-0.5 flex items-center gap-1 font-bold">
                     <Clock class="w-3.5 h-3.5 text-amber-500" />
-                    <span>من {{ round.startTime }} إلى {{ round.endTime }}</span>
+                    <span>من {{ formatTime12Hour(round.startTime) }} إلى {{ formatTime12Hour(round.endTime) }}</span>
                   </div>
                 </td>
 
@@ -202,6 +202,7 @@ import {
   formatDate,
   formatLectureDays,
 } from '../helpers/courseConstants';
+import { formatTime12Hour } from '../helpers/hallScheduleHelper';
 
 const props = defineProps({
   isOpen: {

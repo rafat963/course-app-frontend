@@ -109,7 +109,7 @@
           <!-- ملخص المهلة المفتوحة -->
           <div class="p-3 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 text-xs space-y-1">
             <div class="font-bold text-emerald-800 dark:text-emerald-300">
-              📌 ملخص المهلة: متاح للمتدرب السداد في الخزينة في أي وقت خلال ({{ computedDaysText }}) وحتى نهاية يوم {{ formatSelectedDueDate || dueDate }}.
+              ملخص المهلة: متاح للمتدرب السداد في الخزينة في أي وقت خلال ({{ computedDaysText }}) وحتى نهاية يوم {{ formatSelectedDueDate || dueDate }}.
             </div>
             <p class="text-emerald-700/90 dark:text-emerald-400/90 leading-relaxed">
               لا يلزم المتدرب الحضور في يوم محدد، بل يحق له السداد في أي وقت قبل انتهاء المهلة.
