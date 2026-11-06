@@ -195,6 +195,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import {
   LayoutGrid,
   Search,
@@ -210,14 +211,15 @@ import ApplyConfirmModal from './ApplyConfirmModal.vue';
 import AppPagination from '@/shared/ui/Table/AppPagination.vue';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
 import { useNotificationsStore } from '@/shared/stores/notificationsStore';
-import { AVAILABLE_ROUNDS, TRAINEE_MOCK_PROFILE } from '../helpers/availableCoursesMockData';
-import { TRAINEE_APPLICATIONS } from '../helpers/traineePortalMockData';
-import { CATEGORY_CONFIG } from '../helpers/availableCoursesHelpers';
-import { useTraineeApplicationsStore } from '../stores/traineeApplicationsStore';
+import { AVAILABLE_ROUNDS, TRAINEE_MOCK_PROFILE } from '../../helpers/availableCoursesMockData';
+import { TRAINEE_APPLICATIONS } from '../../helpers/traineePortalMockData';
+import { CATEGORY_CONFIG } from '../../helpers/availableCoursesHelpers';
+import { useTraineeApplicationsStore } from '../../stores/traineeApplicationsStore';
 
 // ============================================================
-// المتاجر: المصادقة، الإشعارات، طلبات المتدرب
+// المتاجر: المصادقة، الإشعارات، طلبات المتدرب والراوتر
 // ============================================================
+const router = useRouter();
 const authStore = useAuthStore();
 const notificationsStore = useNotificationsStore();
 const applicationsStore = useTraineeApplicationsStore();
@@ -268,32 +270,36 @@ const applicationsByRound = computed(() => {
 });
 
 // ============================================================
-// فلاتر وبحث
+// فلاتر وبحث — استبعاد الدورات مكتملة المقاعد تلقائياً
 // ============================================================
 const searchQuery = ref('');
 const activeTab = ref('all');
 
+/** التحقق هل الدورة مكتملة السعة */
+function isRoundFull(r) {
+  if (!r) return false;
+  return r.status === 'Full' || (r.capacity > 0 && (r.enrolledCount || 0) >= r.capacity);
+}
+
 const tabOptions = computed(() => [
-  { value: 'all', label: 'الكل', count: rounds.value.length },
+  {
+    value: 'all',
+    label: 'الكل المتاح',
+    count: rounds.value.filter((r) => !isRoundFull(r)).length,
+  },
   {
     value: 'available',
     label: 'متاحة للتقديم',
-    count: rounds.value.filter((r) => r.status === 'Available').length,
-  },
-  {
-    value: 'full',
-    label: 'مكتملة المقاعد',
-    count: rounds.value.filter((r) => r.status === 'Full').length,
+    count: rounds.value.filter((r) => r.status === 'Available' && !isRoundFull(r)).length,
   },
 ]);
 
 const filteredRounds = computed(() => {
-  let list = rounds.value;
+  // إخفاء الدورات المكتملة تماماً ليظهر فقط الدورات الشاغرة
+  let list = rounds.value.filter((r) => !isRoundFull(r));
 
   if (activeTab.value === 'available') {
     list = list.filter((r) => r.status === 'Available');
-  } else if (activeTab.value === 'full') {
-    list = list.filter((r) => r.status === 'Full');
   }
 
   const query = searchQuery.value.trim().toLowerCase();
@@ -354,36 +360,39 @@ function handleOpenApply(round) {
 }
 
 // ============================================================
-// معالجة تأكيد التقديم السريع
+// معالجة تأكيد التقديم السريع مع إشعار فوري والانتقال لمتابعة الطلبات
 // ============================================================
 function handleApplicationSubmitted(payload) {
-  const { round, qualification, qualificationPhotoPath, note, applicationCode } = payload;
+  const targetRound = payload.round || selectedRound.value;
+  if (!targetRound) return;
+
+  const { qualification, qualificationPhotoPath, note, applicationCode } = payload;
 
   const newApp = {
-    courseRoundId: round.id,
+    courseRoundId: targetRound.id,
     applicationCode,
     status: 'UnderReview',
-    qualificationPhotoPath,
+    qualificationPhotoPath: qualificationPhotoPath || traineeProfile.value.qualificationPhotoPath || null,
     createdAt: new Date().toISOString(),
     round: {
-      courseRoundId: round.id,
-      courseName: round.courseName,
-      courseCode: round.courseCode,
-      courseDomain: round.courseDomain,
-      roundNumber: round.roundNumber,
-      roundCode: round.roundCode,
-      startDate: round.startDate,
-      endDate: round.endDate,
-      startTime: round.startTime,
-      endTime: round.endTime,
-      lectureDays: round.lectureDays,
-      totalLectures: round.totalLectures,
-      passingGrade: round.passingGrade,
-      capacity: round.capacity,
-      enrolledCount: (round.enrolledCount || 0) + 1,
-      hall: round.hall,
-      instructor: round.instructor,
-      pricings: round.pricings,
+      courseRoundId: targetRound.id,
+      courseName: targetRound.courseName,
+      courseCode: targetRound.courseCode,
+      courseDomain: targetRound.courseDomain,
+      roundNumber: targetRound.roundNumber,
+      roundCode: targetRound.roundCode,
+      startDate: targetRound.startDate,
+      endDate: targetRound.endDate,
+      startTime: targetRound.startTime,
+      endTime: targetRound.endTime,
+      lectureDays: targetRound.lectureDays,
+      totalLectures: targetRound.totalLectures,
+      passingGrade: targetRound.passingGrade,
+      capacity: targetRound.capacity,
+      enrolledCount: (targetRound.enrolledCount || 0) + 1,
+      hall: targetRound.hall,
+      instructor: targetRound.instructor,
+      pricings: targetRound.pricings,
     },
   };
 
@@ -397,25 +406,18 @@ function handleApplicationSubmitted(payload) {
 
   applicationsStore.addApplication(newApp, audit);
 
-  notificationsStore.addNotification({
-    title: 'تم استلام طلب التقديم',
-    message: `تم تسجيل طلبك للدورة "${round.courseName}" برقم كود (${applicationCode}). الطلب قيد مراجعة الشؤون.`,
-    category: 'system',
-    priority: 'normal',
-    isRead: false,
-    isStarred: false,
-    createdAt: 'الآن',
-    sender: 'منظومة إدارة الدورات',
-    link: '/trainee/applications',
-    actionLabel: 'متابعة الطلب',
-    referenceId: applicationCode,
+  // 1. إشعار المتدرب الرسمي بالتقديم الناجح (المتطلب 4)
+  notificationsStore.notifyTraineeRegistered({
+    courseName: targetRound.courseName,
+    applicationCode,
   });
 
+  // 2. إشعار شؤون الدارسين بورود طلب جديد
   const affairsNotification = notificationsStore.notifyAffairsNewApplication({
     applicationCode,
     traineeName: traineeProfile.value.fullName,
-    courseName: round.courseName,
-    roundCode: round.roundCode,
+    courseName: targetRound.courseName,
+    roundCode: targetRound.roundCode,
   });
 
   notificationsStore.addNotification({
@@ -432,7 +434,13 @@ function handleApplicationSubmitted(payload) {
     referenceId: applicationCode,
   });
 
-  showToast(`تم إرسال طلبك بنجاح! كود الطلب: ${applicationCode} — قيد المراجعة`, 'success');
+  showToast(`تم إرسال طلبك بنجاح! كود الطلب: ${applicationCode} — جاري نقلك لصفحة متابعة الطلبات...`, 'success');
+
+  // 3. الانتقال التلقائي لصفحة "متابعة طلباتي" لرؤية الطلب فوراً (المتطلب 1)
+  setTimeout(() => {
+    isApplyModalOpen.value = false;
+    router.push('/trainee/applications');
+  }, 1200);
 }
 
 // ============================================================

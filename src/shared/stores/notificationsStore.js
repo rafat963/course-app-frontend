@@ -161,6 +161,82 @@ export const useNotificationsStore = defineStore('notifications', () => {
     }
   }
 
+  function addNotification(notif) {
+    const newId = notifications.value.length
+      ? Math.max(...notifications.value.map((n) => n.id || 0)) + 1
+      : 1;
+    const fullNotif = {
+      id: newId,
+      createdAt: 'الآن',
+      isRead: false,
+      isStarred: false,
+      category: 'system',
+      priority: 'normal',
+      ...notif,
+    };
+    notifications.value.unshift(fullNotif);
+    persist();
+    return fullNotif;
+  }
+
+  function notifyAffairsNewApplication({ applicationCode, traineeName, courseName, roundCode }) {
+    return {
+      title: `طلب تقديم جديد على دورة: ${courseName}`,
+      message: `تقدّم المتدرب ${traineeName} للدورة "${courseName}" (${roundCode || ''}) برقم كود (${applicationCode}). في انتظار المراجعة والاعتماد.`,
+      category: 'affairs',
+      priority: 'important',
+      referenceId: applicationCode,
+    };
+  }
+
+  function notifyTraineeRegistered({ courseName, applicationCode }) {
+    return addNotification({
+      title: 'لقد سجلت بنجاح في الدورة',
+      message: `لقد سجلت بنجاح في دورة "${courseName}" برقم كود (${applicationCode}). يمكنك متابعة حالة الطلب وموعد السداد.`,
+      category: 'courses',
+      priority: 'success',
+      link: '/trainee/applications',
+      actionLabel: 'متابعة الطلب',
+      referenceId: applicationCode,
+    });
+  }
+
+  function notifyPaymentDue({ courseName, applicationCode, dueDate, amount }) {
+    return addNotification({
+      title: 'تنبيه استحقاق سداد رسوم الدورة',
+      message: `يرجى سداد رسوم دورة "${courseName}" المستحقة (${amount ? amount + ' ج.م' : ''}) قبل انقضاء المهلة في ${dueDate || 'الموعد المحدد'} لتأكيد حجز المقعد.`,
+      category: 'finance',
+      priority: 'urgent',
+      link: '/trainee/applications',
+      actionLabel: 'سداد الرسوم',
+      referenceId: applicationCode,
+    });
+  }
+
+  function notifyStatusChange({ courseName, applicationCode, status, reason }) {
+    if (status === 'Enrolled') {
+      return addNotification({
+        title: 'تم اعتماد قيدك بالدورة بنجاح',
+        message: `تم اعتماد تسجيلك وسداد الرسوم لدورة "${courseName}". تم تفعيل تصريح الدخول بالبوابة (QR) والجدول الدراسي.`,
+        category: 'courses',
+        priority: 'success',
+        link: '/trainee/passes',
+        actionLabel: 'عرض تصريح QR',
+        referenceId: applicationCode,
+      });
+    } else if (status === 'Rejected') {
+      return addNotification({
+        title: 'تحديث بشأن طلب التقديم (مرفوض)',
+        message: `نعتذر عن عدم قبول طلبك لدورة "${courseName}". ${reason ? 'السبب: ' + reason : ''}`,
+        category: 'system',
+        priority: 'important',
+        link: '/trainee/courses',
+        actionLabel: 'تصفح دورات بديلة',
+        referenceId: applicationCode,
+      });
+    }
+  }
+
   function deleteNotification(id) {
     notifications.value = notifications.value.filter((n) => n.id !== id);
     persist();
@@ -180,6 +256,11 @@ export const useNotificationsStore = defineStore('notifications', () => {
     notifications,
     unreadCount,
     urgentCount,
+    addNotification,
+    notifyAffairsNewApplication,
+    notifyTraineeRegistered,
+    notifyPaymentDue,
+    notifyStatusChange,
     markAsRead,
     markAsUnread,
     markAllAsRead,

@@ -22,7 +22,8 @@ export const TRAINEE_MOCK_PROFILE = {
 };
 
 /**
- * الدورات المتاحة للتقديم - قائمة منقحة ومركزة تجمع بيانات الدورات والقاعات والأسعار
+ * الدورات المتاحة للتقديم - قائمة منقحة وواقعية مطابقة لنموذج الـ ERD
+ * تم استبعاد الكورسات الوهمية وغير المطلوبة (مثل دورة تدريبية، تحليل البيانات المتقدم، إدارة المشروعات الاحترافية)
  * @type {Array<Object>}
  */
 export const AVAILABLE_ROUNDS = [
@@ -60,7 +61,7 @@ export const AVAILABLE_ROUNDS = [
     lastApplicationDate: '2026-11-14',
     startTime: '09:00',
     endTime: '13:00',
-    lectureDays: ['Sat', 'Mon', 'Wed'],
+    lectureDays: ['Sat', 'Mon'], // يومان أسبوعياً
     status: 'Available',
     totalLectures: 16,
     pricings: {
@@ -72,97 +73,52 @@ export const AVAILABLE_ROUNDS = [
   },
 
   // ==========================================
-  // 2. تحليل البيانات Python & Power BI - الدفعة 9 (متاحة)
+  // 2. تطوير تطبيقات الويب Full Stack - الدفعة 8 (متاحة)
   // ==========================================
   {
-    id: 202,
-    courseId: 2,
-    courseCode: 'CRS-DATA-02',
-    courseName: 'تحليل البيانات المتقدم باستخدام Python و Power BI',
-    courseDomain: 'تحليل البيانات',
+    id: 204,
+    courseId: 5,
+    courseCode: 'CRS-WEB-05',
+    courseName: 'تطوير تطبيقات الويب المتكاملة Full Stack (Vue & Node.js)',
+    courseDomain: 'تطوير الويب',
     courseDescription:
-      'معالجة البيانات الضخمة، النمذجة الإحصائية، بناء لوحات التحكم التفاعلية، واستخراج المؤشرات الاستراتيجية لصناع القرار. يشمل: Pandas, NumPy, Power BI Desktop، والتحليل التنبؤي المتقدم.',
-    totalHours: 50,
+      'بناء تطبيقات الويب الحديثة والمؤسسية باستخدام Vue.js 3 و Node.js و Express مع قواعد البيانات وتأمين واجهات برمجة التطبيقات RESTful APIs ونشرها سحابياً.',
+    totalHours: 64,
     passingGrade: 65,
-    roundNumber: 9,
-    roundCode: 'CR-2-9',
+    roundNumber: 8,
+    roundCode: 'CR-5-8',
     instructor: {
-      id: 2,
-      name: 'م. سارة محمود عزت',
-      specialty: 'تحليل البيانات وذكاء الأعمال - Power BI, Python',
+      id: 5,
+      name: 'د. ياسمين خالد سالم',
+      specialty: 'تطوير تطبيقات الويب Full Stack - Vue, React, Node',
     },
     hall: {
-      id: 2,
-      name: 'معمل الذكاء الاصطناعي وتحليل البيانات (معمل 2)',
-      location: 'المبنى التقني - الطابق الثاني',
+      id: 3,
+      name: 'معمل البرمجيات وتطوير الويب (معمل 3)',
+      location: 'المبنى التقني - الطابق الثالث',
       type: 'Lab',
       maxCapacity: 28,
     },
-    capacity: 26,
-    enrolledCount: 11,
-    startDate: '2026-11-30',
-    endDate: '2027-01-15',
-    lastApplicationDate: '2026-11-22',
-    startTime: '10:00',
-    endTime: '14:00',
-    lectureDays: ['Sun', 'Tue', 'Thu'],
+    capacity: 28,
+    enrolledCount: 14,
+    startDate: '2026-11-25',
+    endDate: '2027-01-08',
+    lastApplicationDate: '2026-11-18',
+    startTime: '17:00',
+    endTime: '21:00',
+    lectureDays: ['Sun', 'Tue'], // يومان أسبوعياً
     status: 'Available',
-    totalLectures: 18,
+    totalLectures: 16,
     pricings: {
-      Civilian: 3800,
-      MilitaryOfficer: 1900,
-      MilitaryFamily: 2300,
-      PoliceOfficerOrFamily: 2500,
+      Civilian: 4000,
+      MilitaryOfficer: 2000,
+      MilitaryFamily: 2400,
+      PoliceOfficerOrFamily: 2600,
     },
   },
 
   // ==========================================
-  // 3. إدارة المشروعات PMP - الدفعة 22 (متاحة)
-  // ==========================================
-  {
-    id: 203,
-    courseId: 3,
-    courseCode: 'CRS-PMP-03',
-    courseName: 'إدارة المشروعات الاحترافية PMP الإصدار السابع',
-    courseDomain: 'إدارة مشروعات',
-    courseDescription:
-      'المنهجية الاحترافية العالمية لإدارة المشروعات وفق PMI الإصدار السابع، إدارة المخاطر، الجداول الزمنية، الميزانيات، ونماذج العمل الرشيقة Agile & Hybrid. شامل للتأهيل لاجتياز شهادة PMP الدولية.',
-    totalHours: 45,
-    passingGrade: 60,
-    roundNumber: 22,
-    roundCode: 'CR-3-22',
-    instructor: {
-      id: 3,
-      name: 'د. أحمد كمال الدين الشريف',
-      specialty: 'إدارة مشروعات احترافية - PMP, PMI-ACP, Agile',
-    },
-    hall: {
-      id: 5,
-      name: 'قاعة إدارة الأعمال والمشروعات (قاعة ب)',
-      location: 'المبنى الإداري - الدور الثاني',
-      type: 'Hall',
-      maxCapacity: 35,
-    },
-    capacity: 32,
-    enrolledCount: 19,
-    startDate: '2026-12-07',
-    endDate: '2027-01-28',
-    lastApplicationDate: '2026-11-30',
-    startTime: '09:00',
-    endTime: '13:00',
-    lectureDays: ['Sun', 'Tue', 'Thu'],
-    status: 'Available',
-    totalLectures: 18,
-    pricings: {
-      Civilian: 4500,
-      MilitaryOfficer: 2250,
-      MilitaryFamily: 2700,
-      PoliceOfficerOrFamily: 2900,
-    },
-  },
-
-  // ==========================================
-  // 4. شبكات Cisco CCNA - الدفعة 12 (مكتملة المقاعد)
+  // 3. إدارة الشبكات المتقدمة Cisco CCNA - الدفعة 14 (متاحة)
   // ==========================================
   {
     id: 205,
@@ -171,33 +127,33 @@ export const AVAILABLE_ROUNDS = [
     courseName: 'إدارة الشبكات المتقدمة Cisco CCNA 200-301',
     courseDomain: 'شبكات وسحابة',
     courseDescription:
-      'بناء وإدارة البنية التحتية للشبكات المؤسسية، بروتوكولات التوجيه والتبديل، أمن المنافذ وجدران الحماية، والتحكم في الشبكات المعرفة برمجياً SDN. تأهيل لاجتياز CCNA 200-301.',
+      'بناء وإدارة البنية التحتية للشبكات المؤسسية، بروتوكولات التوجيه والتبديل، أمن المنافذ وجدران الحماية، والتحكم في الشبكات المعرفة برمجياً SDN.',
     totalHours: 60,
     passingGrade: 70,
-    roundNumber: 12,
-    roundCode: 'CR-4-12',
+    roundNumber: 14,
+    roundCode: 'CR-4-14',
     instructor: {
       id: 4,
       name: 'م. مصطفى الشناوي',
       specialty: 'شبكات وسحابة إلكترونية - CCNA, CCNP, AWS',
     },
     hall: {
-      id: 6,
+      id: 4,
       name: 'معمل النظم والشبكات المتطورة (معمل 4)',
       location: 'المبنى التقني - الطابق الأول',
       type: 'Lab',
-      maxCapacity: 22,
+      maxCapacity: 24,
     },
-    capacity: 20,
-    enrolledCount: 20,
-    startDate: '2026-11-15',
-    endDate: '2027-01-10',
-    lastApplicationDate: '2026-11-08',
+    capacity: 22,
+    enrolledCount: 10,
+    startDate: '2026-12-01',
+    endDate: '2027-01-20',
+    lastApplicationDate: '2026-11-24',
     startTime: '16:00',
     endTime: '20:00',
-    lectureDays: ['Sat', 'Mon', 'Wed'],
-    status: 'Full',
-    totalLectures: 20,
+    lectureDays: ['Mon', 'Wed'], // يومان أسبوعياً
+    status: 'Available',
+    totalLectures: 16,
     pricings: {
       Civilian: 3500,
       MilitaryOfficer: 1750,
