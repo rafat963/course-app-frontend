@@ -103,7 +103,7 @@
               <div class="w-full h-full rounded-full bg-slate-800 overflow-hidden flex items-center justify-center">
                 <img
                   v-if="profileForm.profilePhotoPath"
-                  :src="profileForm.profilePhotoPath"
+                  :src="resolveImageUrl(profileForm.profilePhotoPath)"
                   alt="الصورة الشخصية"
                   class="w-full h-full object-cover"
                 />
@@ -243,9 +243,42 @@
           </span>
         </div>
 
-        <form @submit.prevent="handleSaveProfile" class="space-y-8">
+        
+        <!-- Sub-sections Horizontal Stepper Pills (Scroll-free Tabbed Workflow) -->
+        <div class="mb-6 pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <button
+              v-for="(sec, idx) in personalSections"
+              :key="sec.id"
+              type="button"
+              @click="activePersonalSection = sec.id"
+              class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer border"
+              :class="[
+                activePersonalSection === sec.id
+                  ? 'bg-primary-600 text-white border-primary-600 shadow-sm shadow-primary-600/30 font-black'
+                  : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white'
+              ]"
+            >
+              <span
+                class="w-5 h-5 rounded-lg flex items-center justify-center text-[10.5px] font-mono font-bold"
+                :class="activePersonalSection === sec.id ? 'bg-white/20 text-white' : 'bg-slate-200/80 dark:bg-slate-700 text-slate-600 dark:text-slate-400'"
+              >
+                {{ idx + 1 }}
+              </span>
+              <component :is="sec.icon" class="w-4 h-4 shrink-0" />
+              <span>{{ sec.label }}</span>
+              <span
+                v-if="hasSectionChanges(sec.id)"
+                class="w-2 h-2 rounded-full"
+                :class="activePersonalSection === sec.id ? 'bg-amber-300 animate-pulse' : 'bg-amber-500 animate-pulse'"
+                title="تعديلات غير محفوظة في هذا السكشن"
+              ></span>
+            </button>
+          </div>
+        </div>
+<form @submit.prevent="handleSaveProfile" class="space-y-8">
           <!-- 1. الحساب الأساسي والصورة الشخصية -->
-          <div class="space-y-4">
+          <div v-show="activePersonalSection === 'account'" class="space-y-6 animate-fade-in">
             <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 flex items-center gap-2 border-r-2 border-primary-500 pr-2.5">
               <User class="w-4 h-4 text-primary-600 dark:text-primary-400" />
               <span>بيانات الحساب الأساسية والصورة الرمزية</span>
@@ -260,7 +293,7 @@
                 >
                   <img
                     v-if="profileForm.profilePhotoPath"
-                    :src="profileForm.profilePhotoPath"
+                    :src="resolveImageUrl(profileForm.profilePhotoPath)"
                     alt="معاينة الصورة"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
@@ -298,7 +331,7 @@
                   type="button"
                   class="px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60 text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
                   title="حذف الصورة"
-                  @click="profileForm.profilePhotoPath = ''"
+                  @click="removePhoto('profilePhotoPath')"
                 >
                   <Trash2 class="w-3.5 h-3.5" />
                   <span>إزالة</span>
@@ -418,7 +451,7 @@
           </div>
 
           <!-- 2. وثائق ومستندات بطاقة الرقم القومي المصرية (NationalId & Photos) -->
-          <div class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+          <div v-show="activePersonalSection === 'nationalId'" class="space-y-6 animate-fade-in">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 flex items-center gap-2 border-r-2 border-primary-500 pr-2.5">
                 <CreditCard class="w-4 h-4 text-primary-600 dark:text-primary-400" />
@@ -459,7 +492,7 @@
                 <div class="h-36 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden relative group flex items-center justify-center transition-all hover:border-primary-400">
                   <img
                     v-if="profileForm.nationalIdFrontPhotoPath"
-                    :src="profileForm.nationalIdFrontPhotoPath"
+                    :src="resolveImageUrl(profileForm.nationalIdFrontPhotoPath)"
                     alt="وجه البطاقة"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
@@ -482,7 +515,7 @@
                       type="button"
                       class="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-xs font-bold transition-colors cursor-pointer"
                       title="حذف"
-                      @click="profileForm.nationalIdFrontPhotoPath = ''"
+                      @click="removePhoto('nationalIdFrontPhotoPath')"
                     >
                       <Trash2 class="w-3.5 h-3.5" />
                     </button>
@@ -519,7 +552,7 @@
                 <div class="h-36 rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden relative group flex items-center justify-center transition-all hover:border-primary-400">
                   <img
                     v-if="profileForm.nationalIdBackPhotoPath"
-                    :src="profileForm.nationalIdBackPhotoPath"
+                    :src="resolveImageUrl(profileForm.nationalIdBackPhotoPath)"
                     alt="ظهر البطاقة"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
@@ -542,7 +575,7 @@
                       type="button"
                       class="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-xs font-bold transition-colors cursor-pointer"
                       title="حذف"
-                      @click="profileForm.nationalIdBackPhotoPath = ''"
+                      @click="removePhoto('nationalIdBackPhotoPath')"
                     >
                       <Trash2 class="w-3.5 h-3.5" />
                     </button>
@@ -595,7 +628,7 @@
           </div>
 
           <!-- 3. الحالة المدنية والبيانات المستخرجة من البطاقة -->
-          <div class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+          <div v-show="activePersonalSection === 'civil'" class="space-y-6 animate-fade-in">
             <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 flex items-center gap-2 border-r-2 border-primary-500 pr-2.5">
               <FileText class="w-4 h-4 text-primary-600 dark:text-primary-400" />
               <span>الحالة المدنية والبيانات الشخصية المدونة بالبطاقة</span>
@@ -743,7 +776,7 @@
           </div>
 
           <!-- 4. المؤهل الدراسي وصورة شهادة التخرج (اختياري / أوبشن) -->
-          <div class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+          <div v-show="activePersonalSection === 'academic'" class="space-y-6 animate-fade-in">
             <div class="flex items-center justify-between">
               <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 flex items-center gap-2 border-r-2 border-primary-500 pr-2.5">
                 <GraduationCap class="w-4 h-4 text-primary-600 dark:text-primary-400" />
@@ -805,7 +838,7 @@
                       type="button"
                       class="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 cursor-pointer"
                       title="حذف"
-                      @click="profileForm.qualificationPhotoPath = ''"
+                      @click="removePhoto('qualificationPhotoPath')"
                     >
                       <Trash2 class="w-4 h-4" />
                     </button>
@@ -816,7 +849,7 @@
           </div>
 
           <!-- 5. فئة المتدرب ومستند إثبات الفئة / الخصم -->
-          <div class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+          <div v-show="activePersonalSection === 'category'" class="space-y-6 animate-fade-in">
             <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 flex items-center gap-2 border-r-2 border-primary-500 pr-2.5">
               <Award class="w-4 h-4 text-primary-600 dark:text-primary-400" />
               <span>فئة المتدرب ومستند إثبات الخصم المعتمد</span>
@@ -882,7 +915,7 @@
                 >
                   <img
                     v-if="profileForm.categoryProofPhotoPath"
-                    :src="profileForm.categoryProofPhotoPath"
+                    :src="resolveImageUrl(profileForm.categoryProofPhotoPath)"
                     alt="كارنيه إثبات الفئة"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
@@ -904,7 +937,7 @@
                       type="button"
                       class="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-xs font-bold transition-colors cursor-pointer"
                       title="حذف"
-                      @click="profileForm.categoryProofPhotoPath = ''"
+                      @click="removePhoto('categoryProofPhotoPath')"
                     >
                       <Trash2 class="w-3.5 h-3.5" />
                     </button>
@@ -937,35 +970,53 @@
             </div>
           </div>
 
-          <!-- Form Actions Footer -->
-          <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
-            <button
-              type="button"
-              :disabled="!hasUnsavedProfileChanges || isSavingProfile"
-              class="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
-              @click="resetProfileForm"
-            >
-              <RotateCcw class="w-3.5 h-3.5" />
-              <span>إلغاء التعديلات</span>
-            </button>
-
-            <button
-              type="submit"
-              :disabled="isSavingProfile"
-              class="px-6 py-2.5 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white text-xs font-bold flex items-center gap-2 shadow-md shadow-primary-700/20 hover:shadow-primary-700/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <svg
-                v-if="isSavingProfile"
-                class="animate-spin w-4 h-4 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
+          <!-- Form Actions Footer & Stepper Navigation -->
+          <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+            <!-- Stepper Navigation (Previous & Next) -->
+            <div class="flex items-center gap-2">
+              <button
+                v-if="currentSectionIndex > 0"
+                type="button"
+                @click="goToSection(personalSections[currentSectionIndex - 1].id)"
+                class="px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
               >
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-              </svg>
-              <Check v-else class="w-4 h-4" />
-              <span>{{ isSavingProfile ? 'جاري الحفظ والمزامنة...' : 'حفظ التعديلات' }}</span>
-            </button>
+                <ChevronRight class="w-4 h-4" />
+                <span>السابق: {{ personalSections[currentSectionIndex - 1].label }}</span>
+              </button>
+
+              <button
+                v-if="currentSectionIndex < personalSections.length - 1"
+                type="button"
+                @click="goToSection(personalSections[currentSectionIndex + 1].id)"
+                class="px-3.5 py-2.5 rounded-xl border border-primary-200 dark:border-primary-800 bg-primary-50/70 dark:bg-primary-950/40 hover:bg-primary-100 dark:hover:bg-primary-900/60 text-primary-700 dark:text-primary-300 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <span>التالي: {{ personalSections[currentSectionIndex + 1].label }}</span>
+                <ChevronLeft class="w-4 h-4" />
+              </button>
+            </div>
+
+            <!-- Save & Reset Actions -->
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                :disabled="!hasUnsavedProfileChanges || isSavingProfile"
+                class="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5"
+                @click="resetProfileForm"
+              >
+                <RotateCcw class="w-3.5 h-3.5" />
+                <span>إلغاء التعديلات</span>
+              </button>
+
+              <button
+                type="submit"
+                :disabled="isSavingProfile"
+                class="px-6 py-2.5 rounded-xl bg-gradient-to-l from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white text-xs font-bold flex items-center gap-2 shadow-md shadow-primary-700/20 hover:shadow-primary-700/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                <Loader2 v-if="isSavingProfile" class="animate-spin w-4 h-4 text-white" />
+                <Check v-else class="w-4 h-4" />
+                <span>{{ isSavingProfile ? 'جاري الحفظ...' : 'حفظ تعديلات هذا الجزء' }}</span>
+              </button>
+            </div>
           </div>
         </form>
       </div>
@@ -1323,7 +1374,7 @@
           <div class="max-h-[70vh] overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-950 flex items-center justify-center p-2">
             <img
               v-if="zoomModal.url"
-              :src="zoomModal.url"
+              :src="resolveImageUrl(zoomModal.url)"
               :alt="zoomModal.title"
               class="max-h-[65vh] w-auto max-w-full object-contain rounded-xl shadow-md"
             />
@@ -1403,9 +1454,12 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { traineeApi } from '@/components/Trainee/api/trainee.api';
 import {
   Settings,
+  ChevronLeft,
+  ChevronRight,
   User,
   UserCheck,
   KeyRound,
@@ -1420,6 +1474,7 @@ import {
   Briefcase,
   Camera,
   Upload,
+  Loader2,
   Trash2,
   Check,
   CheckCircle2,
@@ -1444,6 +1499,7 @@ import {
   QrCode,
 } from 'lucide-vue-next';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
+import { resolveImageUrl } from '@/shared/helpers/formatters';
 import { useTheme } from '@/shared/composables/useTheme';
 import { TRAINEE_MOCK_PROFILE } from '@/components/Trainee/helpers/availableCoursesMockData';
 import { EGYPTIAN_GOVERNORATES } from '@/components/Auth/helpers/authConstants';
@@ -1458,6 +1514,68 @@ const tabs = [
   { id: 'preferences', label: 'المظهر والتفضيلات', icon: Palette },
 ];
 const activeTab = ref('personal');
+// ================= PERSONAL SUB-SECTIONS DEFINITION =================
+const personalSections = [
+  { id: 'account', label: 'الحساب والاتصال', icon: User },
+  { id: 'nationalId', label: 'بطاقة الرقم القومي', icon: CreditCard },
+  { id: 'civil', label: 'الحالة المدنية والعنوان', icon: FileText },
+  { id: 'academic', label: 'المؤهل الدراسي', icon: GraduationCap },
+  { id: 'category', label: 'فئة المتدرب والخصم', icon: Award },
+];
+
+const activePersonalSection = ref('account');
+
+const currentSectionIndex = computed(() => {
+  return personalSections.findIndex((s) => s.id === activePersonalSection.value);
+});
+
+function goToSection(sectionId) {
+  activePersonalSection.value = sectionId;
+}
+
+function hasSectionChanges(secId) {
+  if (secId === 'account') {
+    return (
+      profileForm.value.fullName !== originalProfile.value.fullName ||
+      profileForm.value.email !== originalProfile.value.email ||
+      profileForm.value.phone !== originalProfile.value.phone ||
+      profileForm.value.profilePhotoPath !== originalProfile.value.profilePhotoPath
+    );
+  }
+  if (secId === 'nationalId') {
+    return (
+      profileForm.value.nationalId !== originalProfile.value.nationalId ||
+      profileForm.value.nationalIdFrontPhotoPath !== originalProfile.value.nationalIdFrontPhotoPath ||
+      profileForm.value.nationalIdBackPhotoPath !== originalProfile.value.nationalIdBackPhotoPath
+    );
+  }
+  if (secId === 'civil') {
+    return (
+      profileForm.value.dateOfBirth !== originalProfile.value.dateOfBirth ||
+      profileForm.value.gender !== originalProfile.value.gender ||
+      profileForm.value.religion !== originalProfile.value.religion ||
+      profileForm.value.maritalStatus !== originalProfile.value.maritalStatus ||
+      profileForm.value.occupation !== originalProfile.value.occupation ||
+      profileForm.value.nationalIdExpiryDate !== originalProfile.value.nationalIdExpiryDate ||
+      profileForm.value.governorate !== originalProfile.value.governorate ||
+      profileForm.value.address !== originalProfile.value.address
+    );
+  }
+  if (secId === 'academic') {
+    return (
+      profileForm.value.qualification !== originalProfile.value.qualification ||
+      profileForm.value.qualificationPhotoPath !== originalProfile.value.qualificationPhotoPath
+    );
+  }
+  if (secId === 'category') {
+    return (
+      profileForm.value.category !== originalProfile.value.category ||
+      profileForm.value.categoryProofPhotoPath !== originalProfile.value.categoryProofPhotoPath
+    );
+  }
+  return false;
+}
+
 
 // ================= TOAST NOTIFICATION =================
 const toast = ref({
@@ -1546,48 +1664,105 @@ const GOVERNORATE_CODES = {
   '35': 'جنوب سيناء',
 };
 
+const isLoadingProfile = ref(false);
+
+async function loadRealProfile() {
+  isLoadingProfile.value = true;
+  try {
+    const res = await traineeApi.getMyProfile();
+    if (res?.success && res.data) {
+      const d = res.data;
+      const formattedDob = d.dateOfBirth ? String(d.dateOfBirth).split('T')[0] : '';
+      const formattedExpiry = d.nationalIdExpiryDate ? String(d.nationalIdExpiryDate).split('T')[0] : '';
+
+      profileForm.value = {
+        id: d.id,
+        userId: d.userId,
+        fullName: d.fullName || authStore.user?.fullName || '',
+        email: d.email || authStore.user?.email || '',
+        phone: d.phone || authStore.user?.phone || '',
+        profilePhotoPath: d.profilePhotoPath || authStore.user?.profilePhotoPath || '',
+        nationalId: d.nationalId || '',
+        nationalIdFrontPhotoPath: d.nationalIdFrontPhotoPath || '',
+        nationalIdBackPhotoPath: d.nationalIdBackPhotoPath || '',
+        dateOfBirth: formattedDob,
+        gender: d.gender || 'Male',
+        religion: d.religion || 'Muslim',
+        maritalStatus: d.maritalStatus || 'Single',
+        occupation: d.occupation || '',
+        address: d.address || '',
+        governorate: d.governorate || '',
+        nationalIdExpiryDate: formattedExpiry,
+        category: d.category || 'Civilian',
+        categoryProofPhotoPath: d.categoryProofPhotoPath || '',
+        qualification: profileForm.value.qualification || '',
+        qualificationPhotoPath: profileForm.value.qualificationPhotoPath || '',
+        isMinor: d.isMinor,
+        guardianId: d.guardianId,
+        guardianFullName: d.guardianFullName || '',
+        guardianNationalId: d.guardianNationalId || '',
+        guardianPhone: d.guardianPhone || '',
+        guardianRelationship: d.guardianRelationship || 'Father',
+      };
+      originalProfile.value = { ...profileForm.value };
+
+      authStore.updateUser({
+        id: d.userId,
+        traineeId: d.id,
+        fullName: d.fullName,
+        email: d.email,
+        phone: d.phone,
+        profilePhotoPath: d.profilePhotoPath,
+        nationalId: d.nationalId,
+        nationalIdFrontPhotoPath: d.nationalIdFrontPhotoPath,
+        nationalIdBackPhotoPath: d.nationalIdBackPhotoPath,
+        categoryProofPhotoPath: d.categoryProofPhotoPath,
+        dateOfBirth: formattedDob,
+        gender: d.gender,
+        religion: d.religion,
+        maritalStatus: d.maritalStatus,
+        occupation: d.occupation,
+        address: d.address,
+        governorate: d.governorate,
+        nationalIdExpiryDate: formattedExpiry,
+        category: d.category,
+        isMinor: d.isMinor,
+      });
+    }
+  } catch (err) {
+    console.warn('Could not load trainee profile from backend API:', err);
+  } finally {
+    isLoadingProfile.value = false;
+  }
+}
+
+onMounted(() => {
+  loadRealProfile();
+});
+
 // ================= TRAINEE PROFILE STATE (ALL 15 ERD FIELDS) =================
 const profileForm = ref({
-  // 1. Id (PK)
-  id: authStore.user?.traineeId || TRAINEE_MOCK_PROFILE.id || 401,
-  // 2. UserId (FK)
-  userId: authStore.user?.id || TRAINEE_MOCK_PROFILE.userId || 201,
-  // Basic info from Users
-  fullName: authStore.user?.fullName || TRAINEE_MOCK_PROFILE.fullName,
-  email: authStore.user?.email || TRAINEE_MOCK_PROFILE.email,
-  phone: authStore.user?.phone || TRAINEE_MOCK_PROFILE.phone,
-  profilePhotoPath: authStore.user?.profilePhotoPath || TRAINEE_MOCK_PROFILE.profilePhotoPath,
-
-  // 3. NationalId (14 digits)
-  nationalId: authStore.user?.nationalId || TRAINEE_MOCK_PROFILE.nationalId,
-  // 4. NationalIdFrontPhotoPath
-  nationalIdFrontPhotoPath: authStore.user?.nationalIdFrontPhotoPath || TRAINEE_MOCK_PROFILE.nationalIdFrontPhotoPath,
-  // 5. NationalIdBackPhotoPath
-  nationalIdBackPhotoPath: authStore.user?.nationalIdBackPhotoPath || TRAINEE_MOCK_PROFILE.nationalIdBackPhotoPath,
-  // 6. DateOfBirth
-  dateOfBirth: authStore.user?.dateOfBirth || TRAINEE_MOCK_PROFILE.dateOfBirth,
-  // 7. Gender
-  gender: authStore.user?.gender || TRAINEE_MOCK_PROFILE.gender,
-  // 8. Religion
-  religion: authStore.user?.religion || TRAINEE_MOCK_PROFILE.religion,
-  // 9. MaritalStatus
-  maritalStatus: authStore.user?.maritalStatus || TRAINEE_MOCK_PROFILE.maritalStatus,
-  // 10. Occupation
-  occupation: authStore.user?.occupation || TRAINEE_MOCK_PROFILE.occupation,
-  // 11. Address
-  address: authStore.user?.address || TRAINEE_MOCK_PROFILE.address,
-  // 12. Governorate
-  governorate: authStore.user?.governorate || TRAINEE_MOCK_PROFILE.governorate,
-  // 13. NationalIdExpiryDate
-  nationalIdExpiryDate: authStore.user?.nationalIdExpiryDate || TRAINEE_MOCK_PROFILE.nationalIdExpiryDate,
-  // 14. Category
-  category: authStore.user?.category || TRAINEE_MOCK_PROFILE.category || 'Civilian',
-  // 15. CategoryProofPhotoPath
-  categoryProofPhotoPath: authStore.user?.categoryProofPhotoPath || TRAINEE_MOCK_PROFILE.categoryProofPhotoPath,
-
-  // Dependent academic fields
-  qualification: authStore.user?.qualification || TRAINEE_MOCK_PROFILE.qualification,
-  qualificationPhotoPath: authStore.user?.qualificationPhotoPath || TRAINEE_MOCK_PROFILE.qualificationPhotoPath,
+  id: authStore.user?.traineeId || '',
+  userId: authStore.user?.id || '',
+  fullName: authStore.user?.fullName || '',
+  email: authStore.user?.email || '',
+  phone: authStore.user?.phone || '',
+  profilePhotoPath: authStore.user?.profilePhotoPath || '',
+  nationalId: authStore.user?.nationalId || '',
+  nationalIdFrontPhotoPath: authStore.user?.nationalIdFrontPhotoPath || '',
+  nationalIdBackPhotoPath: authStore.user?.nationalIdBackPhotoPath || '',
+  dateOfBirth: authStore.user?.dateOfBirth ? String(authStore.user.dateOfBirth).split('T')[0] : '',
+  gender: authStore.user?.gender || 'Male',
+  religion: authStore.user?.religion || 'Muslim',
+  maritalStatus: authStore.user?.maritalStatus || 'Single',
+  occupation: authStore.user?.occupation || '',
+  address: authStore.user?.address || '',
+  governorate: authStore.user?.governorate || '',
+  nationalIdExpiryDate: authStore.user?.nationalIdExpiryDate ? String(authStore.user.nationalIdExpiryDate).split('T')[0] : '',
+  category: authStore.user?.category || 'Civilian',
+  categoryProofPhotoPath: authStore.user?.categoryProofPhotoPath || '',
+  qualification: '',
+  qualificationPhotoPath: '',
 });
 
 const originalProfile = ref({ ...profileForm.value });
@@ -1680,27 +1855,7 @@ const idExpiryLabel = computed(() => {
 
 // Computed: Check for Unsaved Changes
 const hasUnsavedProfileChanges = computed(() => {
-  return (
-    profileForm.value.fullName !== originalProfile.value.fullName ||
-    profileForm.value.email !== originalProfile.value.email ||
-    profileForm.value.phone !== originalProfile.value.phone ||
-    profileForm.value.profilePhotoPath !== originalProfile.value.profilePhotoPath ||
-    profileForm.value.nationalId !== originalProfile.value.nationalId ||
-    profileForm.value.nationalIdFrontPhotoPath !== originalProfile.value.nationalIdFrontPhotoPath ||
-    profileForm.value.nationalIdBackPhotoPath !== originalProfile.value.nationalIdBackPhotoPath ||
-    profileForm.value.dateOfBirth !== originalProfile.value.dateOfBirth ||
-    profileForm.value.gender !== originalProfile.value.gender ||
-    profileForm.value.religion !== originalProfile.value.religion ||
-    profileForm.value.maritalStatus !== originalProfile.value.maritalStatus ||
-    profileForm.value.occupation !== originalProfile.value.occupation ||
-    profileForm.value.address !== originalProfile.value.address ||
-    profileForm.value.governorate !== originalProfile.value.governorate ||
-    profileForm.value.nationalIdExpiryDate !== originalProfile.value.nationalIdExpiryDate ||
-    profileForm.value.category !== originalProfile.value.category ||
-    profileForm.value.categoryProofPhotoPath !== originalProfile.value.categoryProofPhotoPath ||
-    profileForm.value.qualification !== originalProfile.value.qualification ||
-    profileForm.value.qualificationPhotoPath !== originalProfile.value.qualificationPhotoPath
-  );
+  return personalSections.some((sec) => hasSectionChanges(sec.id));
 });
 
 // ================= SMART AUTO-EXTRACTION FROM 14-DIGIT NATIONAL ID =================
@@ -1738,19 +1893,73 @@ function handleNationalIdChange() {
   showToast('تم الاستخراج الذكي لبيانات الميلاد والنوع والمحافظة بنجاح.');
 }
 
-// ================= PHOTO UPLOAD HELPER =================
-function handlePhotoUpload(e, field) {
-  const file = e.target.files[0];
+// ================= PHOTO UPLOAD & REMOVE HELPERS =================
+const fileTypeMap = {
+  profilePhotoPath: 'profile',
+  nationalIdFrontPhotoPath: 'nationalIdFront',
+  nationalIdBackPhotoPath: 'nationalIdBack',
+  categoryProofPhotoPath: 'categoryProof',
+  qualificationPhotoPath: 'qualification',
+  birthCertificatePhotoPath: 'birthCertificate',
+};
+
+const uploadingFields = ref({});
+
+async function handlePhotoUpload(e, field) {
+  const file = e.target?.files?.[0];
   if (!file) return;
 
-  if (file.size > 3 * 1024 * 1024) {
-    showToast('حجم الصورة يجب ألا يتجاوز 3 ميجابايت.', 'error');
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('حجم الملف يجب ألا يتجاوز 5 ميجابايت.', 'error');
+    if (e.target) e.target.value = '';
     return;
   }
 
-  const url = URL.createObjectURL(file);
-  profileForm.value[field] = url;
-  showToast('تم اختيار الصورة بنجاح. يرجى الضغط على حفظ التعديلات.');
+  const backendFileType = fileTypeMap[field] || 'profile';
+  uploadingFields.value[field] = true;
+
+  try {
+    const res = await traineeApi.uploadDocument(file, backendFileType);
+    if (res?.success && res.data?.path) {
+      const serverPath = res.data.path;
+      profileForm.value[field] = serverPath;
+      originalProfile.value[field] = serverPath;
+
+      if (field === 'profilePhotoPath') {
+        authStore.updateUser({ profilePhotoPath: serverPath });
+      }
+
+      showToast('تم رفع الصورة وتحديثها فورياً بنجاح.');
+    } else {
+      showToast(res?.message || 'حدث خطأ أثناء رفع وتحديث الصورة.', 'error');
+    }
+  } catch (err) {
+    console.error('Photo upload failed:', err);
+    showToast(err?.response?.data?.message || 'تعذر رفع الصورة إلى الخادم.', 'error');
+  } finally {
+    uploadingFields.value[field] = false;
+    if (e.target) e.target.value = '';
+  }
+}
+
+async function removePhoto(field) {
+  try {
+    profileForm.value[field] = '';
+    originalProfile.value[field] = '';
+
+    if (field === 'profilePhotoPath') {
+      authStore.updateUser({ profilePhotoPath: '' });
+    } else {
+      authStore.updateUser({ [field]: '' });
+    }
+
+    const backendFileType = fileTypeMap[field] || 'profile';
+    await traineeApi.removeDocument(backendFileType);
+    showToast('تمت إزالة الصورة بنجاح وتحديث السجلات.');
+  } catch (err) {
+    console.error('Remove photo failed:', err);
+    showToast('تعذر تحديث إزالة الصورة في السيرفر.', 'error');
+  }
 }
 
 // ================= IMAGE ZOOM MODAL =================
@@ -1778,7 +1987,7 @@ function resetProfileForm() {
   extractedNotice.value = '';
 }
 
-function handleSaveProfile() {
+async function handleSaveProfile() {
   if (!profileForm.value.fullName?.trim()) {
     showToast('يرجى إدخال الاسم بالكامل.', 'error');
     return;
@@ -1800,19 +2009,43 @@ function handleSaveProfile() {
   }
 
   isSavingProfile.value = true;
+  try {
+    const payload = {
+      fullName: profileForm.value.fullName.trim(),
+      phone: profileForm.value.phone?.trim() || null,
+      profilePhotoPath: profileForm.value.profilePhotoPath || null,
+      nationalId: profileForm.value.nationalId?.trim() || '',
+      nationalIdFrontPhotoPath: profileForm.value.nationalIdFrontPhotoPath || null,
+      nationalIdBackPhotoPath: profileForm.value.nationalIdBackPhotoPath || null,
+      dateOfBirth: profileForm.value.dateOfBirth || null,
+      gender: profileForm.value.gender || 'Male',
+      religion: profileForm.value.religion || null,
+      maritalStatus: profileForm.value.maritalStatus || null,
+      occupation: profileForm.value.occupation || null,
+      address: profileForm.value.address || '',
+      governorate: profileForm.value.governorate || '',
+      nationalIdExpiryDate: profileForm.value.nationalIdExpiryDate || null,
+      category: profileForm.value.category || 'Civilian',
+      categoryProofPhotoPath: profileForm.value.categoryProofPhotoPath || null,
+    };
 
-  setTimeout(() => {
+    const res = await traineeApi.updateProfile(payload);
+    if (res?.success) {
+      authStore.updateUser({
+        ...profileForm.value,
+        role: 'Trainee',
+      });
+      originalProfile.value = { ...profileForm.value };
+      showToast('تم حفظ وتحديث بيانات ملف المتدرب بنجاح وفق سجلات المعهد.');
+    } else {
+      showToast(res?.message || 'حدث خطأ أثناء حفظ البيانات.', 'error');
+    }
+  } catch (err) {
+    console.error('Failed to save profile:', err);
+    showToast(err?.response?.data?.message || 'تعذر حفظ البيانات في السيرفر.', 'error');
+  } finally {
     isSavingProfile.value = false;
-
-    // Update pinia authStore user & localStorage
-    authStore.updateUser({
-      ...profileForm.value,
-      role: 'Trainee',
-    });
-
-    originalProfile.value = { ...profileForm.value };
-    showToast('تم حفظ وتحديث بيانات ملف المتدرب بنجاح وفق سجلات المعهد.');
-  }, 600);
+  }
 }
 
 // ================= TAB 5: CHANGE PASSWORD =================
@@ -1891,7 +2124,7 @@ function resetPasswordForm() {
   };
 }
 
-function handleChangePassword() {
+async function handleChangePassword() {
   if (!passwordForm.value.currentPassword) {
     showToast('يرجى إدخال كلمة المرور الحالية.', 'error');
     return;
@@ -1908,12 +2141,23 @@ function handleChangePassword() {
   }
 
   isChangingPassword.value = true;
-
-  setTimeout(() => {
+  try {
+    const res = await traineeApi.changePassword({
+      currentPassword: passwordForm.value.currentPassword,
+      newPassword: passwordForm.value.newPassword,
+    });
+    if (res?.success) {
+      resetPasswordForm();
+      showToast('تم تغيير كلمة المرور بنجاح. يرجى استخدام كلمة المرور الجديدة في الدخول القادم.');
+    } else {
+      showToast(res?.message || 'حدث خطأ أثناء تغيير كلمة المرور.', 'error');
+    }
+  } catch (err) {
+    console.error('Change password failed:', err);
+    showToast(err?.response?.data?.message || 'فشل تغيير كلمة المرور. تأكد من صحة كلمة المرور الحالية.', 'error');
+  } finally {
     isChangingPassword.value = false;
-    resetPasswordForm();
-    showToast('تم تغيير كلمة المرور بنجاح. يرجى استخدام كلمة المرور الجديدة في الدخول القادم.');
-  }, 700);
+  }
 }
 
 // ================= TAB 6: PREFERENCES =================

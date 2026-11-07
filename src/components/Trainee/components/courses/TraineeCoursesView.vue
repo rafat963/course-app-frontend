@@ -227,11 +227,16 @@ const applicationsStore = useTraineeApplicationsStore();
 // ============================================================
 // بروفايل المتدرب
 // ============================================================
-const traineeProfile = ref({
+const traineeProfile = computed(() => ({
   ...TRAINEE_MOCK_PROFILE,
   fullName: authStore.user?.fullName || TRAINEE_MOCK_PROFILE.fullName,
   userId: authStore.user?.id || TRAINEE_MOCK_PROFILE.userId,
-});
+  category: authStore.user?.category || TRAINEE_MOCK_PROFILE.category,
+  profilePhotoPath: authStore.user?.profilePhotoPath || TRAINEE_MOCK_PROFILE.profilePhotoPath,
+  nationalId: authStore.user?.nationalId || TRAINEE_MOCK_PROFILE.nationalId,
+  phone: authStore.user?.phone || TRAINEE_MOCK_PROFILE.phone,
+  email: authStore.user?.email || TRAINEE_MOCK_PROFILE.email,
+}));
 
 const userInitials = computed(() => {
   const name = traineeProfile.value.fullName?.trim() || 'م';

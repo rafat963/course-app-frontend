@@ -1047,17 +1047,20 @@ import {
 const authStore = useAuthStore();
 const traineeStore = useTraineeApplicationsStore();
 
-const traineeProfile = {
+const traineeProfile = computed(() => ({
   ...TRAINEE_MOCK_PROFILE,
   fullName: authStore.user?.fullName || TRAINEE_MOCK_PROFILE.fullName,
   userId: authStore.user?.id || TRAINEE_MOCK_PROFILE.userId,
-};
+  category: authStore.user?.category || TRAINEE_MOCK_PROFILE.category,
+  profilePhotoPath: authStore.user?.profilePhotoPath || TRAINEE_MOCK_PROFILE.profilePhotoPath,
+  nationalId: authStore.user?.nationalId || TRAINEE_MOCK_PROFILE.nationalId,
+}));
 
 const userInitials = computed(() => {
-  const name = traineeProfile.fullName?.trim() || 'م';
+  const name = traineeProfile.value.fullName?.trim() || 'م';
   const parts = name.split(/\s+/);
   if (parts.length >= 2) return parts[0][0] + ' ' + parts[1][0];
-  return name.slice(0, 2);
+  return (traineeProfile.value.fullName || 'م').slice(0, 2);
 });
 
 const viewMode = ref('timeline'); // النمط الافتراضي: المخطط الزمني التفاعلي
@@ -1104,7 +1107,7 @@ const tableColumns = [
 ];
 
 onMounted(() => {
-  traineeStore.load(traineeProfile.userId);
+  traineeStore.load(traineeProfile.value.userId);
 });
 
 const allApplications = computed(() => {
@@ -1200,7 +1203,7 @@ function filterToPendingPayment() {
 
 /** سعر فئة المتدرب من CoursePricings */
 function categoryPrice(app) {
-  return getPriceByCategory(app.round.pricings, traineeProfile.category);
+  return getPriceByCategory(app.round.pricings, traineeProfile.value.category);
 }
 
 function formatCurrency(amount) {
