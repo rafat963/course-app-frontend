@@ -686,15 +686,18 @@ const authStore = useAuthStore();
 // وضع تجربة تفاعلي يسمح بتبديل الحالة بين وجود تصريح نشط وحالة عدم وجود دورات (Empty State)
 const simulateEmpty = ref(false);
 
-const traineeProfile = {
+const traineeProfile = computed(() => ({
   ...TRAINEE_MOCK_PROFILE,
   fullName: authStore.user?.fullName || TRAINEE_MOCK_PROFILE.fullName,
   userId: authStore.user?.id || TRAINEE_MOCK_PROFILE.userId,
-};
+  nationalId: authStore.user?.nationalId || TRAINEE_MOCK_PROFILE.nationalId,
+  category: authStore.user?.category || TRAINEE_MOCK_PROFILE.category,
+  profilePhotoPath: authStore.user?.profilePhotoPath || TRAINEE_MOCK_PROFILE.profilePhotoPath,
+}));
 
 const userInitials = computed(() => {
-  const parts = (traineeProfile.fullName || 'م').trim().split(/\s+/);
-  return parts.length >= 2 ? `${parts[0][0]} ${parts[1][0]}` : traineeProfile.fullName.slice(0, 2);
+  const parts = (traineeProfile.value.fullName || 'م').trim().split(/\s+/);
+  return parts.length >= 2 ? `${parts[0][0]} ${parts[1][0]}` : traineeProfile.value.fullName.slice(0, 2);
 });
 
 /** تصاريح الدورات المقيد بها فقط (Status = Enrolled) */
@@ -726,10 +729,10 @@ const todaySessions = computed(() => {
 /** بيانات التصريح الأمني اليومي الموحد المركزي */
 const unifiedPassData = computed(() => {
   const sessionCodes = todaySessions.value.map((s) => s.round.roundCode).join('-') || 'GENERAL-ACCESS';
-  const qrToken = `ISI-GATE-${todayIso}-TR${traineeProfile.userId}-${sessionCodes}-CLEARED`;
+  const qrToken = `ISI-GATE-${todayIso}-TR${traineeProfile.value.userId}-${sessionCodes}-CLEARED`;
   return {
     isUnified: true,
-    passCode: `PASS-${todayIso.replace(/-/g, '')}-TR${traineeProfile.userId}`,
+    passCode: `PASS-${todayIso.replace(/-/g, '')}-TR${traineeProfile.value.userId}`,
     qrToken,
     title: 'تصريح الدخول الأمني اليومي الموحد',
     courseName: todaySessions.value.length

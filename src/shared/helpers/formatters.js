@@ -1,3 +1,5 @@
+import { env } from '@/environment';
+
 /**
  * Arabic Date, Currency, and String Formatters
  */
@@ -37,4 +39,26 @@ export function formatCurrency(amount) {
 export function formatDaysOfWeek(daysArray) {
   if (!daysArray || !daysArray.length) return '—';
   return daysArray.map(d => ARABIC_DAYS[d] || d).join(' و');
+}
+
+/**
+ * تحويل مسار الصورة النسبي في السيرفر إلى رابط كامل صالح للعرض
+ */
+export function resolveImageUrl(path) {
+  if (!path) return '';
+  if (
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('blob:') ||
+    path.startsWith('data:')
+  ) {
+    return path;
+  }
+  const serverOrigin = env.apiBaseUrl.replace(/\/api(\/v\d+)?\/?$/, '');
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  try {
+    return `${serverOrigin}${encodeURI(decodeURI(cleanPath))}`;
+  } catch {
+    return `${serverOrigin}${cleanPath}`;
+  }
 }

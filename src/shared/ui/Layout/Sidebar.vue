@@ -42,7 +42,7 @@
             >
               <img
                 v-if="authStore.user?.profilePhotoPath"
-                :src="authStore.user.profilePhotoPath"
+                :src="resolveImageUrl(authStore.user.profilePhotoPath)"
                 alt="الصورة الشخصية"
                 class="w-full h-full object-cover rounded-full"
               />
@@ -291,7 +291,7 @@
               <div class="w-full h-full bg-white dark:bg-slate-800 rounded-full overflow-hidden flex items-center justify-center">
                 <img
                   v-if="authStore.user?.profilePhotoPath"
-                  :src="authStore.user.profilePhotoPath"
+                  :src="resolveImageUrl(authStore.user.profilePhotoPath)"
                   alt="الصورة الشخصية"
                   class="w-full h-full object-cover rounded-full"
                 />
@@ -421,6 +421,7 @@ import {
   BookOpen,
 } from 'lucide-vue-next';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
+import { resolveImageUrl } from '@/shared/helpers/formatters';
 import { useNotificationsStore } from '@/shared/stores/notificationsStore';
 import { ROLES, ROLE_LABELS } from '@/shared/constants/roles';
 import { prefetchRoute } from '@/routes/prefetch';

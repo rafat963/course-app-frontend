@@ -188,7 +188,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { ROLES } from '@/shared/constants/roles';
 import { TRAINEE_CATEGORIES } from '@/shared/constants/statuses';
 import { extractFromNationalId } from '../../helpers/authConstants';
-import { authApi } from '@/api/auth.api';
+import { authApi } from '../../api/auth.api';
 
 const router = useRouter();
 const authStore = useAuthStore();

@@ -166,7 +166,7 @@ import { useRouter, useRoute, RouterLink } from 'vue-router';
 import { LogIn, Mail, Lock, Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-vue-next';
 import { useAuthStore } from '../stores/authStore';
 import { ROLES } from '@/shared/constants/roles';
-import { authApi } from '@/api/auth.api';
+import { authApi } from '../api/auth.api';
 
 const router = useRouter();
 const route = useRoute();

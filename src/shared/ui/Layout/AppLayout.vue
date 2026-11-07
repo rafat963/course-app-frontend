@@ -45,13 +45,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/components/Auth/stores/authStore';
 import { RouterView, useRoute } from 'vue-router';
 import Header from './Header.vue';
 import Sidebar from './Sidebar.vue';
 import Breadcrumbs from './Breadcrumbs.vue';
 
 const route = useRoute();
+const authStore = useAuthStore();
+
+onMounted(() => {
+  if (authStore.isAuthenticated && authStore.user?.role === 'Trainee') {
+    authStore.fetchProfile();
+  }
+});
 
 const isCollapsed = ref(false);
 const isMobileOpen = ref(false);

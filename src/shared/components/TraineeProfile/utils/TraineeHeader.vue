@@ -25,7 +25,7 @@
             <div class="w-full h-full bg-white dark:bg-slate-800 rounded-xl sm:rounded-2xl overflow-hidden flex items-center justify-center">
               <img
                 v-if="trainee.profilePhotoPath"
-                :src="trainee.profilePhotoPath"
+                :src="resolveImageUrl(trainee.profilePhotoPath)"
                 :alt="trainee.fullName"
                 class="w-full h-full object-cover"
               />
@@ -112,6 +112,7 @@
 </template>
 
 <script setup>
+import { resolveImageUrl } from '@/shared/helpers/formatters';
 import { computed } from 'vue';
 import {
   CreditCard,

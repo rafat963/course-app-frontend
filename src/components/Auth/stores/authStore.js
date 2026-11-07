@@ -48,6 +48,43 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function fetchProfile() {
+    if (!token.value) return null;
+    try {
+      const { traineeApi } = await import('@/components/Trainee/api/trainee.api');
+      const res = await traineeApi.getMyProfile();
+      if (res?.success && res.data) {
+        const d = res.data;
+        updateUser({
+          id: d.userId,
+          traineeId: d.id,
+          fullName: d.fullName,
+          email: d.email,
+          phone: d.phone,
+          profilePhotoPath: d.profilePhotoPath,
+          nationalId: d.nationalId,
+          nationalIdFrontPhotoPath: d.nationalIdFrontPhotoPath,
+          nationalIdBackPhotoPath: d.nationalIdBackPhotoPath,
+          categoryProofPhotoPath: d.categoryProofPhotoPath,
+          dateOfBirth: d.dateOfBirth,
+          gender: d.gender,
+          religion: d.religion,
+          maritalStatus: d.maritalStatus,
+          occupation: d.occupation,
+          address: d.address,
+          governorate: d.governorate,
+          nationalIdExpiryDate: d.nationalIdExpiryDate,
+          category: d.category,
+          isMinor: d.isMinor,
+        });
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('Could not auto-fetch trainee profile:', err);
+    }
+    return null;
+  }
+
   return {
     token,
     user,
@@ -57,5 +94,6 @@ export const useAuthStore = defineStore('auth', () => {
     setAuth,
     logout,
     updateUser,
+    fetchProfile,
   };
 });
