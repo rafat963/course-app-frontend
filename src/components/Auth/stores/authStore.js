@@ -14,22 +14,14 @@ export const useAuthStore = defineStore('auth', () => {
     parsedUser = null;
   }
 
-  // مستخدم تجريبي افتراضي لمعاينة شؤون الدارسين
-  const defaultUser = {
-    id: 1,
-    fullName: 'مسؤول شؤون الدارسين',
-    email: 'affairs@institute.local',
-    role: ROLES.AFFAIRS, // مفعل افتراضياً لمعاينة صفحات شؤون الدارسين
-  };
-
-  const user = ref(parsedUser || defaultUser);
+  const user = ref(parsedUser);
 
   const isAuthenticated = computed(() => !!token.value);
 
-  const currentRole = computed(() => user.value?.role || ROLES.AFFAIRS);
+  const currentRole = computed(() => user.value?.role || null);
 
   const defaultHomePath = computed(() => {
-    return DEFAULT_ROLE_ROUTES[currentRole.value] || '/dashboard';
+    return (currentRole.value && DEFAULT_ROLE_ROUTES[currentRole.value]) || '/dashboard';
   });
 
   function setAuth(newToken, newUser) {

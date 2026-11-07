@@ -7,6 +7,7 @@ export const ROLES = {
   AFFAIRS: 'Affairs',
   SECURITY: 'Security',
   COMMANDER: 'Commander',
+  CASHIER: 'Cashier',
 };
 
 export const ROLE_LABELS = {
@@ -15,6 +16,7 @@ export const ROLE_LABELS = {
   [ROLES.AFFAIRS]: 'شؤون الدارسين',
   [ROLES.SECURITY]: 'الأمن والحراسة',
   [ROLES.COMMANDER]: 'القائد / الإدارة العليا',
+  [ROLES.CASHIER]: 'الخزينة والمحصل',
 };
 
 export const DEFAULT_ROLE_ROUTES = {
@@ -23,4 +25,5 @@ export const DEFAULT_ROLE_ROUTES = {
   [ROLES.AFFAIRS]: '/affairs/applications/applicants',
   [ROLES.SECURITY]: '/security/gate-scan',
   [ROLES.COMMANDER]: '/dashboard',
+  [ROLES.CASHIER]: '/affairs/applications/pending-payment',
 };

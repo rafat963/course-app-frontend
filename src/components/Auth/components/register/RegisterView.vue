@@ -164,6 +164,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { ROLES } from '@/shared/constants/roles';
 import { TRAINEE_CATEGORIES } from '@/shared/constants/statuses';
 import { extractFromNationalId } from '../../helpers/authConstants';
+import { authApi } from '@/api/auth.api';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -481,26 +482,99 @@ function goToStep(stepNum) {
 }
 
 // ─── Submit ────────────────────────────────────────────────────────────────
-function submitRegistration() {
+async function submitRegistration() {
   isLoading.value = true;
   errorMsg.value = '';
 
   form.value.isMinor = isMinor.value;
 
-  setTimeout(() => {
+  try {
+    const fd = new FormData();
+
+    // 1. Common Account Info
+    fd.append('FullName', form.value.fullName.trim());
+    fd.append('Email', form.value.email.trim());
+    fd.append('Password', form.value.password);
+    fd.append('Phone', form.value.phone.trim());
+    fd.append('NationalId', form.value.nationalId.trim());
+    fd.append('DateOfBirth', form.value.dateOfBirth);
+    fd.append('Gender', form.value.gender || 'Male');
+    fd.append('Address', form.value.address.trim());
+    fd.append('Governorate', form.value.governorate);
+    fd.append('Category', form.value.category || 'Civilian');
+
+    if (form.value.profilePhoto) {
+      fd.append('ProfilePhoto', form.value.profilePhoto);
+    }
+    if (form.value.categoryProofPhoto) {
+      fd.append('CategoryProof', form.value.categoryProofPhoto);
+    }
+
+    let res;
+    if (isAdult.value) {
+      // 2. Adult-specific fields
+      fd.append('Religion', form.value.religion || 'Muslim');
+      fd.append('MaritalStatus', form.value.maritalStatus || 'Single');
+      fd.append('Occupation', form.value.occupation.trim());
+      fd.append('NationalIdExpiryDate', form.value.nationalIdExpiryDate);
+      if (form.value.frontPhoto) {
+        fd.append('NationalIdFront', form.value.frontPhoto);
+      }
+      if (form.value.backPhoto) {
+        fd.append('NationalIdBack', form.value.backPhoto);
+      }
+
+      res = await authApi.registerAdult(fd);
+    } else {
+      // 3. Minor-specific fields
+      if (form.value.birthCertPhoto) {
+        fd.append('BirthCertificate', form.value.birthCertPhoto);
+      }
+      fd.append('GuardianFullName', form.value.guardianName.trim());
+      fd.append('GuardianNationalId', form.value.guardianNationalId.trim());
+      fd.append('GuardianPhone', form.value.guardianPhone.trim());
+      fd.append('GuardianRelationship', form.value.guardianRelationship || 'Father');
+      if (form.value.guardianFrontPhoto) {
+        fd.append('GuardianNationalIdFront', form.value.guardianFrontPhoto);
+      }
+      if (form.value.guardianBackPhoto) {
+        fd.append('GuardianNationalIdBack', form.value.guardianBackPhoto);
+      }
+
+      res = await authApi.registerMinor(fd);
+    }
+
+    if (res?.success && res.data?.token) {
+      authStore.setAuth(res.data.token, {
+        id: res.data.id,
+        fullName: res.data.fullName,
+        email: res.data.email,
+        role: res.data.role,
+        category: form.value.category,
+        nationalId: form.value.nationalId,
+        isMinor: isMinor.value,
+        profilePhotoPath: res.data.profilePhotoPath,
+      });
+
+      router.push(authStore.defaultHomePath);
+    } else {
+      errorMsg.value = res?.message || 'فشل إنشاء الحساب، يرجى المحاولة لاحقاً.';
+    }
+  } catch (err) {
+    const apiError = err.response?.data;
+    if (apiError?.data && typeof apiError.data === 'object') {
+      const firstFieldErr = Object.values(apiError.data)[0];
+      errorMsg.value = Array.isArray(firstFieldErr) ? firstFieldErr[0] : apiError.message;
+    } else if (apiError?.message) {
+      errorMsg.value = apiError.message;
+    } else if (err.code === 'ERR_NETWORK') {
+      errorMsg.value = 'تعذر الاتصال بالخادم، يرجى التأكد من تشغيل الـ Backend.';
+    } else {
+      errorMsg.value = 'حدث خطأ أثناء إرسال بيانات التسجيل، يرجى مراجعة المدخلات.';
+    }
+  } finally {
     isLoading.value = false;
-
-    authStore.setAuth('mock-jwt-trainee-token', {
-      id: 99,
-      fullName: form.value.fullName,
-      email: form.value.email,
-      role: ROLES.TRAINEE,
-      category: form.value.category,
-      nationalId: form.value.nationalId,
-      isMinor: form.value.isMinor,
-    });
-
-    router.push('/trainee/passes');
-  }, 900);
+  }
 }
+
 </script>

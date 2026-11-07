@@ -19,7 +19,7 @@
             type="email"
             required
             autocomplete="email"
-            placeholder="example@isi.edu.eg"
+            placeholder="example@isi.gov.eg"
             dir="ltr"
             class="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/60 px-3.5 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none transition-all
                    focus:border-primary-500 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-primary-500/10 focus:shadow-xs"
@@ -119,10 +119,10 @@
       </RouterLink>
     </div>
 
-    <!-- Quick Demo Role Selector (Helper) -->
+    <!-- Quick Role Selector for Fast Dev/Demo Access -->
     <div class="px-5 py-2 bg-slate-50 dark:bg-slate-950/60 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[10.5px]">
       <span class="text-slate-400 dark:text-slate-500 font-medium">تجربة دور:</span>
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 flex-wrap justify-end">
         <button
           v-for="r in mockRoles"
           :key="r.role"
@@ -144,6 +144,7 @@ import { LogIn, Mail, Lock, Eye, EyeOff, UserPlus, AlertCircle } from 'lucide-vu
 import AuthCardLayout from '../utils/AuthCardLayout.vue';
 import { useAuthStore } from '../stores/authStore';
 import { ROLES } from '@/shared/constants/roles';
+import { authApi } from '@/api/auth.api';
 
 const router = useRouter();
 const route = useRoute();
@@ -160,20 +161,21 @@ const isLoading = ref(false);
 const errorMsg = ref('');
 
 const mockRoles = [
-  { role: ROLES.TRAINEE, label: 'متدرب', email: 'trainee@isi.edu.eg', name: 'أحمد محمود علي' },
-  { role: ROLES.AFFAIRS, label: 'شؤون', email: 'affairs@isi.gov.eg', name: 'مقدم / كريم حمدي' },
-  { role: ROLES.SECURITY, label: 'أمن', email: 'security@isi.gov.eg', name: 'نقيب / حسام الدين' },
-  { role: ROLES.COMMANDER, label: 'قائد', email: 'commander@isi.gov.eg', name: 'عميد / باسم صبرى خليل' },
-  { role: ROLES.ADMIN, label: 'مدير', email: 'admin@isi.gov.eg', name: 'مسؤول النظام' },
+  { role: ROLES.TRAINEE, label: 'متدرب', email: 'trainee@isi.gov.eg' },
+  { role: ROLES.AFFAIRS, label: 'شؤون', email: 'affairs@isi.gov.eg' },
+  { role: ROLES.CASHIER, label: 'خزينة', email: 'cashier@isi.gov.eg' },
+  { role: ROLES.SECURITY, label: 'أمن', email: 'security@isi.gov.eg' },
+  { role: ROLES.COMMANDER, label: 'قائد', email: 'commander@isi.gov.eg' },
+  { role: ROLES.ADMIN, label: 'مدير', email: 'admin@isi.gov.eg' },
 ];
 
-function quickLogin(r) {
+async function quickLogin(r) {
   form.value.email = r.email;
   form.value.password = '1234';
-  executeLogin(r.role, r.name, r.email);
+  await handleLogin();
 }
 
-function handleLogin() {
+async function handleLogin() {
   errorMsg.value = '';
 
   if (!form.value.email || !form.value.password) {
@@ -181,37 +183,38 @@ function handleLogin() {
     return;
   }
 
-  let matchedRole = ROLES.TRAINEE;
-  let userName = 'متدرب';
-
-  const found = mockRoles.find((m) => m.email.toLowerCase() === form.value.email.toLowerCase());
-  if (found) {
-    matchedRole = found.role;
-    userName = found.name;
-  } else if (form.value.email.includes('admin')) {
-    matchedRole = ROLES.ADMIN;
-    userName = 'مدير النظام';
-  }
-
-  executeLogin(matchedRole, userName, form.value.email);
-}
-
-function executeLogin(role, fullName, email) {
   isLoading.value = true;
-  errorMsg.value = '';
-
-  setTimeout(() => {
-    isLoading.value = false;
-
-    authStore.setAuth('mock-jwt-token-isi', {
-      id: 1,
-      fullName: fullName,
-      email: email,
-      role: role,
+  try {
+    const res = await authApi.login({
+      email: form.value.email.trim(),
+      password: form.value.password,
     });
 
-    const redirectPath = route.query.redirect || authStore.defaultHomePath;
-    router.push(redirectPath);
-  }, 600);
+    if (res?.success && res.data?.token) {
+      authStore.setAuth(res.data.token, {
+        id: res.data.id,
+        fullName: res.data.fullName,
+        email: res.data.email,
+        role: res.data.role,
+        profilePhotoPath: res.data.profilePhotoPath,
+      });
+
+      const redirectPath = route.query.redirect || authStore.defaultHomePath;
+      router.push(redirectPath);
+    } else {
+      errorMsg.value = res?.message || 'فشل تسجيل الدخول، يرجى مراجعة البيانات المدخلة.';
+    }
+  } catch (err) {
+    const apiError = err.response?.data;
+    if (apiError?.message) {
+      errorMsg.value = apiError.message;
+    } else if (err.code === 'ERR_NETWORK') {
+      errorMsg.value = 'تعذر الاتصال بالخادم، يرجى التأكد من تشغيل الـ Backend.';
+    } else {
+      errorMsg.value = 'حدث خطأ أثناء تسجيل الدخول، يرجى المحاولة لاحقاً.';
+    }
+  } finally {
+    isLoading.value = false;
+  }
 }
 </script>

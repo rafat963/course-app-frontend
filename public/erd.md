@@ -1,9 +1,9 @@
-﻿# ERD — منظومة إدارة الدورات التدريبية (النسخة النهائية المعتمدة)
+# ERD — منظومة إدارة الدورات التدريبية (النسخة النهائية المعتمدة)
 
 > [!NOTE]
 > **أبرز القرارات التصميمية المعتمدة والتكامل مع الواجهات (UI Alignment):**
 > - **فصل كورس الكتالوج (`Courses`) عن دورة الانعقاد الفعلية (`CourseRounds`):** الشؤون تنشئ كتالوج الدورة وأسعارها وساعاتها ومجالها التخصصي، ثم تفتح دورات انعقاد (دفعات تشغيلية) متعددة بتواريخ وقاعات ومحاضرين وأكواد دفعات مستقلة.
-> - **كود فريد للطلب (`ApplicationCode`):** كود فريد ومختصر للطلب مكس حروف وأرقام عشوائية (مثال: `APP-7X9K2`) لتسهيل متابعة المتدرب واستعلام موظف الشؤون والخزينة عنه هاتفياً وبشكل مباشر، إلى جانب الـ `QRToken` المخصص لتصاريح البوابة.
+> - **كود فريد للطلب (`ApplicationCode`) وتصريح البوابة الرقمي (`QRToken`):** كود فريد ومختصر للطلب مكس حروف وأرقام عشوائية (مثال: `APP-7X9K2`) للاستعلام الهاتفي وبالخزينة، وكود تصريح رقمي أمني سهل الإدخال اليدوي مكون من 6-8 أرقام (مثال: `849-215`) يُشفر داخل الـ QR ويُطبع تحته بخط عريض لكتابته يدوياً فوراً في حال تعطل كاميرا البوابة.
 > - **موديول مستقل لإيصالات وسداد الخزينة (`Payments`):** تم فصل السداد عن جدول الطلبات في جدول مستقل للخزينة برتبة مستقلة (`Cashier`). السداد على دفعة واحدة كاملة لكل طلب (علاقة 1-to-1)، مع دعم طريقتين فقط (`Cash` أو `InstaPay`)، وتوثيق أمين الخزينة القائم بالتحصيل (`CollectedByUserId`) ورقم الإيصال وصورته/اسكرين إنستاباي.
 > - **آلية الاسترداد المالي وحوكمة الخزينة (`Refunds`):** توثيق عمليات استرداد المصروفات في نفس جدول `Payments` (تاريخ الاسترداد، سببه، أمين الخزينة الصارف، واعتماد الإدارة)، مع تحويل حالة الطلب آلياً إلى `Refunded`، مما يترتب عليه إبطال تصريح البوابة الـ QR فوراً، وتحرير مقعد المتدرب في الدفعة للملتحقين الجدد، وضبط جرد الخزينة اليومي (المحصل ناقص المسترد).
 > - **إلغاء تعقيدات استبيانات الجودة وتوثيق السجل الأكاديمي:** تم تبسيط نموذج المحاضرين (`Instructors`) للتركيز على البيانات العملية (الاسم، التخصص، الهاتف، البريد، النشاط) وإلغاء جداول وحقول استبيانات الجودة والتقييمات للدارسين والمحاضرين.
@@ -51,6 +51,9 @@ erDiagram
     TraineeProfiles {
         int Id PK
         int UserId FK UK
+        bool IsMinor "هل المتدرب قاصر أقل من 16 سنة"
+        int GuardianId FK "nullable -> Guardians.Id"
+        string BirthCertificatePhotoPath "nullable - صورة شهادة الميلاد"
         string NationalId UK "14 digits"
         string NationalIdFrontPhotoPath "صورة وش البطاقة"
         string NationalIdBackPhotoPath "صورة ظهر البطاقة"
@@ -146,7 +149,7 @@ erDiagram
         int CourseRoundId FK "CourseRounds.Id"
         string ApplicationCode UK "كود فريد مكس حروف وأرقام مثل APP-7X9K2"
         string Status "UnderReview|PendingPayment|PaymentMissed|Enrolled|Refunded|CourseEnded|Rejected"
-        string QRToken UK "Random GUID Token"
+        string QRToken UK "كود تصريح رقمي سهل الإدخال اليدوي مكون من 6 إلى 8 أرقام مثل 849-215 يُشفر داخل الـ QR ويُطبع تحته"
         string QualificationPhotoPath "صورة شهادة المؤهل"
         string RejectionReason "nullable سبب الرفض"
         date PaymentDueDate "nullable مهلة السداد"
@@ -222,6 +225,9 @@ erDiagram
 |---|---|---|
 | `Id` | `int` PK | Identity |
 | `UserId` | `int` FK | Unique, Not Null -> `Users.Id` |
+| `IsMinor` | `bit` | Default `0` — هل المتدرب قاصر (أقل من 16 عاماً) |
+| `GuardianId` | `int` FK | Nullable -> `Guardians.Id` — ولي الأمر (إلزامي في حال القاصر) |
+| `BirthCertificatePhotoPath` | `nvarchar(500)` | Nullable — مسار صورة شهادة الميلاد المميكنة (إلزامي للقاصر بدلاً من البطاقة) |
 | `NationalId` | `nvarchar(14)` | Unique, Not Null (14 رقم قومي مصري) |
 | `NationalIdFrontPhotoPath` | `nvarchar(500)` | مسار صورة وجه البطاقة الشخصية |
 | `NationalIdBackPhotoPath` | `nvarchar(500)` | مسار صورة ظهر البطاقة الشخصية |
@@ -344,7 +350,7 @@ erDiagram
 | `CourseRoundId` | `int` FK | -> `CourseRounds.Id` |
 | `ApplicationCode` | `nvarchar(20)` | Unique, Not Null — كود فريد ومختصر للطلب، مزيج عشوائي من الحروف والأرقام (مثال: `APP-7X9K2` أو `APP-9B4M8`) لتسهيل متابعة المتدرب واستعلام موظف الشؤون والخزينة |
 | `Status` | `nvarchar(50)` | `UnderReview`, `PendingPayment`, `PaymentMissed`, `Enrolled`, `Refunded`, `CourseEnded`, `Rejected` |
-| `QRToken` | `nvarchar(100)` | Unique, Not Null — رمز عشوائي GUID لإصدار كود الـ QR المشفر للتصريح الأمني عند البوابة (يُبطل آلياً في حال `Refunded` أو `Rejected`) |
+| `QRToken` | `nvarchar(100)` | Unique, Not Null — كود تصريح رقمي أمني سهل الإدخال اليدوي مكون من 6 إلى 8 أرقام (مثل `849-215` أو `849215`) يُشفر داخل الـ QR ويُطبع تحته بخط عريض لسهولة كتابته يدوياً بواسطة فرد الأمن عند تعطل الكاميرا (يُبطل آلياً في حال `Refunded` أو `Rejected`) |
 | `QualificationPhotoPath` | `nvarchar(500)` | صورة شهادة المؤهل الدراسي الخاصة بالتقديم الحالي |
 | `RejectionReason` | `nvarchar(500)` | Nullable — سبب الرفض المعتمد من موظف الشؤون في حال رفض الطلب |
 | `PaymentDueDate` | `date` | Nullable — مهلة السداد المحددة من الشؤون (ساري فيها QR للسداد بالخزينة) |
