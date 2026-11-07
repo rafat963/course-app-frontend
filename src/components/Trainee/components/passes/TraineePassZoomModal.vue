@@ -99,7 +99,7 @@
 <script setup>
 import QrcodeVue from 'qrcode.vue';
 import { ShieldCheck, X, Printer } from 'lucide-vue-next';
-import { formatTimeRange } from '../helpers/traineePortalHelpers';
+import { formatTimeRange } from '../../helpers/traineePortalHelpers';
 
 defineProps({
   isOpen: {

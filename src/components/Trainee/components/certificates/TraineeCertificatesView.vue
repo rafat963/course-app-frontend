@@ -447,9 +447,9 @@ import ViewModeToggle from '@/shared/ui/Buttons/ViewModeToggle.vue';
 import AppTable from '@/shared/ui/Table/AppTable.vue';
 import CertificatePreviewModal from './CertificatePreviewModal.vue';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
-import { TRAINEE_MOCK_PROFILE } from '../helpers/availableCoursesMockData';
-import { ENDED_APPLICATIONS } from '../helpers/traineePortalMockData';
-import { formatDateDmy } from '../helpers/traineePortalHelpers';
+import { TRAINEE_MOCK_PROFILE } from '../../helpers/availableCoursesMockData';
+import { ENDED_APPLICATIONS } from '../../helpers/traineePortalMockData';
+import { formatDateDmy } from '../../helpers/traineePortalHelpers';
 
 const authStore = useAuthStore();
 

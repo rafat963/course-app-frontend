@@ -375,9 +375,9 @@ import { computed } from 'vue';
 import QrcodeVue from 'qrcode.vue';
 import { Award, ShieldCheck, X, Printer, Download, Copy } from 'lucide-vue-next';
 import instituteLogo from '@/assets/logo.png';
-import { formatDateDmy } from '../helpers/traineePortalHelpers';
-import { CATEGORY_CONFIG } from '../helpers/availableCoursesHelpers';
-import { TRAINEE_MOCK_PROFILE } from '../helpers/availableCoursesMockData';
+import { formatDateDmy } from '../../helpers/traineePortalHelpers';
+import { CATEGORY_CONFIG } from '../../helpers/availableCoursesHelpers';
+import { TRAINEE_MOCK_PROFILE } from '../../helpers/availableCoursesMockData';
 
 const props = defineProps({
   isOpen: {

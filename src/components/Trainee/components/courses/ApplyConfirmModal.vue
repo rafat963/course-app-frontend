@@ -107,6 +107,11 @@
               </p>
             </div>
           </div>
+
+          <!-- رسالة تنبيه الخطأ في حال حدوثه -->
+          <div v-if="submitError" class="p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs font-bold text-rose-700 dark:text-rose-300">
+            {{ submitError }}
+          </div>
         </template>
 
         <!-- ============================
@@ -201,7 +206,7 @@ import {
   generateApplicationCode,
   generateQRToken,
   CATEGORY_CONFIG,
-} from '../helpers/availableCoursesHelpers';
+} from '../../helpers/availableCoursesHelpers';
 
 const props = defineProps({
   isOpen: {
@@ -223,6 +228,7 @@ const emit = defineEmits(['close', 'submitted']);
 // --- الحالة الداخلية ---
 const phase = ref('confirm'); // confirm | success
 const isSubmitting = ref(false);
+const submitError = ref('');
 const generatedCode = ref('');
 const generatedQrToken = ref('');
 
@@ -238,6 +244,7 @@ watch(
     if (open) {
       phase.value = 'confirm';
       isSubmitting.value = false;
+      submitError.value = '';
       generatedCode.value = '';
       generatedQrToken.value = '';
     }
@@ -249,44 +256,54 @@ async function handleConfirm() {
   if (isSubmitting.value || !props.round) return;
 
   isSubmitting.value = true;
+  submitError.value = '';
 
-  // محاكاة قصيرة لإنشاء السجل في الـ API
-  await sleep(600);
+  try {
+    // محاكاة قصيرة لإنشاء السجل في الـ API
+    await sleep(600);
 
-  const applicationCode = generateApplicationCode();
-  const qrToken = generateQRToken();
-  const createdAt = new Date().toISOString();
+    const applicationCode = generateApplicationCode();
+    const qrToken = generateQRToken();
+    const createdAt = new Date().toISOString();
 
-  generatedCode.value = applicationCode;
-  generatedQrToken.value = qrToken;
+    generatedCode.value = applicationCode;
+    generatedQrToken.value = qrToken;
 
-  emit('submitted', {
-    applicationCode,
-    qrToken,
-    courseRoundId: props.round.id,
-    traineeId: props.traineeProfile.userId,
-    status: 'UnderReview',
-    qualificationPhotoPath: props.traineeProfile.qualificationPhotoPath || null,
-    createdAt,
-    // AuditLog
-    auditLog: {
-      fromStatus: null,
-      toStatus: 'UnderReview',
-      note: 'تقديم إلكتروني سريع على الدورة',
-      changedAt: createdAt,
-    },
-    // Notification for Affairs
-    affairsNotification: {
-      title: `طلب تقديم جديد على دورة: ${props.round.courseName}`,
-      message: `تقدّم المتدرب ${props.traineeProfile.fullName} للدورة "${props.round.courseName}" (${props.round.roundCode}) بكود الطلب ${applicationCode}. في انتظار المراجعة والاعتماد.`,
-      category: 'affairs',
-      priority: 'important',
-      referenceId: applicationCode,
-    },
-  });
+    emit('submitted', {
+      applicationCode,
+      qrToken,
+      courseRoundId: props.round.id,
+      traineeId: props.traineeProfile.userId,
+      status: 'UnderReview',
+      qualificationPhotoPath: props.traineeProfile.qualificationPhotoPath || null,
+      createdAt,
+      round: props.round,
+      qualification: props.traineeProfile.qualification || 'مؤهل جامعي مسجل',
+      note: 'تقديم إلكتروني سريع',
+      // AuditLog
+      auditLog: {
+        fromStatus: null,
+        toStatus: 'UnderReview',
+        note: 'تقديم إلكتروني سريع على الدورة',
+        changedAt: createdAt,
+      },
+      // Notification for Affairs
+      affairsNotification: {
+        title: `طلب تقديم جديد على دورة: ${props.round.courseName}`,
+        message: `تقدّم المتدرب ${props.traineeProfile.fullName} للدورة "${props.round.courseName}" (${props.round.roundCode}) بكود الطلب ${applicationCode}. في انتظار المراجعة والاعتماد.`,
+        category: 'affairs',
+        priority: 'important',
+        referenceId: applicationCode,
+      },
+    });
 
-  isSubmitting.value = false;
-  phase.value = 'success';
+    phase.value = 'success';
+  } catch (err) {
+    console.error('[ApplyConfirmModal] خطأ في تأكيد التقديم:', err);
+    submitError.value = 'تعذر استكمال التقديم حالياً، يرجى إعادة المحاولة.';
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 
 function sleep(ms) {

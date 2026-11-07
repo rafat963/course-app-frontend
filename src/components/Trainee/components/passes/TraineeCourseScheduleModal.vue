@@ -181,7 +181,7 @@ import {
   formatTimeRange,
   getCourseProgress,
   WEEK_DAYS,
-} from '../helpers/traineePortalHelpers';
+} from '../../helpers/traineePortalHelpers';
 
 defineProps({
   isOpen: {
