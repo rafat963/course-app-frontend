@@ -14,50 +14,141 @@
               <h1 class="text-lg font-black text-slate-800 dark:text-slate-100 font-heading">
                 تصريح الدخول الأمني الموحد (Gate QR Pass)
               </h1>
-              <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+              <span
+                v-if="hasPasses"
+                class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1"
+              >
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 القرار: مصرح بالدخول (Allowed)
               </span>
+              <span
+                v-else
+                class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center gap-1"
+              >
+                <AlertCircle class="w-3.5 h-3.5 text-amber-600" />
+                القرار: لا يوجد تصريح نشط
+              </span>
             </div>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              رمز QR يومي موحد وشامل لجميع محاضراتك ودوراتك المعتمدة — يُبرز لفرد الأمن عند بوابات المعهد
+              {{ hasPasses ? 'رمز QR يومي موحد وشامل لجميع محاضراتك ودوراتك المعتمدة — يُبرز لفرد الأمن عند بوابات المعهد' : 'يتم إصدار وتفعيل رمز الـ QR تلقائياً فور اعتماد طلبك وسداد رسوم الدورة التدريبية' }}
             </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs shrink-0">
-          <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-950/60 border border-primary-200 dark:border-primary-800 flex items-center justify-center text-primary-700 dark:text-primary-300 font-black text-sm">
-            {{ userInitials }}
-          </div>
-          <div>
-            <div class="font-bold text-slate-700 dark:text-slate-200 truncate max-w-[140px]">{{ traineeProfile.fullName }}</div>
-            <div class="text-[11px] text-slate-400 font-mono">الرقم القومي: {{ traineeProfile.nationalId }}</div>
+        <div class="flex items-center gap-2.5">
+          <!-- زر تجربة الحالة (المعاينة التفاعلية بين الحالتين) -->
+          <button
+            type="button"
+            class="px-3 py-2 rounded-2xl border text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
+            :class="simulateEmpty
+              ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-300 text-amber-700 dark:text-amber-300 hover:bg-amber-100 shadow-2xs'
+              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'"
+            title="تبديل معاينة الصفحة بين وجود تصريح نشط وعدم وجود دورات"
+            @click="simulateEmpty = !simulateEmpty"
+          >
+            <SlidersHorizontal class="w-3.5 h-3.5 text-primary-600 dark:text-primary-400" />
+            <span>{{ simulateEmpty ? 'إلغاء المعاينة (عرض التصريح)' : 'معاينة: بدون دورات' }}</span>
+          </button>
+
+          <!-- بطاقة المتدرب السريعة -->
+          <div class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 text-xs shrink-0">
+            <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-950/60 border border-primary-200 dark:border-primary-800 flex items-center justify-center text-primary-700 dark:text-primary-300 font-black text-sm">
+              {{ userInitials }}
+            </div>
+            <div>
+              <div class="font-bold text-slate-700 dark:text-slate-200 truncate max-w-[140px]">{{ traineeProfile.fullName }}</div>
+              <div class="text-[11px] text-slate-400 font-mono">الرقم القومي: {{ traineeProfile.nationalId }}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- =========================================================
-         2. في حال عدم وجود دورات مقيد بها
+         2. في حال عدم وجود أي دورات متقدم عليها (لا يوجد تصريح QR)
          ========================================================= -->
     <div
-      v-if="!passes.length"
-      class="gate-pass-no-print bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm px-8 py-16 text-center space-y-3"
+      v-if="!hasPasses"
+      class="gate-pass-no-print bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm p-8 sm:p-12 text-center space-y-6 animate-fade-in"
     >
-      <div class="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto">
-        <QrCode class="w-7 h-7 text-slate-400" />
+      <!-- الأيقونة التعبيرية الدائرية -->
+      <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full bg-amber-500/10 dark:bg-amber-500/20 blur-xl animate-pulse" />
+        <div class="relative w-20 h-20 rounded-3xl bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-inner">
+          <QrCode class="w-10 h-10 text-slate-400 dark:text-slate-500 opacity-60" />
+          <div class="absolute -bottom-1 -left-1 w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm">
+            <AlertCircle class="w-4 h-4" />
+          </div>
+        </div>
       </div>
-      <h3 class="text-sm font-black text-slate-700 dark:text-slate-200 font-heading">لا توجد تصاريح دخول فعّالة</h3>
-      <p class="text-xs text-slate-400">
-        يُصدر التصريح تلقائياً بعد اعتماد طلبك وسداد الرسوم وتقييدك بالدورة التدريبية.
-      </p>
-      <RouterLink
-        to="/trainee/courses"
-        class="inline-flex items-center gap-1.5 text-xs font-bold text-primary-600 dark:text-primary-400 hover:underline"
-      >
-        تصفّح الدورات المتاحة للتقديم
-        <ArrowLeft class="w-3.5 h-3.5" />
-      </RouterLink>
+
+      <!-- النصوص التوضيحية -->
+      <div class="max-w-lg mx-auto space-y-2.5">
+        <h2 class="text-lg sm:text-xl font-black text-slate-800 dark:text-slate-100 font-heading">
+          لا يوجد تصريح دخول أمني (QR Code) مفعل حالياً
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+          عفواً، لم يتم العثور على أي دورة تدريبية مقيد بها حالياً لاستخراج تصريح دخول للبوابات.
+        </p>
+
+        <!-- التنبيه المطلوب نصاً -->
+        <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/90 dark:border-amber-900/50 text-amber-900 dark:text-amber-200 text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
+          <AlertCircle class="w-4.5 h-4.5 text-amber-600 shrink-0" />
+          <span>برجاء الذهاب لصفحة الطلبات والتقديم علي دورة جديدة</span>
+        </div>
+      </div>
+
+      <!-- أزرار الإجراءات الفورية -->
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <RouterLink
+          to="/trainee/applications"
+          class="px-6 py-3 rounded-2xl bg-gradient-to-l from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white text-xs sm:text-sm font-bold shadow-md shadow-primary-700/20 hover:shadow-primary-700/30 transition-all flex items-center gap-2 cursor-pointer active:scale-95"
+        >
+          <ClipboardList class="w-4.5 h-4.5" />
+          <span>الذهاب لصفحة متابعة الطلبات</span>
+        </RouterLink>
+
+        <RouterLink
+          to="/trainee/courses"
+          class="px-6 py-3 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs active:scale-95"
+        >
+          <BookOpen class="w-4.5 h-4.5 text-primary-600 dark:text-primary-400" />
+          <span>تصفح والتقديم على دورة جديدة</span>
+        </RouterLink>
+      </div>
+
+      <!-- كروت خطوات استخراج التصريح الثلاثة -->
+      <div class="max-w-2xl mx-auto pt-6 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-3 text-right">
+        <div class="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1">
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+            <span class="w-5 h-5 rounded-full bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300 flex items-center justify-center text-[10px] font-black shrink-0">1</span>
+            <span>التقديم على الدورة</span>
+          </div>
+          <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">
+            اختيار البرنامج التدريبي المناسب وإرسال طلب الالتحاق إلكترونياً.
+          </p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1">
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+            <span class="w-5 h-5 rounded-full bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300 flex items-center justify-center text-[10px] font-black shrink-0">2</span>
+            <span>اعتماد الشؤون والسداد</span>
+          </div>
+          <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">
+            مراجعة بياناتك واعتماد الطلب وتحديد مهلة سداد الرسوم بخزينة المعهد.
+          </p>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 space-y-1">
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
+            <span class="w-5 h-5 rounded-full bg-primary-100 dark:bg-primary-950 text-primary-700 dark:text-primary-300 flex items-center justify-center text-[10px] font-black shrink-0">3</span>
+            <span>صدور تصريح الـ QR</span>
+          </div>
+          <p class="text-[11px] text-slate-400 dark:text-slate-500 leading-normal">
+            توليد كود الـ QR الموحد وتصريح الدخول للبوابات الذكية فور تقييدك.
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- =========================================================
@@ -382,7 +473,7 @@
          5. قالب الطباعة المتخصص النظيف (Clean Professional Print Layout)
          يظهر فقط عند أمر الطباعة (window.print / Ctrl+P) ويخفي كافة القوائم والأزرار
          ========================================================= -->
-    <div id="daily-gate-pass-print-target" class="hidden print:block font-sans select-text" dir="rtl">
+    <div v-if="hasPasses" id="daily-gate-pass-print-target" class="hidden print:block font-sans select-text" dir="rtl">
       <!-- الترويسة العسكرية الرسمية للطباعة -->
       <div class="print-header flex items-center justify-between pb-3 border-b-2 border-[#0b1e42] mb-3">
         <div class="text-right space-y-0.5 text-slate-900 leading-tight">
@@ -556,7 +647,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRoute } from 'vue-router';
 import QrcodeVue from 'qrcode.vue';
 import {
   QrCode,
@@ -576,6 +667,9 @@ import {
   BookOpen,
   Fingerprint,
   BadgeCheck,
+  AlertCircle,
+  SlidersHorizontal,
+  ClipboardList,
 } from 'lucide-vue-next';
 import TraineePassZoomModal from './TraineePassZoomModal.vue';
 import TraineeGateLogsModal from './TraineeGateLogsModal.vue';
@@ -586,7 +680,11 @@ import { formatDateDmy, formatTimeRange } from '../../helpers/traineePortalHelpe
 import { formatLectureDays, CATEGORY_CONFIG, DAY_LABELS } from '../../helpers/availableCoursesHelpers';
 import instituteLogo from '@/assets/logo.png';
 
+const route = useRoute();
 const authStore = useAuthStore();
+
+// وضع تجربة تفاعلي يسمح بتبديل الحالة بين وجود تصريح نشط وحالة عدم وجود دورات (Empty State)
+const simulateEmpty = ref(false);
 
 const traineeProfile = {
   ...TRAINEE_MOCK_PROFILE,
@@ -601,6 +699,13 @@ const userInitials = computed(() => {
 
 /** تصاريح الدورات المقيد بها فقط (Status = Enrolled) */
 const passes = computed(() => ONGOING_APPLICATIONS);
+
+/** التحقق من وجود تصاريح فعّالة للمتدرب */
+const hasPasses = computed(() => {
+  if (simulateEmpty.value) return false;
+  if (route.query.empty === 'true' || route.query.no_courses === 'true') return false;
+  return passes.value && passes.value.length > 0;
+});
 
 // ============================================================
 // حساب بيانات اليوم والجلسات المقررة اليوم

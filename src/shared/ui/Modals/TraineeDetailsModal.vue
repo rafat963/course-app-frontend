@@ -37,6 +37,10 @@
             <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-0.5 flex flex-wrap items-center gap-2 font-bold">
               <span class="font-mono">الرقم القومي: {{ trainee.nationalId }}</span>
               <span>•</span>
+              <span class="font-mono text-amber-600 dark:text-amber-400">#TRN-{{ trainee.id }}</span>
+              <span>•</span>
+              <span class="font-mono text-primary-600 dark:text-primary-400">#USR-{{ trainee.userId || trainee.id }}</span>
+              <span>•</span>
               <span class="font-mono">{{ trainee.phone }}</span>
               <span>•</span>
               <span>{{ trainee.governorate }}</span>

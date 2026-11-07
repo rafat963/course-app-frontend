@@ -61,6 +61,10 @@
               <span>{{ trainee.nationalId }}</span>
             </span>
             <span>•</span>
+            <span class="font-mono text-amber-600 dark:text-amber-400 font-bold">#TRN-{{ trainee.id }}</span>
+            <span>•</span>
+            <span class="font-mono text-primary-600 dark:text-primary-400 font-bold">#USR-{{ trainee.userId || trainee.id }}</span>
+            <span>•</span>
             <span class="flex items-center gap-1 font-mono">
               <Phone class="w-3.5 h-3.5 text-slate-400" />
               <span>{{ trainee.phone }}</span>

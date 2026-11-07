@@ -58,12 +58,20 @@
         :icon="ClipboardList"
       />
       <AppKpiCard
-        title="طلبات نشطة (قيد المراجعة)"
-        :value="statusCount('UnderReview')"
-        :badge="statusCount('UnderReview') ? 'بانتظار قرار الشؤون' : 'لا يوجد'"
-        badge-class="text-blue-600 dark:text-blue-400 font-bold"
-        icon-bg="bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400"
-        :icon="Clock"
+        title="طلبات مقبولة ومقيدة"
+        :value="statusCount('Enrolled')"
+        :badge="statusCount('Enrolled') ? 'تم القيد رسمياً ✓' : 'لا يوجد'"
+        badge-class="text-emerald-600 dark:text-emerald-400 font-bold"
+        icon-bg="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400"
+        :icon="GraduationCap"
+      />
+      <AppKpiCard
+        title="طلبات مرفوضة"
+        :value="statusCount('Rejected')"
+        :badge="statusCount('Rejected') ? 'تجاوز المهلة الزمنية' : 'لا يوجد'"
+        badge-class="text-rose-600 dark:text-rose-400 font-bold"
+        icon-bg="bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400"
+        :icon="XCircle"
       />
       <AppKpiCard
         title="في انتظار السداد"
@@ -74,14 +82,6 @@
         :icon="Wallet"
         class="cursor-pointer transition-all hover:scale-[1.01]"
         @click="filterToPendingPayment"
-      />
-      <AppKpiCard
-        title="دورات مكتملة"
-        :value="statusCount('CourseEnded')"
-        :badge="`${issuedCertificatesCount} شهادة صادرة`"
-        badge-class="text-emerald-600 dark:text-emerald-400 font-bold"
-        icon-bg="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400"
-        :icon="CheckCircle2"
       />
     </div>
 
@@ -228,39 +228,6 @@
     </div>
 
     <!-- =========================================================
-         بانر الانتقال التلقائي للدورات المقبولة إلى الجدول الدراسي
-         ========================================================= -->
-    <div
-      v-if="enrolledCourses.length > 0"
-      class="p-4 rounded-3xl bg-gradient-to-l from-emerald-50 via-emerald-100/40 to-emerald-50 dark:from-emerald-950/40 dark:via-emerald-900/30 dark:to-emerald-950/40 border border-emerald-300 dark:border-emerald-800/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-    >
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-          <GraduationCap class="w-5 h-5" />
-        </div>
-        <div class="text-xs space-y-0.5">
-          <div class="font-black text-emerald-900 dark:text-emerald-100 flex items-center gap-2">
-            <span>اكتمل القبول بالدورة (المرحلة 4)</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-200 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 font-bold">
-              تم القيد والتفعيل ✓
-            </span>
-          </div>
-          <p class="text-emerald-700 dark:text-emerald-300">
-            تم قبولك رسمياً في <strong class="font-bold">{{ enrolledCourses[0]?.round?.courseName }}</strong> وتم نقله تلقائياً إلى جدولك الدراسي وقائمة دوراتك المقيد بها.
-          </p>
-        </div>
-      </div>
-
-      <RouterLink
-        to="/trainee/schedule"
-        class="h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer shrink-0 active:scale-95"
-      >
-        <span>الذهاب إلى الجدول الدراسي</span>
-        <ArrowLeft class="w-3.5 h-3.5" />
-      </RouterLink>
-    </div>
-
-    <!-- =========================================================
          4. محتوى قائمة الطلبات (حالة فارغة / جدول / كروت)
          ========================================================= -->
     <!-- حالة عدم وجود بيانات -->
@@ -344,10 +311,10 @@
         <template #status="{ row }">
           <span
             class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
-            :class="statusConfig(row.status).badge"
+            :class="statusConfig(row.status, row.statusLabel).badge"
           >
-            <span class="w-1.5 h-1.5 rounded-full" :class="statusConfig(row.status).dot" />
-            {{ statusConfig(row.status).label }}
+            <span class="w-1.5 h-1.5 rounded-full" :class="statusConfig(row.status, row.statusLabel).dot" />
+            {{ row.statusLabel || statusConfig(row.status).label }}
           </span>
         </template>
 
@@ -355,7 +322,7 @@
         <template #details="{ row }">
           <div class="text-[11px] max-w-[220px]">
             <!-- قيد المراجعة -->
-            <div v-if="row.status === 'UnderReview'" class="text-blue-600 dark:text-blue-400">
+            <div v-if="row.status === 'UnderReview' || row.status === 'pending_affairs'" class="text-blue-600 dark:text-blue-400">
               قيد فحص المستندات بالشؤون
             </div>
 
@@ -370,7 +337,7 @@
             </div>
 
             <!-- مرفوض -->
-            <div v-else-if="row.status === 'Rejected'" class="text-rose-600 dark:text-rose-400 truncate" :title="row.rejectionReason">
+            <div v-else-if="row.status === 'Rejected' || row.status === 'rejected_expired'" class="text-rose-600 dark:text-rose-400 truncate" :title="row.rejectionReason">
               {{ row.rejectionReason }}
             </div>
 
@@ -444,10 +411,10 @@
         <div class="px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 flex-wrap">
           <span
             class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border"
-            :class="statusConfig(app.status).badge"
+            :class="statusConfig(app.status, app.statusLabel).badge"
           >
-            <span class="w-1.5 h-1.5 rounded-full" :class="statusConfig(app.status).dot" />
-            {{ statusConfig(app.status).label }}
+            <span class="w-1.5 h-1.5 rounded-full" :class="statusConfig(app.status, app.statusLabel).dot" />
+            {{ app.statusLabel || statusConfig(app.status).label }}
           </span>
 
           <div class="flex items-center gap-2">
@@ -509,9 +476,9 @@
             </div>
           </div>
 
-          <!-- لوحة الحالة: قيد المراجعة (UnderReview) -->
+          <!-- لوحة الحالة: قيد المراجعة (UnderReview / pending_affairs) -->
           <div
-            v-if="app.status === 'UnderReview'"
+            v-if="app.status === 'UnderReview' || app.status === 'pending_affairs'"
             class="p-3.5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/70 space-y-1"
           >
             <div class="flex items-center gap-1.5 text-[11px] font-black text-blue-700 dark:text-blue-300">
@@ -562,9 +529,9 @@
             </div>
           </div>
 
-          <!-- لوحة الحالة: مرفوض (Rejected) -->
+          <!-- لوحة الحالة: مرفوض (Rejected / rejected_expired) -->
           <div
-            v-else-if="app.status === 'Rejected'"
+            v-else-if="app.status === 'Rejected' || app.status === 'rejected_expired'"
             class="p-3.5 rounded-2xl bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/70 space-y-1.5"
           >
             <div class="flex items-center gap-1.5 text-[11px] font-black text-rose-700 dark:text-rose-300">
@@ -679,7 +646,7 @@
           </button>
 
           <RouterLink
-            v-else-if="app.status === 'Rejected'"
+            v-else-if="app.status === 'Rejected' || app.status === 'rejected_expired'"
             to="/trainee/courses"
             class="inline-flex items-center gap-1 text-[11px] font-black text-primary-600 dark:text-primary-400 hover:underline"
           >
@@ -716,10 +683,10 @@
                 </h3>
                 <span
                   class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border"
-                  :class="statusConfig(app.status).badge"
+                  :class="statusConfig(app.status, app.statusLabel).badge"
                 >
-                  <span class="w-1.5 h-1.5 rounded-full" :class="statusConfig(app.status).dot" />
-                  {{ statusConfig(app.status).label }}
+                  <span class="w-1.5 h-1.5 rounded-full" :class="statusConfig(app.status, app.statusLabel).dot" />
+                  {{ app.statusLabel || statusConfig(app.status).label }}
                 </span>
               </div>
               <div class="flex items-center gap-2 text-xs text-slate-400 mt-0.5 font-mono">
@@ -918,7 +885,7 @@
           </div>
 
           <div
-            v-else-if="app.status === 'Rejected'"
+            v-else-if="app.status === 'Rejected' || app.status === 'rejected_expired'"
             class="p-4 rounded-2xl bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
           >
             <div class="flex items-center gap-3">
@@ -944,7 +911,7 @@
           </div>
 
           <div
-            v-else-if="app.status === 'UnderReview'"
+            v-else-if="app.status === 'UnderReview' || app.status === 'pending_affairs'"
             class="p-4 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/70 flex items-center justify-between gap-3"
           >
             <div class="flex items-center gap-3">
@@ -994,6 +961,7 @@
       :application="selectedApplication"
       :trainee-category="traineeProfile.category"
       @close="isDetailsModalOpen = false"
+      @open-pass="openPassQr"
     />
 
     <!-- 2. مودال تصريح الدخول ورمز QR المباشر (Direct Gate Pass Modal) -->
@@ -1140,64 +1108,31 @@ onMounted(() => {
 });
 
 const allApplications = computed(() => {
-  const base = [...TRAINEE_APPLICATIONS];
-  // دمج الطلبات المنشأة حديثاً عبر المتجر في حال وجودها
-  if (traineeStore.applications?.length) {
-    traineeStore.applications.forEach((storeApp) => {
-      if (!base.some((b) => b.applicationCode === storeApp.applicationCode)) {
-        base.unshift({
-          id: storeApp.id,
-          applicationCode: storeApp.applicationCode,
-          status: storeApp.status || 'UnderReview',
-          createdAt: storeApp.createdAt || new Date().toISOString(),
-          updatedAt: storeApp.updatedAt || new Date().toISOString(),
-          qrToken: storeApp.qrToken || 'mock-qr-token',
-          rejectionReason: null,
-          paymentDueDate: null,
-          paymentDate: null,
-          receiptNumber: null,
-          paidAmount: null,
-          certificateCode: null,
-          finalGrade: null,
-          isCertificateIssued: false,
-          extensionCount: 0,
-          round: storeApp.round || {
-            courseName: storeApp.courseName || storeApp.round?.courseName || 'تطوير تطبيقات الويب المتكاملة Full Stack (Vue & Node.js)',
-            courseCode: storeApp.courseCode || 'CRS-WEB-05',
-            courseDomain: 'تطوير الويب',
-            roundNumber: 7,
-            roundCode: 'CR-5-7',
-            startDate: '2026-11-25',
-            endDate: '2027-01-10',
-            startTime: '16:00',
-            endTime: '20:00',
-            lectureDays: ['Sun', 'Tue'],
-            totalLectures: 16,
-            passingGrade: 65,
-            hall: { name: 'معمل البرمجيات 3', location: 'المبنى التقني - الطابق الثالث' },
-            instructor: { name: 'د. ياسمين خالد سالم', specialty: 'تطوير الويب Full Stack' },
-            pricings: { Civilian: 3800, MilitaryOfficer: 1900, MilitaryFamily: 2300, PoliceOfficerOrFamily: 2500 },
-          },
-        });
-      }
-    });
-  }
-  return base;
+  return [...TRAINEE_APPLICATIONS];
 });
 
-// الدورات التي اكتمل قبولها بالدورة (المرحلة 4: القبول بالدورة)
+// قائمة الطلبات المعروضة (تشمل المقبول والمرفوض)
+const applications = computed(() => allApplications.value);
+
+// الدورات التي اكتمل قبولها بالدورة
 const enrolledCourses = computed(() =>
   allApplications.value.filter((app) => app.status === 'Enrolled')
 );
 
-// منطق الانتقال التلقائي: استبعاد الطلبات المقبولة نهائياً من شاشة المتابعة ونقلها إلى الجدول الدراسي
-const applications = computed(() =>
-  allApplications.value.filter((app) => app.status !== 'Enrolled')
-);
+const statusConfig = (status, statusLabel = null) => getStatusConfig(status, statusLabel);
 
-const statusConfig = (status) => getStatusConfig(status);
-
-const statusCount = (status) => applications.value.filter((app) => app.status === status).length;
+const statusCount = (status) => {
+  if (status === 'UnderReview' || status === 'pending_affairs') {
+    return applications.value.filter((app) => app.status === 'UnderReview' || app.status === 'pending_affairs').length;
+  }
+  if (status === 'Rejected' || status === 'rejected_expired') {
+    return applications.value.filter((app) => app.status === 'Rejected' || app.status === 'rejected_expired').length;
+  }
+  if (status === 'Enrolled') {
+    return applications.value.filter((app) => app.status === 'Enrolled').length;
+  }
+  return applications.value.filter((app) => app.status === status).length;
+};
 
 const issuedCertificatesCount = computed(
   () => applications.value.filter((app) => app.isCertificateIssued).length
@@ -1225,14 +1160,23 @@ const urgentPayments = computed(() =>
 
 const tabs = computed(() => [
   { value: 'all', label: 'الكل', count: applications.value.length },
-  { value: 'UnderReview', label: 'قيد المراجعة', count: statusCount('UnderReview') },
-  { value: 'PendingPayment', label: 'في انتظار السداد', count: statusCount('PendingPayment') },
+  { value: 'Enrolled', label: 'مقبولة', count: statusCount('Enrolled') },
   { value: 'Rejected', label: 'مرفوضة', count: statusCount('Rejected') },
 ]);
 
 const filteredApplications = computed(() =>
   applications.value.filter((app) => {
-    if (activeTab.value !== 'all' && app.status !== activeTab.value) return false;
+    if (activeTab.value !== 'all') {
+      if (activeTab.value === 'Enrolled') {
+        if (app.status !== 'Enrolled') return false;
+      } else if (activeTab.value === 'Rejected') {
+        if (app.status !== 'Rejected' && app.status !== 'rejected_expired') return false;
+      } else if (activeTab.value === 'UnderReview') {
+        if (app.status !== 'UnderReview' && app.status !== 'pending_affairs') return false;
+      } else if (app.status !== activeTab.value) {
+        return false;
+      }
+    }
     const q = searchQuery.value.trim().toLowerCase();
     if (!q) return true;
     return (
@@ -1302,8 +1246,8 @@ function handleRefresh() {
 // 4. القبول بالدورة (Course Enrollment / Acceptance)
 // ============================================================
 function getMetroStations(app) {
-  const isRejected = app.status === 'Rejected';
-  const isUnderReview = app.status === 'UnderReview';
+  const isRejected = app.status === 'Rejected' || app.status === 'rejected_expired';
+  const isUnderReview = app.status === 'UnderReview' || app.status === 'pending_affairs';
   const isPendingPayment = app.status === 'PendingPayment' || app.status === 'PaymentMissed';
   const isEnrolled = app.status === 'Enrolled';
   const isCourseEnded = app.status === 'CourseEnded';
@@ -1363,8 +1307,8 @@ function getMetroStations(app) {
 function getMetroProgressPercent(app) {
   if (app.status === 'CourseEnded' || app.status === 'Enrolled') return 100;
   if (app.status === 'PendingPayment' || app.status === 'PaymentMissed') return 66;
-  if (app.status === 'Rejected') return 33;
-  if (app.status === 'UnderReview') return 33;
+  if (app.status === 'Rejected' || app.status === 'rejected_expired') return 33;
+  if (app.status === 'UnderReview' || app.status === 'pending_affairs') return 33;
   return 15;
 }
 </script>

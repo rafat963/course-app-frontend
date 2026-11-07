@@ -3,7 +3,7 @@
  * وفق نموذج الـ ERD: Courses, CourseRounds, CoursePricings, Halls, Instructors, CourseLectureDays
  */
 
-/** @type {Object} بروفايل المتدرب الافتراضي لعرض السعر المناسب لفئته */
+/** @type {Object} بروفايل المتدرب الافتراضي المعتمد وفق جدول Trainees بالـ ERD */
 export const TRAINEE_MOCK_PROFILE = {
   id: 401,
   userId: 201,
@@ -11,14 +11,25 @@ export const TRAINEE_MOCK_PROFILE = {
   email: 'ahmed.sami@trainee.institute.local',
   phone: '01012345678',
   nationalId: '29901150103412',
-  category: 'Civilian', // Civilian | MilitaryOfficer | MilitaryFamily | PoliceOfficerOrFamily
+  nationalIdFrontPhotoPath:
+    'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=80',
+  nationalIdBackPhotoPath:
+    'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=80',
+  dateOfBirth: '1999-01-15',
   gender: 'Male',
+  religion: 'Muslim',
+  maritalStatus: 'Single',
+  occupation: 'مهندس برمجيات ونظم معلومات',
+  address: '15 شارع النصر، حي المعادي الجديدة، القاهرة',
   governorate: 'القاهرة',
-  occupation: 'مهندس حاسبات ونظم معلومات',
-  qualification: 'بكالوريوس هندسة الحاسبات ونظم التحكم - دفعة 2014',
+  nationalIdExpiryDate: '2029-05-20',
+  category: 'Civilian', // Civilian | MilitaryOfficer | MilitaryFamily | PoliceOfficerOrFamily
+  categoryProofPhotoPath: null,
+  qualification: 'بكالوريوس هندسة الحاسبات ونظم التحكم - دفعة 2021',
   qualificationPhotoPath:
     'https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=600&auto=format&fit=crop&q=80',
-  profilePhotoPath: null,
+  profilePhotoPath:
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=250&auto=format&fit=crop&q=80',
 };
 
 /**

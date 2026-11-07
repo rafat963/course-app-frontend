@@ -34,8 +34,12 @@ export default [
       {
         path: 'schedule',
         name: 'TraineeSchedule',
-        component: () => import('./components/passes/TraineeScheduleView.vue'),
+        component: () => import('./components/schedule/TraineeScheduleView.vue'),
         meta: { title: 'دوراتي الحالية وجدولي' },
+      },
+      {
+        path: 'profile',
+        redirect: '/settings',
       },
     ],
   },

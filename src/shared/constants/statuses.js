@@ -3,16 +3,23 @@
  */
 export const APPLICATION_STATUS = {
   PENDING_REVIEW: 'PendingReview',
+  PENDING_AFFAIRS: 'pending_affairs',
   WAITING_PAYMENT: 'WaitingPayment',
   PAYMENT_MISSED: 'PaymentMissed',
   ENROLLED: 'Enrolled',
   COMPLETED: 'Completed',
   REJECTED: 'Rejected',
+  REJECTED_EXPIRED: 'rejected_expired',
 };
 
 export const APPLICATION_STATUS_CONFIG = {
   [APPLICATION_STATUS.PENDING_REVIEW]: {
     label: 'قيد المراجعة',
+    variant: 'info',
+    bg: 'bg-blue-50 text-blue-700 border-blue-200',
+  },
+  [APPLICATION_STATUS.PENDING_AFFAIRS]: {
+    label: 'قيد المراجعة لدى الشؤون',
     variant: 'info',
     bg: 'bg-blue-50 text-blue-700 border-blue-200',
   },
@@ -38,6 +45,11 @@ export const APPLICATION_STATUS_CONFIG = {
   },
   [APPLICATION_STATUS.REJECTED]: {
     label: 'مرفوض',
+    variant: 'danger',
+    bg: 'bg-rose-50 text-rose-700 border-rose-200',
+  },
+  [APPLICATION_STATUS.REJECTED_EXPIRED]: {
+    label: 'مرفوض (تجاوز المهلة الزمنية)',
     variant: 'danger',
     bg: 'bg-rose-50 text-rose-700 border-rose-200',
   },

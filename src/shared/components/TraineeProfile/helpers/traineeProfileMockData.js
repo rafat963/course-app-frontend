@@ -6,6 +6,7 @@
 export const MOCK_TRAINEES = [
   {
     id: 1,
+    userId: 101,
     fullName: 'محمود عبد الفتاح عبد الغني الصاوي',
     role: 'Trainee',
     email: 'mahmoud.sawy@example.com',
@@ -139,6 +140,7 @@ export const MOCK_TRAINEES = [
   },
   {
     id: 2,
+    userId: 102,
     fullName: 'مروة عصام الدين فؤاد الشريف',
     role: 'Trainee',
     email: 'marwa.sherif@example.com',

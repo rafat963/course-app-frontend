@@ -294,24 +294,155 @@
           </div>
         </div>
 
-        <div class="p-5 space-y-4 flex-1">
-          <div class="flex items-start justify-between gap-3">
+        <!-- 1. صورة / معاينة الشهادة في الجزء العلوي من الكارت بشكل بارز -->
+        <div class="px-5 pt-4">
+          <div
+            class="relative w-full aspect-[16/9] sm:aspect-[16/8.5] rounded-2xl overflow-hidden border-2 transition-all duration-300 group cursor-pointer"
+            :class="
+              app.isCertificateIssued
+                ? 'border-amber-400/50 bg-gradient-to-br from-amber-50/90 via-white to-amber-100/60 dark:from-slate-900 dark:via-slate-800 dark:to-amber-950/20 shadow-md hover:shadow-xl hover:border-amber-500'
+                : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 opacity-80'
+            "
+            :title="app.isCertificateIssued ? 'انقر لمعاينة وتحميل الوثيقة الرسمية' : 'الشهادة لم تُعتمد بعد'"
+            @click="app.isCertificateIssued && openCertificate(app)"
+          >
+            <!-- الزخرفة والإطار المذهب المزدوج -->
+            <div class="absolute inset-2 border border-amber-600/20 dark:border-amber-500/20 rounded-xl pointer-events-none" />
+            <div class="absolute inset-3 border-2 border-double border-amber-600/30 dark:border-amber-500/30 rounded-lg pointer-events-none" />
+
+            <!-- علامة مائية لشعار المعهد بالخلفية -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.06] dark:opacity-[0.08]">
+              <img :src="instituteLogo" alt="Institute Watermark" class="w-36 h-36 object-contain" />
+            </div>
+
+            <!-- محتوى وثيقة الشهادة المصغرة المعاينة -->
+            <div class="relative z-10 h-full p-4 flex flex-col justify-between text-center select-none">
+              <!-- ترويسة مصغرة للشهادة -->
+              <div class="flex items-center justify-between border-b border-amber-700/20 dark:border-amber-500/20 pb-2">
+                <div class="text-right leading-tight">
+                  <div class="text-[9px] font-black text-slate-800 dark:text-slate-100">جمهورية مصر العربية • وزارة الدفاع</div>
+                  <div class="text-[8px] font-bold text-amber-700 dark:text-amber-400">معهد نظم المعلومات للقوات المسلحة</div>
+                </div>
+
+                <!-- لوجو المعهد المذهب -->
+                <div class="w-9 h-9 rounded-full p-1 bg-white dark:bg-slate-800 border border-amber-400/60 shadow-xs flex items-center justify-center shrink-0">
+                  <img :src="instituteLogo" alt="شعار المعهد" class="w-7 h-7 object-contain" />
+                </div>
+
+                <div class="text-left font-mono text-[8px] text-slate-500 dark:text-slate-400 leading-tight">
+                  <div>{{ app.certificateCode || 'NOT-ISSUED' }}</div>
+                  <div>{{ app.isCertificateIssued ? formatDateDmy(app.certificateIssuedAt) : 'قيد المراجعة' }}</div>
+                </div>
+              </div>
+
+              <!-- قلب الشهادة: عنوان الشهادة واسم الدورة والمتدرب -->
+              <div class="my-auto py-1 space-y-1">
+                <div class="text-[9px] tracking-[0.2em] font-mono font-black text-amber-600 dark:text-amber-400 uppercase">
+                  CERTIFICATE OF COMPLETION
+                </div>
+                <h4 class="text-xs sm:text-sm font-black font-heading text-slate-900 dark:text-slate-100 tracking-wide">
+                  شهـادة اجـتـيـاز وتـخـرج مـعـتـمـدة
+                </h4>
+                <div class="text-[10px] sm:text-[11px] text-slate-600 dark:text-slate-300 font-medium line-clamp-1">
+                  تُمنح للدارس: <strong class="font-bold text-slate-900 dark:text-white">{{ traineeProfile.fullName }}</strong>
+                </div>
+                <div class="text-[10px] text-primary-700 dark:text-primary-300 font-bold line-clamp-1">
+                  لاجتيازه دورة: {{ app.round.courseName }}
+                </div>
+              </div>
+
+              <!-- فوتر الشهادة المصغر: الأختام والتقدير والباركود -->
+              <div class="pt-2 border-t border-amber-700/20 dark:border-amber-500/20 flex items-center justify-between text-[8px] text-slate-600 dark:text-slate-400">
+                <div class="flex items-center gap-1">
+                  <Award class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <span class="font-bold text-slate-800 dark:text-slate-200">التقدير العام: ممتاز ({{ app.finalGrade }}%)</span>
+                </div>
+                <div class="flex items-center gap-1 font-mono">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                  <span>معتمد ورقمي رسمي</span>
+                </div>
+              </div>
+
+              <!-- طبقة التفاعل عند التحويم (Hover Overlay) -->
+              <div
+                v-if="app.isCertificateIssued"
+                class="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col items-center justify-center text-white gap-2"
+              >
+                <div class="w-10 h-10 rounded-full bg-primary-600/90 text-white flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform duration-200">
+                  <Eye class="w-5 h-5" />
+                </div>
+                <span class="text-xs font-black drop-shadow-sm">انقر لمعاينة وتحميل الشهادة الرسمية</span>
+              </div>
+
+              <!-- شارة عدم الإصدار إن وُجدت -->
+              <div
+                v-else
+                class="absolute inset-0 bg-slate-900/50 backdrop-blur-[1px] flex flex-col items-center justify-center text-slate-200 gap-1.5 p-4"
+              >
+                <Info class="w-6 h-6 text-amber-400" />
+                <span class="text-xs font-black">الشهادة قيد الاعتماد الأكاديمي</span>
+                <span class="text-[10px] text-slate-300">لم تصل لنسبة النجاح المقررة ({{ app.round.passingGrade }}%)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. كروت/عناصر مؤشرات الأداء الرئيسية (KPIs) أسفل صورة الشهادة مباشرة داخل الكارت -->
+        <div class="p-5 pt-3 space-y-4 flex-1">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+            <!-- 1. الدرجة النهائية -->
+            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/70 space-y-0.5">
+              <div class="text-[10px] text-slate-400">الدرجة النهائية</div>
+              <div class="font-bold font-mono text-xs" :class="gradeColor(app)">
+                {{ app.finalGrade }}%
+              </div>
+            </div>
+
+            <!-- 2. نسبة النجاح المطلوبة -->
+            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/70 space-y-0.5">
+              <div class="text-[10px] text-slate-400">نسبة النجاح المقررة</div>
+              <div class="font-bold font-mono text-xs text-slate-700 dark:text-slate-200">
+                {{ app.round.passingGrade }}%
+              </div>
+            </div>
+
+            <!-- 3. تاريخ اعتماد الشهادة -->
+            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/70 space-y-0.5">
+              <div class="text-[10px] text-slate-400">تاريخ الاعتماد</div>
+              <div class="font-bold font-mono text-xs text-slate-700 dark:text-slate-200">
+                {{ app.isCertificateIssued ? formatDateDmy(app.certificateIssuedAt) : '—' }}
+              </div>
+            </div>
+
+            <!-- 4. سجل حضور المحاضرات -->
+            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/70 space-y-0.5">
+              <div class="text-[10px] text-slate-400">سجل الحضور</div>
+              <div class="font-bold font-mono text-xs text-slate-700 dark:text-slate-200">
+                {{ app.attendedLectures }} / {{ app.round.totalLectures }}
+              </div>
+            </div>
+          </div>
+
+          <!-- تفاصيل الدورة التدريبية -->
+          <div class="p-3.5 rounded-2xl bg-slate-50/70 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-700/60 flex items-start justify-between gap-3">
             <div class="min-w-0">
               <h3 class="text-sm font-black text-slate-800 dark:text-slate-100 font-heading leading-snug">
                 {{ app.round.courseName }}
               </h3>
               <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-slate-400 mt-1">
-                <span>{{ app.round.courseDomain }}</span>
+                <span class="text-primary-600 dark:text-primary-400 font-bold">{{ app.round.courseDomain }}</span>
                 <span class="text-slate-300 dark:text-slate-600">•</span>
                 <span class="font-mono">{{ app.round.roundCode }}</span>
                 <span class="text-slate-300 dark:text-slate-600">•</span>
                 <span>المحاضر: {{ app.round.instructor.name }}</span>
+                <span class="text-slate-300 dark:text-slate-600">•</span>
+                <span>تاريخ الإتمام: {{ formatDateDmy(app.round.endDate) }}</span>
               </div>
             </div>
 
             <!-- دائرة التقييم الدائري -->
-            <div class="relative w-16 h-16 shrink-0">
-              <svg class="w-16 h-16 -rotate-90" viewBox="0 0 72 72">
+            <div class="relative w-12 h-12 shrink-0">
+              <svg class="w-12 h-12 -rotate-90" viewBox="0 0 72 72">
                 <circle cx="36" cy="36" r="30" fill="none" stroke="currentColor" stroke-width="6" class="text-slate-100 dark:text-slate-800" />
                 <circle
                   cx="36"
@@ -327,32 +458,7 @@
                 />
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span class="text-xs font-black font-mono text-slate-800 dark:text-slate-100">{{ app.finalGrade }}%</span>
-                <span class="text-[8px] text-slate-400">التقييم</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- بيانات الشهادة والدورة -->
-          <div class="grid grid-cols-2 gap-2 text-[11px]">
-            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/70 space-y-0.5">
-              <div class="text-slate-400">نسبة النجاح المطلوبة</div>
-              <div class="font-bold font-mono text-slate-700 dark:text-slate-200">{{ app.round.passingGrade }}%</div>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/70 space-y-0.5">
-              <div class="text-slate-400">تاريخ إتمام الدورة</div>
-              <div class="font-bold font-mono text-slate-700 dark:text-slate-200">{{ formatDateDmy(app.round.endDate) }}</div>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/70 space-y-0.5">
-              <div class="text-slate-400">تاريخ اعتماد الشهادة</div>
-              <div class="font-bold font-mono text-slate-700 dark:text-slate-200">
-                {{ app.isCertificateIssued ? formatDateDmy(app.certificateIssuedAt) : '—' }}
-              </div>
-            </div>
-            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/70 space-y-0.5">
-              <div class="text-slate-400">سجل حضور المحاضرات</div>
-              <div class="font-bold font-mono text-slate-700 dark:text-slate-200">
-                {{ app.attendedLectures }} / {{ app.round.totalLectures }}
+                <span class="text-[11px] font-black font-mono text-slate-800 dark:text-slate-100">{{ app.finalGrade }}%</span>
               </div>
             </div>
           </div>
@@ -408,6 +514,7 @@
 
     <!-- مودال معاينة الشهادة المعتمدة -->
     <CertificatePreviewModal
+      ref="certModalRef"
       :is-open="isModalOpen"
       :application="selectedApplication"
       :trainee-name="traineeProfile.fullName"
@@ -429,7 +536,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import {
   Award,
   BadgeCheck,
@@ -441,7 +548,9 @@ import {
   Copy,
   Search,
   CheckCircle2,
+  Eye,
 } from 'lucide-vue-next';
+import instituteLogo from '@/assets/logo.png';
 import AppKpiCard from '@/shared/ui/Cards/AppKpiCard.vue';
 import ViewModeToggle from '@/shared/ui/Buttons/ViewModeToggle.vue';
 import AppTable from '@/shared/ui/Table/AppTable.vue';
@@ -526,6 +635,7 @@ function gradeColor(app) {
 // --- المودال ---
 const isModalOpen = ref(false);
 const selectedApplication = ref(null);
+const certModalRef = ref(null);
 
 function openCertificate(app) {
   if (!app.isCertificateIssued) return;
@@ -537,7 +647,15 @@ function printCertificate(app) {
   if (!app.isCertificateIssued) return;
   selectedApplication.value = app;
   isModalOpen.value = true;
-  setTimeout(() => window.print(), 350);
+  nextTick(() => {
+    setTimeout(() => {
+      if (certModalRef.value?.handlePrint) {
+        certModalRef.value.handlePrint();
+      } else {
+        window.print();
+      }
+    }, 250);
+  });
 }
 
 // --- Toast ---

@@ -16,6 +16,16 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+        <!-- 0. كود المتدرب وكود الحساب (Id / UserId) -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+          <span class="text-slate-400 block text-[11px] mb-0.5">كود المتدرب والحساب (Id / UserId):</span>
+          <div class="flex items-center gap-2 font-mono font-bold">
+            <span class="text-amber-600 dark:text-amber-400">#TRN-{{ trainee.id }}</span>
+            <span class="text-slate-300 dark:text-slate-600">•</span>
+            <span class="text-primary-600 dark:text-primary-400">#USR-{{ trainee.userId || trainee.id }}</span>
+          </div>
+        </div>
+
         <!-- 1. الرقم القومي -->
         <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
           <span class="text-slate-400 block text-[11px] mb-0.5">الرقم القومي (14 رقماً):</span>
@@ -61,7 +71,15 @@
           </strong>
         </div>
 
-        <!-- 6. المهنة المدونة بالبطاقة -->
+        <!-- 6. فئة المتدرب والخصم -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+          <span class="text-slate-400 block text-[11px] mb-0.5">فئة المتدرب (Category):</span>
+          <strong class="text-primary-700 dark:text-primary-300 font-bold">
+            {{ getCategoryLabel(trainee.category) }}
+          </strong>
+        </div>
+
+        <!-- 7. المهنة المدونة بالبطاقة -->
         <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
           <span class="text-slate-400 block text-[11px] mb-0.5">المهنة المدونة بالبطاقة:</span>
           <strong class="text-slate-800 dark:text-slate-100 block truncate" :title="trainee.occupation">
@@ -69,16 +87,16 @@
           </strong>
         </div>
 
-        <!-- 7. العنوان والمحافظة (عمودين) -->
+        <!-- 8. العنوان والمحافظة (عمودين) -->
         <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 sm:col-span-2">
-          <span class="text-slate-400 block text-[11px] mb-0.5">العنوان المدون بالبطاقة:</span>
+          <span class="text-slate-400 block text-[11px] mb-0.5">العنوان والمحافظة (تُستخدم لخريطة توزيع القائد):</span>
           <strong class="text-slate-800 dark:text-slate-100">
             {{ trainee.address }} (محافظة {{ trainee.governorate }})
           </strong>
         </div>
 
-        <!-- 8. المؤهل الدراسي -->
-        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+        <!-- 9. المؤهل الدراسي -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 sm:col-span-2 lg:col-span-3">
           <span class="text-slate-400 block text-[11px] mb-0.5">المؤهل الدراسي المسجل:</span>
           <strong class="text-slate-800 dark:text-slate-100 block truncate" :title="trainee.qualification">
             {{ trainee.qualification }}
@@ -208,5 +226,15 @@ function getMaritalStatusLabel(status) {
     Widowed: 'أرمل',
   };
   return map[status] || status || '—';
+}
+
+function getCategoryLabel(category) {
+  const map = {
+    Civilian: 'مدني (السعر الكامل)',
+    MilitaryOfficer: 'ضابط ق.م (خصم 50%)',
+    MilitaryFamily: 'عائلات ضباط ق.م (خصم 30%)',
+    PoliceOfficerOrFamily: 'شرطة / عائلاتهم (خصم 30%)',
+  };
+  return map[category] || category || '—';
 }
 </script>

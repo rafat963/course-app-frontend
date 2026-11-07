@@ -64,16 +64,6 @@
 
             <button
               type="button"
-              class="h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="نسخ كود الشهادة الرسمي"
-              @click="copyCertificateCode"
-            >
-              <Copy class="w-3.5 h-3.5" />
-              <span class="hidden sm:inline">نسخ الكود</span>
-            </button>
-
-            <button
-              type="button"
               class="w-9 h-9 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors cursor-pointer ml-1"
               aria-label="إغلاق النافذة"
               @click="$emit('close')"
@@ -436,31 +426,12 @@ function getGradeEvaluation(grade) {
   return 'دون المستوى';
 }
 
-/** تشغيل نافذة الطباعة التلقائية المتوافقة مع A4 Landscape */
-function handlePrint() {
-  window.print();
-}
-
-/** نسخ كود الشهادة إلى الحافظة */
-async function copyCertificateCode() {
-  const code = props.application?.certificateCode;
-  if (!code) return;
-  try {
-    await navigator.clipboard.writeText(code);
-  } catch {
-    // ignore
-  }
-}
-
-/**
- * توليد وتحميل وثيقة HTML رسمية ومستقلة تماماً (Offline Printable Standalone Document)
- * تلتزم بدقة متناهية بمعايير الطباعة: A4 Landscape (297mm × 210mm) عند 300 DPI
- */
-function handleDownload() {
+/** توليد وثيقة HTML كاملة ومستقلة تماماً متوافقة مع A4 Landscape للطباعة والتحميل */
+function buildStandaloneHtml() {
   const app = props.application;
-  if (!app) return;
+  if (!app) return '';
 
-  const htmlDoc = `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
@@ -662,7 +633,51 @@ function handleDownload() {
   </div>
 </body>
 </html>`;
+}
 
+/** تشغيل نافذة الطباعة التلقائية المتوافقة مع A4 Landscape عبر iframe معزول نظيف لمنع أي تشوه */
+function handlePrint() {
+  const htmlDoc = buildStandaloneHtml();
+  if (!htmlDoc) return;
+
+  const existingFrame = document.getElementById('cert-isolated-print-iframe');
+  if (existingFrame) existingFrame.remove();
+
+  const iframe = document.createElement('iframe');
+  iframe.id = 'cert-isolated-print-iframe';
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  iframe.style.visibility = 'hidden';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(htmlDoc);
+  doc.close();
+
+  setTimeout(() => {
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } catch {
+      window.print();
+    }
+  }, 450);
+}
+
+/**
+ * توليد وتحميل وثيقة HTML رسمية ومستقلة تماماً (Offline Printable Standalone Document)
+ * تلتزم بدقة متناهية بمعايير الطباعة: A4 Landscape (297mm × 210mm) عند 300 DPI
+ */
+function handleDownload() {
+  const app = props.application;
+  if (!app) return;
+
+  const htmlDoc = buildStandaloneHtml();
   const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -673,6 +688,11 @@ function handleDownload() {
   link.remove();
   URL.revokeObjectURL(url);
 }
+
+defineExpose({
+  handlePrint,
+  handleDownload,
+});
 </script>
 
 <style scoped>

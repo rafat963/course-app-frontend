@@ -3,10 +3,22 @@
  * (متابعة الطلبات، تصاريح الدخول، الجدول الدراسي، الشهادات)
  */
 
-/** حالة الطلب وفق ERD: UnderReview | PendingPayment | PaymentMissed | Enrolled | CourseEnded | Rejected */
+/** حالة الطلب وفق ERD: UnderReview | pending_affairs | PendingPayment | PaymentMissed | Enrolled | CourseEnded | Rejected | rejected_expired */
 export const APPLICATION_STATUS_CONFIG = {
   UnderReview: {
-    label: 'قيد المراجعة',
+    label: 'قيد المراجعة لدى الشؤون',
+    badge: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+    dot: 'bg-blue-500',
+    icon: 'Clock',
+  },
+  pending_affairs: {
+    label: 'قيد المراجعة لدى الشؤون',
+    badge: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+    dot: 'bg-blue-500',
+    icon: 'Clock',
+  },
+  PendingReview: {
+    label: 'قيد المراجعة لدى الشؤون',
     badge: 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200 dark:border-blue-800',
     dot: 'bg-blue-500',
     icon: 'Clock',
@@ -41,10 +53,20 @@ export const APPLICATION_STATUS_CONFIG = {
     dot: 'bg-red-500',
     icon: 'XCircle',
   },
+  rejected_expired: {
+    label: 'مرفوض (تجاوز المهلة الزمنية)',
+    badge: 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border-rose-200 dark:border-rose-800',
+    dot: 'bg-rose-500',
+    icon: 'XCircle',
+  },
 };
 
-export function getStatusConfig(status) {
-  return APPLICATION_STATUS_CONFIG[status] || APPLICATION_STATUS_CONFIG.UnderReview;
+export function getStatusConfig(status, statusLabel = null) {
+  const base = APPLICATION_STATUS_CONFIG[status] || APPLICATION_STATUS_CONFIG.pending_affairs || APPLICATION_STATUS_CONFIG.UnderReview;
+  if (statusLabel) {
+    return { ...base, label: statusLabel };
+  }
+  return base;
 }
 
 /** ترتيب أيام الأسبوع في الجدول (السبت أول الأسبوع) */

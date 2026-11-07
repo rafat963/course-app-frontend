@@ -46,7 +46,7 @@
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full" :class="statusStyle.dotClass"></span>
             <span class="font-black text-xs" :class="statusStyle.textClass">
-              الحالة الحالية: {{ statusConfig(application.status).label }}
+              الحالة الحالية: {{ application.statusLabel || statusConfig(application.status).label }}
             </span>
           </div>
           <span class="text-[11px] font-mono text-slate-500 dark:text-slate-400">
@@ -57,7 +57,7 @@
         <!-- 2. تنبيهات خاصة بالحالة (مرفوض / في انتظار السداد) -->
         <!-- حالة الرفض الرسمية -->
         <div
-          v-if="application.status === 'Rejected'"
+          v-if="application.status === 'Rejected' || application.status === 'rejected_expired'"
           class="p-4 rounded-2xl bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/80 space-y-2 text-rose-800 dark:text-rose-200"
         >
           <div class="flex items-center gap-2 font-black text-xs text-rose-700 dark:text-rose-300">
@@ -272,15 +272,15 @@
         </button>
 
         <div class="flex items-center gap-2">
-          <RouterLink
+          <button
             v-if="application.status === 'Enrolled'"
-            to="/trainee/passes"
-            class="h-9 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
-            @click="$emit('close')"
+            type="button"
+            class="h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+            @click="handleOpenPass"
           >
             <QrCode class="w-3.5 h-3.5" />
-            <span>عرض تصريح الدخول</span>
-          </RouterLink>
+            <span>عرض تصريح الدخول (QR)</span>
+          </button>
 
           <RouterLink
             v-if="application.status === 'CourseEnded' && application.isCertificateIssued"
@@ -335,7 +335,12 @@ const props = defineProps({
   },
 });
 
-defineEmits(['close']);
+const emit = defineEmits(['close', 'open-pass']);
+
+function handleOpenPass() {
+  emit('close');
+  emit('open-pass', props.application);
+}
 
 const statusConfig = (status) => getStatusConfig(status);
 
@@ -359,7 +364,7 @@ function formatCurrency(val) {
 
 const statusStyle = computed(() => {
   const status = props.application?.status;
-  if (status === 'UnderReview') {
+  if (status === 'UnderReview' || status === 'pending_affairs') {
     return {
       boxClass: 'bg-blue-50/70 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800',
       textClass: 'text-blue-800 dark:text-blue-300',
@@ -373,7 +378,7 @@ const statusStyle = computed(() => {
       dotClass: 'bg-amber-500',
     };
   }
-  if (status === 'Rejected') {
+  if (status === 'Rejected' || status === 'rejected_expired') {
     return {
       boxClass: 'bg-rose-50/70 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800',
       textClass: 'text-rose-800 dark:text-rose-300',

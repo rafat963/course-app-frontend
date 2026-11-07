@@ -154,21 +154,20 @@
           إغلاق
         </button>
 
-        <RouterLink
-          to="/trainee/passes"
-          class="h-9 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
-          @click="$emit('close')"
+        <button
+          type="button"
+          class="h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+          @click="handleOpenPass"
         >
           <QrCode class="w-3.5 h-3.5" />
-          <span>عرض تصريح الدخول</span>
-        </RouterLink>
+          <span>عرض تصريح الدخول (QR)</span>
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { RouterLink } from 'vue-router';
 import {
   BookOpen,
   X,
@@ -183,7 +182,7 @@ import {
   WEEK_DAYS,
 } from '../../helpers/traineePortalHelpers';
 
-defineProps({
+const props = defineProps({
   isOpen: {
     type: Boolean,
     default: false,
@@ -194,7 +193,12 @@ defineProps({
   },
 });
 
-defineEmits(['close']);
+const emit = defineEmits(['close', 'open-pass']);
+
+function handleOpenPass() {
+  emit('close');
+  emit('open-pass', props.course);
+}
 
 function dayLabel(code) {
   return WEEK_DAYS.find((d) => d.code === code)?.label || code;
