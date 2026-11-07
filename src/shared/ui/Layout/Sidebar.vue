@@ -15,20 +15,22 @@
         :title="isCollapsed ? 'توسيع القائمة الجانبية' : 'طي القائمة الجانبية'"
         @click="$emit('toggle-collapse')"
       >
-        <ChevronRight v-if="!isCollapsed" class="w-4 h-4" />
-        <ChevronLeft v-else class="w-4 h-4" />
+        <ChevronRight v-if="!isCollapsed" class="w-4 h-4 pointer-events-none" />
+        <ChevronLeft v-else class="w-4 h-4 pointer-events-none" />
       </button>
 
       <!-- الجزء العلوي: الصورة الشخصية + الاسم + الرول -->
       <RouterLink
         to="/settings"
         :title="isCollapsed ? 'الملف الشخصي والإعدادات' : 'تعديل الملف الشخصي والإعدادات'"
+        @mouseenter="prefetchRoute('/settings')"
+        @focus="prefetchRoute('/settings')"
         :class="[
           'group/user flex flex-col items-center text-center border-b border-slate-100 dark:border-slate-800/80 transition-all duration-300 shrink-0 cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/30',
           isCollapsed ? 'py-4 px-2' : 'py-4 px-4'
         ]"
       >
-        <div class="relative transition-all duration-300">
+        <div class="relative transition-all duration-300 pointer-events-none">
           <div
             :class="[
               'p-0.5 shadow-md bg-gradient-to-tr from-primary-600 to-primary-700 rounded-full transition-all duration-300 group-hover/user:scale-105',
@@ -63,7 +65,7 @@
         </div>
 
         <div
-          class="transition-all duration-200"
+          class="transition-all duration-200 pointer-events-none"
           :class="isCollapsed ? 'opacity-0 h-0 overflow-hidden pointer-events-none mt-0' : 'opacity-100 mt-2'"
         >
           <h2 class="text-sm font-black text-slate-800 dark:text-slate-100 group-hover/user:text-primary-600 dark:group-hover/user:text-primary-400 font-heading leading-tight max-w-[200px] truncate transition-colors">
@@ -94,6 +96,8 @@
               :key="item.path"
               :to="item.path"
               :title="isCollapsed ? item.label : ''"
+              @mouseenter="prefetchRoute(item.path)"
+              @focus="prefetchRoute(item.path)"
               :class="[
                 'flex items-center transition-colors duration-150 cursor-pointer group select-none relative outline-none focus:outline-none focus:ring-0 focus-visible:outline-none border',
                 isCollapsed
@@ -110,6 +114,7 @@
             >
               <div
                 v-if="!isCollapsed"
+                class="pointer-events-none"
                 :class="[
                   'w-8 h-8 rounded-full shrink-0 flex items-center justify-center transition-colors',
                   isActive(item.path)
@@ -122,7 +127,7 @@
               <component
                 v-else
                 :is="item.icon"
-                class="w-5 h-5 shrink-0 transition-colors"
+                class="w-5 h-5 shrink-0 transition-colors pointer-events-none"
                 :class="[
                   isActive(item.path)
                     ? 'text-primary-600 dark:text-primary-400'
@@ -132,7 +137,7 @@
 
               <span
                 v-if="!isCollapsed"
-                class="truncate text-sm font-bold whitespace-nowrap flex-1"
+                class="truncate text-sm font-bold whitespace-nowrap flex-1 pointer-events-none"
               >
                 {{ item.label }}
               </span>
@@ -146,6 +151,8 @@
         <RouterLink
           to="/notifications"
           :title="isCollapsed ? 'مركز الإشعارات' : ''"
+          @mouseenter="prefetchRoute('/notifications')"
+          @focus="prefetchRoute('/notifications')"
           :class="[
             'flex items-center transition-colors duration-150 cursor-pointer relative group select-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none border',
             isCollapsed
@@ -162,6 +169,7 @@
         >
           <div
             v-if="!isCollapsed"
+            class="pointer-events-none"
             :class="[
               'w-7 h-7 rounded-full shrink-0 flex items-center justify-center transition-colors',
               isActive('/notifications')
@@ -171,7 +179,7 @@
           >
             <Bell class="w-3.5 h-3.5" />
           </div>
-          <div v-else class="relative flex items-center justify-center">
+          <div v-else class="relative flex items-center justify-center pointer-events-none">
             <Bell
               class="w-5 h-5 transition-colors"
               :class="isActive('/notifications') ? 'text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white'"
@@ -184,13 +192,13 @@
 
           <span
             v-if="!isCollapsed"
-            class="truncate text-xs font-bold whitespace-nowrap flex-1"
+            class="truncate text-xs font-bold whitespace-nowrap flex-1 pointer-events-none"
           >
             مركز الإشعارات
           </span>
           <span
             v-if="!isCollapsed && notificationsStore.unreadCount > 0"
-            class="px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-black text-[10px] shrink-0 mr-auto"
+            class="px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-black text-[10px] shrink-0 mr-auto pointer-events-none"
           >
             {{ notificationsStore.unreadCount }}
           </span>
@@ -199,6 +207,8 @@
         <RouterLink
           to="/settings"
           :title="isCollapsed ? 'الإعدادات والملف الشخصي' : ''"
+          @mouseenter="prefetchRoute('/settings')"
+          @focus="prefetchRoute('/settings')"
           :class="[
             'flex items-center transition-colors duration-150 cursor-pointer group select-none outline-none focus:outline-none focus:ring-0 focus-visible:outline-none border',
             isCollapsed
@@ -215,6 +225,7 @@
         >
           <div
             v-if="!isCollapsed"
+            class="pointer-events-none"
             :class="[
               'w-7 h-7 rounded-full shrink-0 flex items-center justify-center transition-colors',
               isActive('/settings') || isActive('/profile')
@@ -224,7 +235,7 @@
           >
             <Settings class="w-3.5 h-3.5" />
           </div>
-          <div v-else class="flex items-center justify-center">
+          <div v-else class="flex items-center justify-center pointer-events-none">
             <Settings
               class="w-5 h-5 transition-colors"
               :class="isActive('/settings') || isActive('/profile') ? 'text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white'"
@@ -232,7 +243,7 @@
           </div>
           <span
             v-if="!isCollapsed"
-            class="truncate text-xs font-bold whitespace-nowrap flex-1"
+            class="truncate text-xs font-bold whitespace-nowrap flex-1 pointer-events-none"
           >
             الإعدادات والملف الشخصي
           </span>
@@ -272,9 +283,10 @@
         <RouterLink
           to="/settings"
           class="group/user flex flex-col items-center text-center border-b border-slate-100 dark:border-slate-800/80 p-4 transition-all shrink-0 cursor-pointer hover:bg-slate-50/70 dark:hover:bg-slate-800/30"
-          @click="$emit('close')"
+          @mouseenter="prefetchRoute('/settings')"
+          @touchstart.passive="prefetchRoute('/settings')"
         >
-          <div class="relative transition-all duration-300">
+          <div class="relative transition-all duration-300 pointer-events-none">
             <div class="p-0.5 shadow-md bg-gradient-to-tr from-primary-600 to-primary-700 rounded-full w-14 h-14">
               <div class="w-full h-full bg-white dark:bg-slate-800 rounded-full overflow-hidden flex items-center justify-center">
                 <img
@@ -294,7 +306,7 @@
             <span class="absolute bottom-0.5 left-0.5 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900"></span>
           </div>
 
-          <div class="mt-2 text-center">
+          <div class="mt-2 text-center pointer-events-none">
             <h2 class="text-sm font-black text-slate-800 dark:text-slate-100 font-heading leading-tight max-w-[200px] truncate">
               {{ authStore.user?.fullName || 'مستخدم المنظومة' }}
             </h2>
@@ -321,16 +333,17 @@
                 v-for="item in group.items"
                 :key="item.path"
                 :to="item.path"
-                class="flex items-center w-full h-11 px-2.5 rounded-2xl gap-2.5 transition-colors duration-150 border"
+                @mouseenter="prefetchRoute(item.path)"
+                @touchstart.passive="prefetchRoute(item.path)"
+                class="flex items-center w-full h-11 px-2.5 rounded-2xl gap-2.5 transition-colors duration-150 border cursor-pointer"
                 :class="
                   isActive(item.path)
                     ? 'bg-primary-50 text-primary-800 border-primary-200 dark:bg-slate-800 dark:border-primary-500/50 dark:text-white shadow-2xs font-bold'
                     : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-100'
                 "
-                @click="$emit('close')"
               >
                 <div
-                  class="w-8 h-8 rounded-full shrink-0 flex items-center justify-center transition-colors"
+                  class="w-8 h-8 rounded-full shrink-0 flex items-center justify-center transition-colors pointer-events-none"
                   :class="
                     isActive(item.path)
                       ? 'bg-primary-100 dark:bg-primary-500/25 text-primary-700 dark:text-primary-300'
@@ -339,7 +352,7 @@
                 >
                   <component :is="item.icon" class="w-4 h-4 shrink-0" />
                 </div>
-                <span class="truncate text-sm font-bold flex-1">{{ item.label }}</span>
+                <span class="truncate text-sm font-bold flex-1 pointer-events-none">{{ item.label }}</span>
               </RouterLink>
             </div>
           </div>
@@ -349,21 +362,22 @@
         <div class="border-t border-slate-100 dark:border-slate-800/80 p-3 space-y-1.5 shrink-0">
           <RouterLink
             to="/notifications"
-            class="flex items-center w-full h-10 px-2.5 rounded-2xl gap-2.5 border transition-colors"
+            @mouseenter="prefetchRoute('/notifications')"
+            @touchstart.passive="prefetchRoute('/notifications')"
+            class="flex items-center w-full h-10 px-2.5 rounded-2xl gap-2.5 border transition-colors cursor-pointer"
             :class="
               isActive('/notifications')
                 ? 'bg-primary-50 text-primary-800 border-primary-200 dark:bg-slate-800 dark:border-primary-500/50 dark:text-white shadow-2xs font-bold'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
             "
-            @click="$emit('close')"
           >
-            <div class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400">
+            <div class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400 pointer-events-none">
               <Bell class="w-3.5 h-3.5" />
             </div>
-            <span class="truncate text-xs font-bold flex-1">مركز الإشعارات</span>
+            <span class="truncate text-xs font-bold flex-1 pointer-events-none">مركز الإشعارات</span>
             <span
               v-if="notificationsStore.unreadCount > 0"
-              class="px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-black text-[10px] shrink-0 mr-auto"
+              class="px-1.5 py-0.2 rounded-full bg-amber-500 text-white font-black text-[10px] shrink-0 mr-auto pointer-events-none"
             >
               {{ notificationsStore.unreadCount }}
             </span>
@@ -371,18 +385,19 @@
 
           <RouterLink
             to="/settings"
-            class="flex items-center w-full h-10 px-2.5 rounded-2xl gap-2.5 border transition-colors"
+            @mouseenter="prefetchRoute('/settings')"
+            @touchstart.passive="prefetchRoute('/settings')"
+            class="flex items-center w-full h-10 px-2.5 rounded-2xl gap-2.5 border transition-colors cursor-pointer"
             :class="
               isActive('/settings') || isActive('/profile')
                 ? 'bg-primary-50 text-primary-800 border-primary-200 dark:bg-slate-800 dark:border-primary-500/50 dark:text-white shadow-2xs font-bold'
                 : 'border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
             "
-            @click="$emit('close')"
           >
-            <div class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400">
+            <div class="w-7 h-7 rounded-full shrink-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800/70 text-slate-500 dark:text-slate-400 pointer-events-none">
               <Settings class="w-3.5 h-3.5" />
             </div>
-            <span class="truncate text-xs font-bold flex-1">الإعدادات والملف الشخصي</span>
+            <span class="truncate text-xs font-bold flex-1 pointer-events-none">الإعدادات والملف الشخصي</span>
           </RouterLink>
         </div>
       </aside>
@@ -391,7 +406,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, watch, onMounted } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import {
   Settings,
@@ -402,13 +417,14 @@ import {
   LayoutDashboard,
   FileText,
   Users,
-  QrCode,
   ShieldCheck,
   BookOpen,
 } from 'lucide-vue-next';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
 import { useNotificationsStore } from '@/shared/stores/notificationsStore';
 import { ROLES, ROLE_LABELS } from '@/shared/constants/roles';
+import { prefetchRoute } from '@/routes/prefetch';
+import { useNavigationState } from '@/shared/composables/useNavigationState';
 
 // استيراد إعدادات السايدبار المقسمة لكل كمبوننت / دومين
 import { affairsNav } from '@/components/Affairs/helpers/sidebarNav';
@@ -428,11 +444,20 @@ defineProps({
   },
 });
 
-defineEmits(['close', 'toggle-collapse']);
+const emit = defineEmits(['close', 'toggle-collapse']);
 
 const route = useRoute();
 const authStore = useAuthStore();
 const notificationsStore = useNotificationsStore();
+const { navigatingToPath } = useNavigationState();
+
+// عند تغيير المسار في الراوتر، نغلق قائمة الموبايل بنعومة ودون قطع التنقل
+watch(
+  () => route.path,
+  () => {
+    emit('close');
+  }
+);
 
 const roleLabel = computed(() => {
   return ROLE_LABELS[authStore.user?.role] || authStore.user?.role || 'مستخدم النظام';
@@ -448,8 +473,9 @@ const userInitials = computed(() => {
 });
 
 function isActive(path) {
-  if (path === '/') return route.path === '/';
-  return route.path === path;
+  const isTarget = navigatingToPath.value === path;
+  if (path === '/') return route.path === '/' || isTarget;
+  return route.path === path || isTarget;
 }
 
 const navGroups = computed(() => {
@@ -493,5 +519,30 @@ const navGroups = computed(() => {
       ],
     },
   ];
+});
+
+// تحميل صفحات دور المستخدم الحالي مسبقاً في خلفية المتصفح أثناء الخمول
+onMounted(() => {
+  const prefetchAllCurrentUserRoutes = () => {
+    if (navGroups.value) {
+      navGroups.value.forEach((group) => {
+        if (group.items) {
+          group.items.forEach((item) => {
+            if (item.path) prefetchRoute(item.path);
+          });
+        }
+      });
+    }
+    prefetchRoute('/notifications');
+    prefetchRoute('/settings');
+  };
+
+  if (typeof window !== 'undefined') {
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(prefetchAllCurrentUserRoutes, { timeout: 1500 });
+    } else {
+      setTimeout(prefetchAllCurrentUserRoutes, 800);
+    }
+  }
 });
 </script>

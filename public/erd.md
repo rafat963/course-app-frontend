@@ -1,4 +1,4 @@
-# ERD — منظومة إدارة الدورات التدريبية (النسخة النهائية المعتمدة)
+﻿# ERD — منظومة إدارة الدورات التدريبية (النسخة النهائية المعتمدة)
 
 > [!NOTE]
 > **أبرز القرارات التصميمية المعتمدة والتكامل مع الواجهات (UI Alignment):**
@@ -9,6 +9,7 @@
 > - **إلغاء تعقيدات استبيانات الجودة وتوثيق السجل الأكاديمي:** تم تبسيط نموذج المحاضرين (`Instructors`) للتركيز على البيانات العملية (الاسم، التخصص، الهاتف، البريد، النشاط) وإلغاء جداول وحقول استبيانات الجودة والتقييمات للدارسين والمحاضرين.
 > - **دورة حياة الطلب والشهادة (`Applications`):** توثيق سبب الرفض (`RejectionReason`)، مهلة السداد المحددة من الشؤون (`PaymentDueDate`)، كود الشهادة المعتمدة (`CertificateCode`)، والدرجة النهائية (`FinalGrade`).
 > - **الحضور والأمن:** يُحسب مباشرة من `GateLogs` باستخدام `COUNT(DISTINCT Date)` بدون تكرار في نفس اليوم.
+> - **دعم المتدربين القاصرين (أقل من 16 سنة - `IsMinor`):** المتدربون تحت سن 16 لا يمتلكون بطاقة رقم قومي بلاستيكية، لذا يُستبدل إلزام رفع صور البطاقة بـ **شهادة الميلاد المميكنة** (`BirthCertificatePhotoPath`)، ويُضاف جدول `Guardians` المستقل لتوثيق بيانات ومستندات ولي الأمر. علاقة `Guardians` بـ `TraineeProfiles` هي **Many-to-One** (ولي أمر واحد يمكنه تسجيل أكثر من طفل دون تكرار بياناته). حقول بيانات بطاقة المتدرب البالغ (صور البطاقة، الديانة، الحالة الاجتماعية، المهنة، الرقم القومي، تاريخ انتهاء البطاقة) أصبحت `nullable` لاستيعاب القاصرين.
 
 ---
 
@@ -17,6 +18,7 @@
 ```mermaid
 erDiagram
     Users ||--o| TraineeProfiles : "has profile (for trainees)"
+    TraineeProfiles }o--o| Guardians : "guardian of minor (nullable)"
     Users ||--o{ Applications : "trainee applies"
     Users ||--o{ Payments : "cashier collects or refunds"
     Users ||--o{ AuditLogs : "action by user"
@@ -62,6 +64,16 @@ erDiagram
         date NationalIdExpiryDate "تاريخ انتهاء سريان البطاقة"
         string Category "Civilian|MilitaryOfficer|MilitaryFamily|PoliceOfficerOrFamily"
         string CategoryProofPhotoPath "nullable - كارنيه إثبات الفئة"
+    }
+
+    Guardians {
+        int Id PK
+        string FullName "اسم ولي الأمر الرباعي"
+        string NationalId UK "الرقم القومي لولي الأمر 14 رقم"
+        string Phone "رقم هاتف ولي الأمر"
+        string Relationship "Father|Mother|LegalGuardian"
+        string NationalIdFrontPhotoPath "صورة وجه بطاقة ولي الأمر"
+        string NationalIdBackPhotoPath "صورة ظهر بطاقة ولي الأمر"
     }
 
     Halls {
@@ -226,7 +238,22 @@ erDiagram
 
 ---
 
-### 3. `Halls` (القاعات والمعامل)
+### 3. `Guardians` (أولياء الأمور — خاص بالمتدربين القاصرين)
+*(جدول مستقل بعلاقة Many-to-One مع `TraineeProfiles` — ولي الأمر الواحد يمكنه تسجيل أكثر من طفل)*
+
+| الحقل | النوع | القيود والملاحظات |
+|---|---|---|
+| `Id` | `int` PK | Identity |
+| `FullName` | `nvarchar(255)` | Not Null — الاسم الرباعي لولي الأمر |
+| `NationalId` | `nvarchar(14)` | Unique, Not Null — الرقم القومي لولي الأمر (14 رقماً مصرياً) |
+| `Phone` | `nvarchar(20)` | Not Null — رقم هاتف ولي الأمر للتواصل والطوارئ (11 رقماً مصرياً) |
+| `Relationship` | `nvarchar(50)` | Not Null — صلة القرابة بالقاصر: `Father` (أب)، `Mother` (أم)، `LegalGuardian` (وصي قانوني) |
+| `NationalIdFrontPhotoPath` | `nvarchar(500)` | Not Null — مسار صورة وجه بطاقة الرقم القومي لولي الأمر |
+| `NationalIdBackPhotoPath` | `nvarchar(500)` | Not Null — مسار صورة ظهر بطاقة الرقم القومي لولي الأمر |
+
+---
+
+### 4. `Halls` (القاعات والمعامل)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
@@ -240,7 +267,7 @@ erDiagram
 
 ---
 
-### 4. `Instructors` (المحاضرون وهيئة التدريس)
+### 5. `Instructors` (المحاضرون وهيئة التدريس)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
@@ -252,7 +279,7 @@ erDiagram
 
 ---
 
-### 5. `Courses` (كتالوج الدورات الأساسي)
+### 6. `Courses` (كتالوج الدورات الأساسي)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
@@ -267,7 +294,7 @@ erDiagram
 
 ---
 
-### 6. `CoursePricings` (أسعار الدورة حسب فئة المتدرب)
+### 7. `CoursePricings` (أسعار الدورة حسب فئة المتدرب)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
@@ -277,7 +304,7 @@ erDiagram
 
 ---
 
-### 7. `CourseRounds` (دورات الانعقاد / الدفعات التشغيلية)
+### 8. `CourseRounds` (دورات الانعقاد / الدفعات التشغيلية)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
@@ -300,7 +327,7 @@ erDiagram
 
 ---
 
-### 8. `CourseLectureDays` (أيام محاضرات الدفعة)
+### 9. `CourseLectureDays` (أيام محاضرات الدفعة)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
@@ -309,7 +336,7 @@ erDiagram
 
 ---
 
-### 9. `Applications` (طلبات الالتحاق وتصاريح QR والشهادات)
+### 10. `Applications` (طلبات الالتحاق وتصاريح QR والشهادات)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
@@ -330,7 +357,7 @@ erDiagram
 
 ---
 
-### 10. `Payments` (إيصالات وسداد الخزينة والاسترداد)
+### 11. `Payments` (إيصالات وسداد الخزينة والاسترداد)
 *(علاقة 1-to-1 مع `Applications` — دفعة سداد واحدة كاملة لكل طلب)*
 
 | الحقل | النوع | القيود والملاحظات |
@@ -352,7 +379,7 @@ erDiagram
 
 ---
 
-### 11. `AuditLogs` (سجل التدقيق والحركات)
+### 12. `AuditLogs` (سجل التدقيق والحركات)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
@@ -367,7 +394,7 @@ erDiagram
 
 ---
 
-### 12. `GateLogs` (سجل حركات البوابة والحضور)
+### 13. `GateLogs` (سجل حركات البوابة والحضور)
 | الحقل | النوع | القيود والملاحظات |
 |---|---|---|
 | `Id` | `int` PK | Identity |
