@@ -68,6 +68,59 @@ export const TRAINEE_CATEGORY_OPTIONS = [
 ];
 
 /**
+ * Gender Options
+ */
+export const GENDER_OPTIONS = [
+  { value: 'Male', label: 'ذكر' },
+  { value: 'Female', label: 'أنثى' },
+];
+
+/**
+ * Religion Options
+ */
+export const RELIGION_OPTIONS = [
+  { value: 'Muslim', label: 'مسلم' },
+  { value: 'Christian', label: 'مسيحي' },
+  { value: 'Other', label: 'أخرى' },
+];
+
+/**
+ * Marital Status Options
+ */
+export const MARITAL_STATUS_OPTIONS = [
+  { value: 'Single', label: 'أعزب / آنسة' },
+  { value: 'Married', label: 'متزوج / متزوجة' },
+  { value: 'Divorced', label: 'مطلق / مطلقة' },
+  { value: 'Widowed', label: 'أرمل / أرملة' },
+];
+
+/**
+ * Trainee Type Options (Adult vs Minor)
+ */
+export const TRAINEE_TYPE = {
+  ADULT: 'adult',
+  MINOR: 'minor',
+};
+
+/**
+ * Guardian Relationship Options
+ */
+export const GUARDIAN_RELATIONSHIPS = [
+  { value: 'Father', label: 'أب' },
+  { value: 'Mother', label: 'أم' },
+  { value: 'LegalGuardian', label: 'وصي قانوني' },
+];
+
+/**
+ * Education Stage Options
+ */
+export const EDUCATION_STAGES = [
+  { value: 'Primary', label: 'ابتدائي' },
+  { value: 'Preparatory', label: 'إعدادي' },
+  { value: 'Secondary', label: 'ثانوي' },
+];
+
+/**
  * Smart Auto-Extraction from Egyptian 14-digit National ID
  * Returns { dateOfBirth, gender } or null if invalid
  */

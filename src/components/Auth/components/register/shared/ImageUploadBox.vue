@@ -1,12 +1,12 @@
 <template>
-  <div class="space-y-1.5 text-right">
+  <div class="space-y-1 text-right">
     <label v-if="label" class="text-xs font-bold text-slate-700 dark:text-slate-300 block">
       {{ label }} <span v-if="required" class="text-rose-500">*</span>
     </label>
 
     <div
       :class="[
-        'relative rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center p-3 text-center cursor-pointer overflow-hidden',
+        'relative rounded-xl border border-dashed transition-all flex items-center justify-center p-2 text-center cursor-pointer overflow-hidden',
         heightClass,
         preview
           ? 'border-primary-400 dark:border-primary-600 bg-slate-50 dark:bg-slate-800/80'
@@ -22,22 +22,26 @@
         class="absolute inset-0 w-full h-full object-cover"
       />
 
-      <!-- Placeholder Content -->
+      <!-- Placeholder Content (Compact horizontal or vertical) -->
       <template v-else>
-        <div :class="['w-10 h-10 rounded-full flex items-center justify-center mb-1', iconBgClass]">
-          <component :is="iconComponent" class="w-5 h-5" />
+        <div class="flex items-center gap-2">
+          <div :class="['w-7 h-7 rounded-lg flex items-center justify-center shrink-0', iconBgClass]">
+            <component :is="iconComponent" class="w-3.5 h-3.5" />
+          </div>
+          <div class="text-right">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-200 block leading-tight">{{ placeholderText }}</span>
+            <span v-if="subText" class="text-[9.5px] text-slate-400 dark:text-slate-500 block mt-0.5">{{ subText }}</span>
+          </div>
         </div>
-        <span class="text-xs font-bold text-slate-700 dark:text-slate-200">{{ placeholderText }}</span>
-        <span v-if="subText" class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{{ subText }}</span>
       </template>
 
       <!-- Hover Overlay when preview exists -->
       <div
         v-if="preview"
-        class="absolute inset-0 bg-slate-900/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1.5 backdrop-blur-xs"
+        class="absolute inset-0 bg-slate-900/40 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[11px] font-bold gap-1.5 backdrop-blur-2xs"
       >
-        <Upload class="w-4 h-4" />
-        <span>تغيير الصورة</span>
+        <Upload class="w-3.5 h-3.5" />
+        <span>تغيير</span>
       </div>
 
       <!-- Hidden Input -->
@@ -60,7 +64,7 @@ const props = defineProps({
   label: { type: String, default: '' },
   required: { type: Boolean, default: false },
   preview: { type: String, default: '' },
-  heightClass: { type: String, default: 'h-32' },
+  heightClass: { type: String, default: 'h-16 sm:h-18' },
   placeholderText: { type: String, default: 'رفع الصورة' },
   subText: { type: String, default: '' },
   accept: { type: String, default: 'image/*' },

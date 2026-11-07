@@ -74,7 +74,6 @@ erDiagram
         string Relationship "Father|Mother|LegalGuardian"
         string NationalIdFrontPhotoPath "صورة وجه بطاقة ولي الأمر"
         string NationalIdBackPhotoPath "صورة ظهر بطاقة ولي الأمر"
-        string Occupation "nullable - مهنة ولي الأمر"
     }
 
     Halls {
@@ -251,7 +250,6 @@ erDiagram
 | `Relationship` | `nvarchar(50)` | Not Null — صلة القرابة بالقاصر: `Father` (أب)، `Mother` (أم)، `LegalGuardian` (وصي قانوني) |
 | `NationalIdFrontPhotoPath` | `nvarchar(500)` | Not Null — مسار صورة وجه بطاقة الرقم القومي لولي الأمر |
 | `NationalIdBackPhotoPath` | `nvarchar(500)` | Not Null — مسار صورة ظهر بطاقة الرقم القومي لولي الأمر |
-| `Occupation` | `nvarchar(150)` | Nullable — مهنة ولي الأمر المدونة بالبطاقة |
 
 ---
 
