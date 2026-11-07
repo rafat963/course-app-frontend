@@ -1,19 +1,39 @@
 <template>
-  <AuthCardLayout
-    compact
-    max-width-class="max-w-[740px]"
-    subtitle="بوابة تسجيل متدرب جديد"
-    security-note="جميع البيانات مشفرة وفقاً لمعايير أمن المعلومات"
-  >
-    <!-- Header Extra: Compact Type Selector + Stepper -->
-    <template #header-extra>
+  <div class="flex flex-col flex-1 min-h-0 overflow-hidden w-full">
+    <!-- Compact Header -->
+    <div
+      class="shrink-0 bg-gradient-to-b from-primary-50/60 via-slate-50/30 to-white dark:from-slate-800/80 dark:via-slate-900/50 dark:to-slate-900 border-b border-slate-100 dark:border-slate-800/80 px-5 py-3 sm:px-6 sm:py-3.5 transition-colors duration-300"
+    >
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <img
+            src="@/assets/logo.png"
+            alt="شعار معهد نظم المعلومات - القوات المسلحة"
+            class="w-10 h-10 object-contain drop-shadow-xs shrink-0"
+          />
+          <div class="text-right">
+            <h1 class="text-sm font-black text-slate-800 dark:text-slate-100 font-heading leading-tight">
+              معهد نظم المعلومات
+            </h1>
+            <p class="text-[10px] font-bold text-primary-700 dark:text-primary-400">القوات المسلحة</p>
+          </div>
+        </div>
+
+        <div class="text-left shrink-0">
+          <span class="text-[10.5px] font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700/80">
+            بوابة تسجيل متدرب جديد
+          </span>
+        </div>
+      </div>
+
+      <!-- Compact Type Selector + Stepper -->
       <TraineeTypeSelector v-model="traineeType" @change="onTypeChange" />
       <RegisterStepper
         :steps="currentSteps"
         :current-step="currentStep"
         @step-click="goToStep"
       />
-    </template>
+    </div>
 
     <!-- Form: Flex layout pinned to card height with zero page scroll -->
     <form class="flex-1 flex flex-col min-h-0 overflow-hidden" novalidate @submit.prevent="handleNextOrSubmit">
@@ -124,27 +144,31 @@
         </div>
 
         <!-- Back to Login Row -->
-        <div class="px-5 sm:px-7 py-1.5 bg-slate-50 dark:bg-slate-950/60 border-t border-slate-100 dark:border-slate-800/80 text-center text-[11px]">
-          <span class="text-slate-500 dark:text-slate-400">لديك حساب مسجل بالفعل؟</span>
+        <div class="px-5 sm:px-7 pb-3 pt-0.5">
+          <div class="relative flex items-center justify-center mb-2">
+            <span class="absolute inset-x-0 h-px bg-slate-200 dark:bg-slate-800"></span>
+            <span class="relative bg-white dark:bg-slate-900 px-3 text-[10.5px] text-slate-400 dark:text-slate-500 font-semibold">أو</span>
+          </div>
+
           <RouterLink
             to="/auth/login"
-            class="text-primary-700 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300 font-bold mr-1.5 transition-colors underline underline-offset-4"
+            class="w-full py-1.5 sm:py-2 border border-slate-200 dark:border-slate-800 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50/50 dark:hover:bg-primary-950/30
+                   text-slate-700 dark:text-slate-200 hover:text-primary-700 dark:hover:text-primary-400 font-bold rounded-xl text-xs transition-all cursor-pointer
+                   flex items-center justify-center gap-2"
           >
-            تسجيل الدخول
+            <LogIn class="w-3.5 h-3.5" />
+            <span>لديك حساب بالفعل؟ تسجيل الدخول</span>
           </RouterLink>
         </div>
       </div>
     </form>
-  </AuthCardLayout>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
-import { AlertCircle, ArrowRight, ArrowLeft } from 'lucide-vue-next';
-
-// Layout
-import AuthCardLayout from '../../utils/AuthCardLayout.vue';
+import { AlertCircle, ArrowRight, ArrowLeft, LogIn } from 'lucide-vue-next';
 
 // Shared register components
 import TraineeTypeSelector from './shared/TraineeTypeSelector.vue';

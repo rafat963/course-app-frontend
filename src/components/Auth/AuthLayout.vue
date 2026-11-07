@@ -44,90 +44,53 @@
     <div class="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-primary-400/15 dark:bg-primary-600/10 blur-3xl pointer-events-none"></div>
     <div class="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-amber-400/10 dark:bg-amber-500/10 blur-3xl pointer-events-none"></div>
 
-    <!-- ================= ANIMATED AUTH CARD CONTAINER ================= -->
-    <div class="w-full h-full flex items-center justify-center relative z-10">
-      <RouterView v-slot="{ Component }">
-        <Transition
-          :name="transitionName"
-          mode="out-in"
-        >
-          <component :is="Component" :key="route.path" />
-        </Transition>
-      </RouterView>
+    <!-- ================= PERSISTENT / FIXED AUTH CARD CONTAINER ================= -->
+    <div
+      class="w-full relative z-10 flex flex-col my-auto transition-[max-width] duration-300 ease-in-out"
+      :class="isRegister ? 'max-w-[740px]' : 'max-w-[430px]'"
+    >
+      <!-- Fixed Outer Card Frame: Never unmounts, never slides, perfectly centered -->
+      <div
+        class="bg-white dark:bg-slate-900 rounded-[22px] sm:rounded-[26px] border border-slate-200/90 dark:border-slate-800 shadow-[0_15px_40px_-10px_rgba(15,87,118,0.18)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] ring-1 ring-slate-900/[0.04] dark:ring-slate-800/80 overflow-hidden flex flex-col max-h-[calc(100dvh-2.5rem)] transition-colors duration-300"
+      >
+        <!-- RouterView with pure fade transition for inner content only -->
+        <RouterView v-slot="{ Component }">
+          <Transition name="auth-fade" mode="out-in">
+            <component :is="Component" :key="route.path" />
+          </Transition>
+        </RouterView>
+      </div>
+
+      <!-- Persistent Security Footer Note -->
+      <div class="shrink-0 flex items-center justify-center gap-1.5 mt-2 text-[10.5px] text-slate-400 dark:text-slate-500 text-center">
+        <ShieldCheck class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+        <span>{{ isRegister ? 'جميع البيانات مشفرة وفقاً لمعايير أمن المعلومات' : 'المنظومة تعمل داخل شبكة المعهد فقط — اتصالات مؤمنة' }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { computed } from 'vue';
 import { RouterView, useRoute } from 'vue-router';
-import { Sun, Moon } from 'lucide-vue-next';
+import { Sun, Moon, ShieldCheck } from 'lucide-vue-next';
 import { useTheme } from '@/shared/composables/useTheme';
 
 const route = useRoute();
 const { theme, toggleTheme } = useTheme();
 
-const transitionName = ref('auth-slide-forward');
-
-watch(
-  () => route.path,
-  (toPath, fromPath) => {
-    if (toPath?.includes('register') && fromPath?.includes('login')) {
-      // Transitioning from Login to Register
-      transitionName.value = 'auth-slide-forward';
-    } else if (toPath?.includes('login') && fromPath?.includes('register')) {
-      // Transitioning from Register to Login
-      transitionName.value = 'auth-slide-back';
-    } else {
-      transitionName.value = 'auth-fade';
-    }
-  }
-);
+const isRegister = computed(() => route.path?.includes('register'));
 </script>
 
 <style>
-/* ================= SMOOTH AUTH TRANSITIONS ================= */
-
-.auth-slide-forward-enter-active,
-.auth-slide-forward-leave-active,
-.auth-slide-back-enter-active,
-.auth-slide-back-leave-active,
+/* Pure opacity fade transition for interior contents — No sliding, No layout jumps */
 .auth-fade-enter-active,
 .auth-fade-leave-active {
-  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              filter 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform, filter;
+  transition: opacity 0.2s ease-in-out;
 }
 
-/* Forward: Login leaves to right, Register enters from left (in RTL) */
-.auth-slide-forward-leave-to {
-  opacity: 0;
-  transform: translateX(28px) scale(0.97);
-  filter: blur(2px);
-}
-.auth-slide-forward-enter-from {
-  opacity: 0;
-  transform: translateX(-28px) scale(0.97);
-  filter: blur(2px);
-}
-
-/* Back: Register leaves to left, Login enters from right (in RTL) */
-.auth-slide-back-leave-to {
-  opacity: 0;
-  transform: translateX(-28px) scale(0.97);
-  filter: blur(2px);
-}
-.auth-slide-back-enter-from {
-  opacity: 0;
-  transform: translateX(28px) scale(0.97);
-  filter: blur(2px);
-}
-
-/* Fallback Fade */
 .auth-fade-enter-from,
 .auth-fade-leave-to {
   opacity: 0;
-  transform: scale(0.98);
 }
 </style>
