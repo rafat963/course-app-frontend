@@ -287,3 +287,89 @@ export function getCourseProgress(app) {
   if (!total) return 0;
   return Math.min(100, Math.round((attended / total) * 100));
 }
+
+/**
+ * التحقق مما إذا كان سبب الرفض متعلقاً بالمستندات والبيانات
+ * (صورة البطاقة غير واضحة، مطلوب صورة المؤهل الدراسي، استكمال البيانات...)
+ */
+export function isDocumentRejection(app) {
+  if (!app) return false;
+  const isRejectedStatus = app.status === 'Rejected' || app.status === 'rejected_expired';
+  if (!isRejectedStatus) return false;
+
+  const reason = (app.rejectionReason || '').toLowerCase();
+  return (
+    reason.includes('بطاق') ||
+    reason.includes('مؤهل') ||
+    reason.includes('غير واضحة') ||
+    reason.includes('بيانات') ||
+    reason.includes('مستند') ||
+    reason.includes('صورة')
+  );
+}
+
+/**
+ * إعدادات نص وتصنيف زر الرفض بناءً على سبب الرفض
+ */
+export function getRejectionActionConfig(app) {
+  const reason = app?.rejectionReason || '';
+  const isIdIssue = reason.includes('بطاق') || reason.includes('البطاقة');
+  const isQualIssue = reason.includes('مؤهل') || reason.includes('المؤهل');
+
+  if (isIdIssue && isQualIssue) {
+    return {
+      type: 'both',
+      label: 'التقديم من جديد بعد تعديل البيانات',
+      shortLabel: 'تعديل البيانات وإعادة التقديم',
+      sublabel: 'تعديل صورة البطاقة وإرفاق شهادة المؤهل',
+      badge: 'مطلوب تعديل المستندات',
+      needsId: true,
+      needsQualification: true,
+      hint: 'سبب الرفض: عدم وضوح صورة البطاقة وطلب صورة المؤهل الدراسي.',
+    };
+  } else if (isIdIssue) {
+    return {
+      type: 'nationalId',
+      label: 'التقديم من جديد بعد تعديل البيانات',
+      shortLabel: 'تعديل صورة البطاقة وإعادة التقديم',
+      sublabel: 'رفع صورة واضحة لوجه وظهر البطاقة',
+      badge: 'صورة البطاقة غير واضحة',
+      needsId: true,
+      needsQualification: false,
+      hint: 'سبب الرفض: صورة بطاقة الرقم القومي غير واضحة أو غير مكتملة.',
+    };
+  } else if (isQualIssue) {
+    return {
+      type: 'qualification',
+      label: 'تقديم البيانات المطلوب تقديمها وإعادة التقديم',
+      shortLabel: 'تقديم صورة المؤهل وإعادة التقديم',
+      sublabel: 'إرفاق صورة شهادة المؤهل الدراسي',
+      badge: 'مطلوب صورة المؤهل الدراسي',
+      needsId: false,
+      needsQualification: true,
+      hint: 'سبب الرفض: مطلوب إرفاق صورة شهادة المؤهل الدراسي للاعتماد.',
+    };
+  } else if (reason.includes('بيانات') || reason.includes('مستند')) {
+    return {
+      type: 'general',
+      label: 'التقديم من جديد بعد تعديل البيانات',
+      shortLabel: 'استكمال البيانات وإعادة التقديم',
+      sublabel: 'تحديث البيانات والمستندات المطلوبة',
+      badge: 'استكمال البيانات المطلوبة',
+      needsId: true,
+      needsQualification: true,
+      hint: 'سبب الرفض: يتطلب استكمال وتحديث البيانات الشخصية والمستندات.',
+    };
+  }
+
+  return {
+    type: 'alternative',
+    label: 'التقديم على دورة بديلة',
+    shortLabel: 'دورة بديلة',
+    sublabel: 'استعراض الدورات المتاحة حالياً',
+    badge: 'دورة بديلة',
+    needsId: false,
+    needsQualification: false,
+    hint: null,
+  };
+}

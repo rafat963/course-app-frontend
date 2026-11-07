@@ -395,6 +395,29 @@
               <Award class="w-3.5 h-3.5" />
               <span>شهادة</span>
             </button>
+
+            <!-- إجراءات الرفض: إعادة التقديم بعد تعديل المستندات أو دورة بديلة -->
+            <template v-else-if="row.status === 'Rejected' || row.status === 'rejected_expired'">
+              <button
+                v-if="isDocRejection(row)"
+                type="button"
+                class="h-8 px-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all flex items-center gap-1 cursor-pointer shadow-xs active:scale-95"
+                :title="getRejectionActionConfig(row).label"
+                @click="openReapplyModal(row)"
+              >
+                <RefreshCw class="w-3.5 h-3.5" />
+                <span>{{ getRejectionActionConfig(row).shortLabel }}</span>
+              </button>
+              <RouterLink
+                v-else
+                to="/trainee/courses"
+                class="h-8 px-2.5 rounded-xl border border-primary-200 dark:border-primary-800 text-primary-700 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-950/40 text-xs font-bold transition-colors flex items-center gap-1"
+                title="التقديم على دورة بديلة"
+              >
+                <span>دورة بديلة</span>
+                <ArrowLeft class="w-3.5 h-3.5" />
+              </RouterLink>
+            </template>
           </div>
         </template>
       </AppTable>
@@ -532,17 +555,34 @@
           <!-- لوحة الحالة: مرفوض (Rejected / rejected_expired) -->
           <div
             v-else-if="app.status === 'Rejected' || app.status === 'rejected_expired'"
-            class="p-3.5 rounded-2xl bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/70 space-y-1.5"
+            class="p-3.5 rounded-2xl bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/70 space-y-2"
           >
-            <div class="flex items-center gap-1.5 text-[11px] font-black text-rose-700 dark:text-rose-300">
-              <XCircle class="w-3.5 h-3.5" />
-              سبب الرفض الرسمي (شؤون الدارسين)
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <div class="flex items-center gap-1.5 text-[11px] font-black text-rose-700 dark:text-rose-300">
+                <XCircle class="w-3.5 h-3.5" />
+                <span>سبب الرفض الرسمي (شؤون الدارسين)</span>
+              </div>
+              <span class="text-[10px] text-rose-500 dark:text-rose-400">
+                تاريخ القرار: {{ formatDateDmy(app.updatedAt) }}
+              </span>
             </div>
             <p class="text-[11px] text-rose-700/90 dark:text-rose-300/90 leading-relaxed">
               {{ app.rejectionReason }}
             </p>
-            <div class="text-[10px] text-rose-500 dark:text-rose-400">
-              تاريخ القرار: {{ formatDateDmy(app.updatedAt) }}
+
+            <!-- زر سريع لإعادة التقديم إذا كان سبب الرفض مستندات أو بيانات -->
+            <div v-if="isDocRejection(app)" class="pt-1.5 flex items-center justify-between gap-2 border-t border-rose-200/60 dark:border-rose-900/40 flex-wrap">
+              <span class="text-[10.5px] font-bold text-amber-800 dark:text-amber-300">
+                متاح إعادة تقديم الطلب بعد تعديل المستندات
+              </span>
+              <button
+                type="button"
+                class="px-3 py-1 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
+                @click="openReapplyModal(app)"
+              >
+                <RefreshCw class="w-3.5 h-3.5" />
+                <span>{{ getRejectionActionConfig(app).label }}</span>
+              </button>
             </div>
           </div>
 
@@ -645,14 +685,25 @@
             نسخ كود السداد
           </button>
 
-          <RouterLink
-            v-else-if="app.status === 'Rejected' || app.status === 'rejected_expired'"
-            to="/trainee/courses"
-            class="inline-flex items-center gap-1 text-[11px] font-black text-primary-600 dark:text-primary-400 hover:underline"
-          >
-            التقديم على دورة بديلة
-            <ArrowLeft class="w-3 h-3" />
-          </RouterLink>
+          <template v-else-if="app.status === 'Rejected' || app.status === 'rejected_expired'">
+            <button
+              v-if="isDocRejection(app)"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-l from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-[11px] font-black transition-all shadow-xs cursor-pointer active:scale-95"
+              @click="openReapplyModal(app)"
+            >
+              <RefreshCw class="w-3.5 h-3.5" />
+              <span>{{ getRejectionActionConfig(app).label }}</span>
+            </button>
+            <RouterLink
+              v-else
+              to="/trainee/courses"
+              class="inline-flex items-center gap-1 text-[11px] font-black text-primary-600 dark:text-primary-400 hover:underline"
+            >
+              التقديم على دورة بديلة
+              <ArrowLeft class="w-3 h-3" />
+            </RouterLink>
+          </template>
 
           <span v-else class="text-[10px] text-slate-400">
             يتم التحديث تلقائياً عند اعتماد الطلب
@@ -901,13 +952,27 @@
                 </p>
               </div>
             </div>
-            <RouterLink
-              to="/trainee/courses"
-              class="h-9 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm shrink-0"
-            >
-              <span>التقديم على دورة بديلة</span>
-              <ArrowLeft class="w-4 h-4" />
-            </RouterLink>
+
+            <!-- أزرار الإجراء في حالة الرفض -->
+            <div class="flex items-center gap-2 shrink-0 flex-wrap">
+              <button
+                v-if="isDocRejection(app)"
+                type="button"
+                class="h-9 px-4 rounded-xl bg-gradient-to-l from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-md shadow-amber-700/20 cursor-pointer shrink-0 active:scale-95"
+                @click="openReapplyModal(app)"
+              >
+                <RefreshCw class="w-4 h-4" />
+                <span>{{ getRejectionActionConfig(app).label }}</span>
+              </button>
+              <RouterLink
+                v-else
+                to="/trainee/courses"
+                class="h-9 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-black text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm shrink-0"
+              >
+                <span>التقديم على دورة بديلة</span>
+                <ArrowLeft class="w-4 h-4" />
+              </RouterLink>
+            </div>
           </div>
 
           <div
@@ -962,6 +1027,7 @@
       :trainee-category="traineeProfile.category"
       @close="isDetailsModalOpen = false"
       @open-pass="openPassQr"
+      @open-reapply="openReapplyModal"
     />
 
     <!-- 2. مودال تصريح الدخول ورمز QR المباشر (Direct Gate Pass Modal) -->
@@ -978,6 +1044,16 @@
       :application="selectedCertApplication"
       :trainee-profile="traineeProfile"
       @close="isCertModalOpen = false"
+    />
+
+    <!-- 4. مودال إعادة التقديم بعد تعديل المستندات والبيانات المطلوبة -->
+    <TraineeReapplyModal
+      :is-open="isReapplyModalOpen"
+      :application="selectedReapplyApplication"
+      :trainee-profile="traineeProfile"
+      @close="isReapplyModalOpen = false"
+      @reapplied="handleApplicationReapplied"
+      @toast="showToast"
     />
 
     <!-- Toast Notification -->
@@ -1031,6 +1107,7 @@ import AppTable from '@/shared/ui/Table/AppTable.vue';
 import TraineeApplicationDetailsModal from './TraineeApplicationDetailsModal.vue';
 import TraineePassZoomModal from '../passes/TraineePassZoomModal.vue';
 import CertificatePreviewModal from '../certificates/CertificatePreviewModal.vue';
+import TraineeReapplyModal from './TraineeReapplyModal.vue';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
 import { useTraineeApplicationsStore } from '../../stores/traineeApplicationsStore';
 import { TRAINEE_MOCK_PROFILE } from '../../helpers/availableCoursesMockData';
@@ -1042,6 +1119,8 @@ import {
   formatTimeRange,
   getPaymentUrgency,
   daysUntil,
+  isDocumentRejection,
+  getRejectionActionConfig,
 } from '../../helpers/traineePortalHelpers';
 
 const authStore = useAuthStore();
@@ -1092,6 +1171,25 @@ function openCertificate(app) {
   isCertModalOpen.value = true;
 }
 
+// مودال إعادة التقديم بعد تعديل المستندات
+const isReapplyModalOpen = ref(false);
+const selectedReapplyApplication = ref(null);
+
+function openReapplyModal(app) {
+  selectedReapplyApplication.value = app;
+  isReapplyModalOpen.value = true;
+}
+
+function handleApplicationReapplied(updatedApp) {
+  const idx = rawApplications.value.findIndex((a) => a.id === updatedApp.id);
+  if (idx !== -1) {
+    rawApplications.value[idx] = updatedApp;
+  }
+  showToast('تم استلام البيانات وإعادة إرسال طلب التقديم بنجاح للمراجعة والتدقيق.');
+}
+
+const isDocRejection = (app) => isDocumentRejection(app);
+
 // أعمدة جدول الطلبات
 const tableColumns = [
   { key: 'applicationCode', label: 'كود الطلب', width: '130px' },
@@ -1107,8 +1205,10 @@ onMounted(() => {
   traineeStore.load(traineeProfile.userId);
 });
 
+const rawApplications = ref([...TRAINEE_APPLICATIONS]);
+
 const allApplications = computed(() => {
-  return [...TRAINEE_APPLICATIONS];
+  return rawApplications.value;
 });
 
 // قائمة الطلبات المعروضة (تشمل المقبول والمرفوض)

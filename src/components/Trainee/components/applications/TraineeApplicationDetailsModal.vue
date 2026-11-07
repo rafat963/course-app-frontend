@@ -58,7 +58,7 @@
         <!-- حالة الرفض الرسمية -->
         <div
           v-if="application.status === 'Rejected' || application.status === 'rejected_expired'"
-          class="p-4 rounded-2xl bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/80 space-y-2 text-rose-800 dark:text-rose-200"
+          class="p-4 rounded-2xl bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/80 space-y-3 text-rose-800 dark:text-rose-200"
         >
           <div class="flex items-center gap-2 font-black text-xs text-rose-700 dark:text-rose-300">
             <AlertCircle class="w-4 h-4" />
@@ -67,7 +67,32 @@
           <p class="text-xs leading-relaxed text-rose-900 dark:text-rose-100 bg-white/70 dark:bg-rose-950/60 p-3 rounded-xl border border-rose-200 dark:border-rose-900 font-medium">
             {{ application.rejectionReason || 'لم يتم تحديد سبب إضافي من قبل الإدارة.' }}
           </p>
-          <p class="text-[11px] text-rose-600 dark:text-rose-400">
+
+          <!-- في حالة رفض المستندات أو عدم وضوح البطاقة / المؤهل -->
+          <div
+            v-if="isDocRejection"
+            class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900 dark:text-amber-200"
+          >
+            <div class="space-y-0.5">
+              <div class="text-xs font-black flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
+                <FileEdit class="w-3.5 h-3.5" />
+                <span>إمكانية إعادة التقديم متاحة:</span>
+              </div>
+              <div class="text-[11px] text-amber-700 dark:text-amber-400">
+                يمكنك تعديل صورة البطاقة أو تقديم صورة المؤهل المطلوبة وإعادة إرسال طلبك فورياً للمراجعة.
+              </div>
+            </div>
+            <button
+              type="button"
+              class="h-8 px-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs shrink-0 active:scale-95"
+              @click="handleReapply"
+            >
+              <RefreshCw class="w-3.5 h-3.5" />
+              <span>{{ rejectionAction.label }}</span>
+            </button>
+          </div>
+
+          <p v-else class="text-[11px] text-rose-600 dark:text-rose-400">
             يمكنك التواصل مع إدارة شؤون الدارسين بالمعهد أو التقديم على دورة أخرى مطابقة لمؤهلك الدراسي.
           </p>
         </div>
@@ -272,6 +297,28 @@
         </button>
 
         <div class="flex items-center gap-2">
+          <!-- زر إعادة التقديم بعد تعديل البيانات إذا كان سبب الرفض مستندات -->
+          <button
+            v-if="(application.status === 'Rejected' || application.status === 'rejected_expired') && isDocRejection"
+            type="button"
+            class="h-9 px-4 rounded-xl bg-gradient-to-l from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white text-xs font-black transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-amber-700/20 active:scale-95"
+            @click="handleReapply"
+          >
+            <RefreshCw class="w-3.5 h-3.5" />
+            <span>{{ rejectionAction.label }}</span>
+          </button>
+
+          <!-- زر دورة بديلة لحالات الرفض الأخرى -->
+          <RouterLink
+            v-else-if="(application.status === 'Rejected' || application.status === 'rejected_expired') && !isDocRejection"
+            to="/trainee/courses"
+            class="h-9 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+            @click="$emit('close')"
+          >
+            <span>التقديم على دورة بديلة</span>
+            <ArrowLeft class="w-3.5 h-3.5" />
+          </RouterLink>
+
           <button
             v-if="application.status === 'Enrolled'"
             type="button"
@@ -311,12 +358,17 @@ import {
   Check,
   QrCode,
   Award,
+  RefreshCw,
+  FileEdit,
+  ArrowLeft,
 } from 'lucide-vue-next';
 import {
   getStatusConfig,
   formatDateDmy,
   formatTimeRange,
   getPaymentUrgency,
+  isDocumentRejection,
+  getRejectionActionConfig,
 } from '../../helpers/traineePortalHelpers';
 import { formatLectureDays, CATEGORY_CONFIG } from '../../helpers/availableCoursesHelpers';
 
@@ -335,12 +387,20 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['close', 'open-pass']);
+const emit = defineEmits(['close', 'open-pass', 'open-reapply']);
 
 function handleOpenPass() {
   emit('close');
   emit('open-pass', props.application);
 }
+
+function handleReapply() {
+  emit('close');
+  emit('open-reapply', props.application);
+}
+
+const isDocRejection = computed(() => isDocumentRejection(props.application));
+const rejectionAction = computed(() => getRejectionActionConfig(props.application));
 
 const statusConfig = (status) => getStatusConfig(status);
 
