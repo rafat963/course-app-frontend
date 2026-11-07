@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col p-1.5 sm:p-2 lg:p-2 gap-1.5 sm:gap-2 font-sans select-none transition-colors duration-200 overflow-hidden" dir="rtl">
+  <div class="h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col p-1.5 sm:p-2 lg:p-2 gap-1.5 sm:gap-2 font-sans select-none transition-colors duration-200 overflow-hidden relative" dir="rtl">
     <!-- 1. الهيدر العلوي كبسولة عائمة بنفس تصميم السايدبار -->
     <Header
       :is-collapsed="isCollapsed"
@@ -52,6 +52,7 @@ import Sidebar from './Sidebar.vue';
 import Breadcrumbs from './Breadcrumbs.vue';
 
 const route = useRoute();
+
 const isCollapsed = ref(false);
 const isMobileOpen = ref(false);
 const mainContentRef = ref(null);
@@ -79,22 +80,21 @@ function handleAfterEnter() {
 </script>
 
 <style>
-/* تأثير الانتقال السلس بين الصفحات (Page Fade & Elevation Transition) */
+/* تأثير الانتقال السريع والرشيق بين الصفحات (Fast & Snappy Page Fade) */
 .page-fade-enter-active {
-  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: opacity 0.14s ease-out,
+              transform 0.14s ease-out !important;
   will-change: opacity, transform;
 }
 
 .page-fade-leave-active {
-  transition: opacity 0.18s cubic-bezier(0.4, 0, 1, 1),
-              transform 0.18s cubic-bezier(0.4, 0, 1, 1) !important;
-  will-change: opacity, transform;
+  transition: opacity 0.08s ease-in !important;
+  will-change: opacity;
 }
 
 .page-fade-enter-from {
   opacity: 0 !important;
-  transform: translateY(12px) !important;
+  transform: translateY(4px) !important;
 }
 
 .page-fade-enter-to {
@@ -104,11 +104,9 @@ function handleAfterEnter() {
 
 .page-fade-leave-from {
   opacity: 1 !important;
-  transform: translateY(0) !important;
 }
 
 .page-fade-leave-to {
   opacity: 0 !important;
-  transform: translateY(-8px) !important;
 }
 </style>

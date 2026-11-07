@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import AppLayout from '@/shared/ui/Layout/AppLayout.vue';
 import { setupRouteGuards } from './guards';
+import { setupPrefetch, prefetchRoute } from './prefetch';
 import { useAuthStore } from '@/components/Auth/stores/authStore';
 
 // 1. Modular routes imports from feature modules
@@ -92,7 +93,9 @@ router.afterEach(() => {
   }
 });
 
-// Attach route guards
+// Attach route guards and intelligent route prefetcher
 setupRouteGuards(router);
+setupPrefetch(router);
 
+export { prefetchRoute };
 export default router;
